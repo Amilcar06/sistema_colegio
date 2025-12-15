@@ -1,0 +1,21 @@
+# OS Files
+.DS_Store
+Thumbs.db
+
+# IDEs
+.idea
+.vscode
+*.iml
+*.iws
+*.ipr
+
+# Logs
+*.log
+
+# Temp
+tmp/
+temp/
+
+# Build artifacts (just in case)
+build/
+target/
