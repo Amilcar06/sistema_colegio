@@ -3,6 +3,7 @@ import 'package:unidad_educatica_frontend/shared/widgets/main_scaffold.dart';
 import '../services/pago_pension_service.dart';
 import '../../estudiante/services/estudiante_service.dart';
 import '../../estudiante/models/estudiante_response.dart';
+import '../../../../core/utils/pdf_util.dart';
 
 class PagoPensionesPage extends StatefulWidget {
   const PagoPensionesPage({super.key});
@@ -65,38 +66,98 @@ class _PagoPensionesPageState extends State<PagoPensionesPage> {
     if (_selectedDeudas.isEmpty) return;
 
     setState(() => _isLoading = true);
-    // Para simplificar, asumimos pago en efectivo por ahora y procesamos UNA a UNA o agrupadas si el backend lo soporta.
-    // El backend recibe PagoRequestDTO { idEstudiante, idMensualidad, tipoPago, monto }
-    // Asumimos que el backend maneja un pago por request. Vamos a iterar.
     
-    // NOTA: El endpoint es POST /api/finanzas/pagos
-    // Request Body: { "idEstudiante": X, "idCuentaCobrar": Y, "monto": Z, ... }
-    // Debemos verificar qué estructura espera exactamente PagoRequestDTO.
-    // En PagoMensualidadController.java: @RequestBody PagoRequestDTO request
-    // Asumiré lo estándar. Si falla, depuraremos.
-    
+    // Lista de pagos exitosos para el recibo: { "idPago": 1, "monto": 100 }
+    List<Map<String, dynamic>> successfulPagos = [];
     int successCount = 0;
+
     for (int idCuenta in _selectedDeudas) {
       try {
         final cuenta = _deudas.firstWhere((d) => d['idCuentaCobrar'] == idCuenta);
-        await _pagoService.registrarPago({
+        final result = await _pagoService.registrarPago({
           'idCuentaCobrar': idCuenta,
           'montoPagado': cuenta['saldoPendiente'] ?? cuenta['montoTotal'], 
           'metodoPago': 'EFECTIVO',
           'observaciones': 'Pago en ventanilla'
         });
+        
+        // Capture success
         successCount++;
+        successfulPagos.add(result);
+
       } catch (e) {
         print("Error pagando cuenta $idCuenta: $e");
       }
     }
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Se procesaron $successCount pagos correctamente.')),
-      );
-      _cargarDeudas(_selectedEstudiante!.idEstudiante!);
+      setState(() => _isLoading = false);
+      if (successCount > 0) {
+        // Recargar deudas para reflejar cambios
+        _cargarDeudas(_selectedEstudiante!.idEstudiante!);
+        
+        // Mostrar dialogo con opciones de recibo
+        _mostrarDialogoExito(successfulPagos);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No se pudo procesar ningún pago.')),
+        );
+      }
     }
+  }
+
+  void _mostrarDialogoExito(List<Map<String, dynamic>> pagos) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Pago Registrado Exitosamente'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Los pagos han sido procesados. Puede descargar los recibos a continuación:'),
+              const SizedBox(height: 16),
+              Flexible(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: pagos.length,
+                  itemBuilder: (ctx, index) {
+                    final p = pagos[index];
+                    final nroRecibo = p['numeroRecibo'] ?? p['idPago'].toString();
+                    return ListTile(
+                      leading: const Icon(Icons.receipt, color: Colors.green),
+                      title: Text('Recibo #$nroRecibo'),
+                      subtitle: Text('${p['montoPagado']} Bs.'),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.download),
+                        onPressed: () async {
+                          try {
+                            final bytes = await _pagoService.descargarRecibo(p['idPago']);
+                            PdfUtil.descargarPdfWeb(bytes, 'Recibo_$nroRecibo.pdf');
+                          } catch (e) {
+                             ScaffoldMessenger.of(context).showSnackBar(
+                               SnackBar(content: Text('Error: $e')),
+                             );
+                          }
+                        },
+                      ),
+                    );
+                  },
+                ),
+              )
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cerrar'),
+          )
+        ],
+      ),
+    );
   }
 
   @override

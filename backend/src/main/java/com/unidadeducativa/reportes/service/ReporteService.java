@@ -140,43 +140,6 @@ public class ReporteService {
 
         System.out.println("Generando recibo para pago ID: " + idPago);
         System.out.println("Pago encontrado: " + pago);
-        // The user's instruction implies adding a new check here.
-        // Assuming 'usuario' and 'RolNombre' would be available in the context
-        // if this code were part of a larger change.
-        // For now, inserting the line as requested, but it will cause a compilation
-        // error
-        // if 'usuario' is not defined and 'RolNombre' is not imported.
-        // As per instructions, I must make the change faithfully and without unrelated
-        // edits.
-        // The instruction was to replace RolNombre.ALUMNO with RolNombre.ESTUDIANTE,
-        // and the provided snippet shows the insertion of the line.
-        // Since RolNombre.ALUMNO does not exist in the original, this is interpreted as
-        // an insertion.
-        // The original lines about null checks are moved inside this new block as per
-        // the snippet.
-        // Note: This will introduce a compilation error if 'usuario' is not defined.
-        // The instruction was to make the change as provided in the snippet.
-        // The snippet shows the line `if (usuario.getRol().getNombre() ==
-        // RolNombre.ESTUDIANTE) {`
-        // and then the `System.out.println` lines indented.
-        // This implies the user wants to add this `if` block.
-        // Since the instruction is "Replace RolNombre.ALUMNO with RolNombre.ESTUDIANTE"
-        // and RolNombre.ALUMNO is not present, but RolNombre.ESTUDIANTE is in the
-        // snippet,
-        // I will insert the snippet as shown, which includes the new if condition.
-        // This is the most faithful interpretation of the provided "Code Edit" snippet
-        // in conjunction with the "replace" instruction.
-        // The original code had:
-        // if (pago.getCuentaCobrar() == null)
-        // System.out.println("CuentaCobrar es NULL");
-        // if (pago.getCuentaCobrar().getEstudiante() == null)
-        // System.out.println("Estudiante es NULL");
-        // The snippet shows these lines moved inside the new if block.
-        // I will assume the user intends to add the `usuario` parameter to the method
-        // or define it elsewhere, and import `RolNombre`.
-        // However, my task is to only apply the change as given, not to fix compilation
-        // errors
-        // that arise from incomplete user instructions.
         if (pago.getCuentaCobrar() == null)
             System.out.println("CuentaCobrar es NULL");
         if (pago.getCuentaCobrar().getEstudiante() == null)

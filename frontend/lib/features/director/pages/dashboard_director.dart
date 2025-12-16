@@ -4,8 +4,44 @@ import '../../../state/auth_provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../shared/widgets/side_menu.dart';
 
-class DashboardDirector extends StatelessWidget {
+import '../services/dashboard_service.dart';
+
+class DashboardDirector extends StatefulWidget {
   const DashboardDirector({super.key});
+
+  @override
+  State<DashboardDirector> createState() => _DashboardDirectorState();
+}
+
+class _DashboardDirectorState extends State<DashboardDirector> {
+  final DashboardService _dashboardService = DashboardService();
+  Map<String, dynamic> _stats = {
+    'totalEstudiantes': 0,
+    'totalProfesores': 0,
+    'ingresosHoy': 0,
+  };
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStats();
+  }
+
+  Future<void> _loadStats() async {
+    try {
+      final data = await _dashboardService.getStats();
+      if (mounted) {
+        setState(() {
+          _stats = data;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error loading stats: $e');
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +72,45 @@ class DashboardDirector extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
+            
+            // KPI Cards
+            if (_isLoading)
+              const Center(child: CircularProgressIndicator())
+            else
+              Row(
+                children: [
+                  Expanded(child: _StatCard(
+                    title: 'Estudiantes',
+                    value: _stats['totalEstudiantes'].toString(),
+                    icon: Icons.people,
+                    color: Colors.blue,
+                  )),
+                  const SizedBox(width: 10),
+                  Expanded(child: _StatCard(
+                    title: 'Profesores',
+                    value: _stats['totalProfesores'].toString(),
+                    icon: Icons.school,
+                    color: Colors.orange,
+                  )),
+                ],
+              ),
+            const SizedBox(height: 10),
+            if (!_isLoading)
+               Row(
+                children: [
+                  Expanded(child: _StatCard(
+                    title: 'Ingresos Hoy',
+                    value: 'Bs ${_stats['ingresosHoy']}',
+                    icon: Icons.monetization_on,
+                    color: Colors.green,
+                  )),
+                ],
+              ),
+
+            const SizedBox(height: 20),
+            const Divider(),
+            const SizedBox(height: 10),
+
             GridView.count(
               crossAxisCount: 2,
               shrinkWrap: true,
@@ -116,6 +191,34 @@ class DashboardDirector extends StatelessWidget {
                 ),
               ],
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StatCard extends StatelessWidget {
+  final String title;
+  final String value;
+  final IconData icon;
+  final Color color;
+
+  const _StatCard({required this.title, required this.value, required this.icon, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 4,
+      color: color.withOpacity(0.1),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+             Icon(icon, size: 30, color: color),
+             const SizedBox(height: 8),
+             Text(value, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: color)),
+             Text(title, style: const TextStyle(fontSize: 14)),
           ],
         ),
       ),

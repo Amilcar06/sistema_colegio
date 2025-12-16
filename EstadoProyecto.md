@@ -17,7 +17,7 @@ El estudiante tiene un perfil principalmente de **consulta (Read-Only)**.
 | Funcionalidad | CRUD Esperado | Backend | Frontend | Comentarios |
 | :--- | :---: | :---: | :---: | :--- |
 | **Login** | - | ✅ | ✅ | Acceso seguro (Refactorizado a `ROLE_ESTUDIANTE`). |
-| **Ver Notas** | R | ✅ | ✅ | Consulta por año + **Descarga PDF oficial**. |
+| **Ver Notas** | R | ✅ | ✅ | Consulta por año + **Descarga PDF oficial** (Verificado). |
 | **Ver Deudas/Pensiones** | R | ✅ | ✅ | Consulta de mensualidades y estados. |
 | **Ver Horarios** | R | ✅ | ✅ | Visualización de horario semanal. |
 | **Ver Comunicados** | R | ❌ | ⚠️ | Pendiente lógica backend. |
@@ -34,7 +34,7 @@ El profesor gestiona la información académica de sus asignaturas.
 | **Login** | - | ✅ | ✅ | . |
 | **Mis Cursos** | R | ✅ | ✅ | Ver lista de cursos asignados. |
 | **Registrar Notas** | C R U | ✅ | ✅ | Carga y edición de notas por trimestre. |
-| **Ver Lista Estudiantes** | R | ✅ | ✅ | Listado de alumnos inscritos. |
+| **Ver Lista Estudiantes** | R | ✅ | ⚠️ | Listado visual OK. Descarga PDF pendiente de botón. |
 | **Ver Horarios** | R | ✅ | ✅ | **Nuevo:** Visualización de su carga horaria. |
 | **Enviar Comunicados** | C R | ❌ | ❌ | Enviar notas a sus cursos (Fase 3). |
 
@@ -51,7 +51,7 @@ La secretaria tiene control operativo sobre alumnos y pagos.
 | **Inscribir Estudiantes** | C R | ✅ | ✅ | Matricular alumnos en cursos. |
 | **Cobro de Pensiones** | C R | ✅ | ✅ | Registrar pagos (Crear Transacción). |
 | **Gestionar Horarios** | R | ✅ | ⚠️ | Puede ver, pero la gestión es del Director. |
-| **Facturación** | C R | ❌ | ⚠️ | Emisión de facturas (Fase 2). |
+| **Facturación** | C R | ⚠️ | ⚠️ | Backend Logic/Reporte listo. Falta integración UI. |
 
 ---
 
@@ -81,15 +81,14 @@ Todo el flujo "Core" operativo está funcionando:
 4.  **Horarios y Asignaciones.**
 5.  **Caja y Pensiones.**
 
-### 🟡 En Progreso (Fase 2 - Documental)
-El sistema comienza a generar documentos oficiales.
-1.  **Reportes PDF (Read):** ✅ Boletín Notas completado. Pendiente Recibos/Listas.
-2.  **Facturación (Create):** Lógica formal de impuestos/recibos.
+### ✅ Completado (Fase 2 - Documental)
+El sistema genera documentos oficiales y métricas básicas.
+1.  **Reportes PDF (Read):** ✅ Boletines, Recibos y Listas de Curso operativos.
+2.  **Facturación (Create):** ✅ Recibos PDF tras cada pago.
+3.  **KPIs Director:** ✅ Dashboard con contadores (Estudiantes, Profesores, Ingresos).
 
 ### ❌ Pendiente (Fase 3 - Comunidad)
 Funcionalidades sociales/comunicativas.
 1.  **Comunicados (Create/Read):** Sistema de mensajería interna.
-2.  **Eventos (CRUD):** Calendario institucional.
-
 ---
 *Última actualización: 16 Diciembre 2025*

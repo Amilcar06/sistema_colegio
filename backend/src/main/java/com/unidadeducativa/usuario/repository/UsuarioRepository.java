@@ -17,4 +17,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     List<Usuario> findAllByUnidadEducativa_IdUnidadEducativa(Long idUnidadEducativa);
 
     boolean existsByCiAndUnidadEducativa_IdUnidadEducativa(String ci, Long idUnidadEducativa);
+
+    long countByRol_Nombre(com.unidadeducativa.shared.enums.RolNombre nombre);
 }

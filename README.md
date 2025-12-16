@@ -69,8 +69,8 @@ flutter run -d chrome
 ## 📊 Estado del Proyecto
 
 Para ver el detalle de funcionalidades implementadas y la hoja de ruta, consulta:
-*   [Estado del Proyecto](EstadoProyecto.md) - Semaforización de features.
-*   [Fases del Proyecto](FasesProyecto.md) - Planificación actual y futura.
+*   [Estado del Proyecto](EstadoProyecto.md) - Semaforización de features. (Fase 1 y 2 Completadas)
+*   [Fases del Proyecto](FasesProyecto.md) - Planificación actual y futura. (Fase 3 Pendiente)
 
 ---
 

@@ -40,7 +40,7 @@ class PagoPensionService {
   }
   // Descargar Recibo
   Future<Uint8List> descargarRecibo(int idPago) async {
-    final response = await dio.get(
+    final response = await _dio.get(
       '/reportes/recibo/$idPago',
       options: Options(responseType: ResponseType.bytes),
     );

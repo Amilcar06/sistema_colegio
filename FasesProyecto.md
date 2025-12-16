@@ -27,44 +27,48 @@ Este documento detalla la planificación estratégica para completar el sistema,
 ## 🚀 Fase 2: Administración y Reportes (Prioridad Media)
 **Objetivo:** Proveer herramientas formales para la administración y respaldo documental (PDFs). Transformar datos en documentos oficiales.
 
-**Estado Actual:** 🟡 **30% En Progreso**
+**Estado Actual:** ✅ **100% Completada** (Fase Cerrada).
 
 ### 1. Generación de Documentos (PDF)
 *   **Backend (JasperReports):**
-    *   ✅ **Boletín de Notas:** Plantilla `boletin_notas.jrxml` integrada, con cálculo dinámico de promedios.
+    *   ✅ **Boletín de Notas:** Completado. Incluye corrección de materias duplicadas y validación de deudas.
     *   ✅ **Endpoint Seguro:** Acceso restringido (`@PreAuthorize`) y descarga optimizada.
-    *   ⚪ **Recibo de Pago:** Pendiente validación final.
-    *   ⚪ **Lista de Curso:** Pendiente validación final.
+    *   ✅ **Recibo de Pago:** Implementado y verificado. Se descarga desde Historial o tras Pago.
+    *   ✅ **Lista de Curso:** Implementado. Profesores descargar desde su mis cursos.
 *   **Frontend:**
-    *   ✅ **Descarga Web:** Funcionalidad implementada en el Dashboard de Estudiante.
-    *   ⚪ **Vistas Administrativas:** Botones de descarga para Secretaria/Profesor pendientes.
+    *   ✅ **Descarga Web:** Funcionalidad implementada en todos los roles (Estudiante, Profesor, Secretaria).
+    *   ✅ **Vistas Administrativas:** Integración UI completada.
 
 ### 2. Facturación y Comprobantes
 *   **Backend:**
-    *   Historial de transacciones inmutable.
-    *   Numeración correlativa de recibos.
+    *   ✅ Historial de transacciones inmutable.
+    *   ✅ Numeración correlativa de recibos.
 *   **Frontend (Secretaria):**
-    *   Vista de historial de pagos (Buscador por fecha/alumno).
-    *   Opción de re-imprimir recibos.
+    *   ✅ Vista de historial de pagos (Buscador por fecha/alumno) con reimpresión.
+    *   ✅ Opción de re-imprimir recibos (PDF).
 
 ---
 
-## 📢 Fase 3: Comunicación y Comunidad (Prioridad Baja/Final)
-**Objetivo:** Mejorar la interacción entre los actores del sistema y optimizar la experiencia de usuario.
+## 📣 Fase 3: Comunicación y Comunidad (Prioridad Baja)
+**Objetivo:** Fomentar la interacción entre los actores de la comunidad educativa.
 
-**Estado Actual:** 🔴 **0% Iniciado**
+**Estado Actual:** 🟡 **En Progreso**
 
-### 1. Módulo de Comunicados
+### 1. Sistema de Comunicados (Noticias)
 *   **Backend:**
-    *   Entidad `Comunicado` (Título, Cuerpo, Fecha, Adjunto?).
-    *   Lógica de destinatarios: `GLOBAL` (todos), `POR_CURSO` (ej. solo 1ro A), `INDIVIDUAL` (solo un estudiante).
+    *   ⚠️ **Modelo de Datos:** Implementar entidad `Comunicado` (título, contenido, fecha, destinatarios).
+    *   ⚠️ **API Rest:** Endpoints para crear, listar y filtrar comunicados (General vs Por Curso).
 *   **Frontend:**
-    *   **Director:** Editor de texto enriquecido para crear noticias.
-    *   **Todos:** Bandeja de entrada de comunicados/noticias en el Dashboard.
+    *   ⚠️ **Director:** Vista para redactar y publicar comunicados generales.
+    *   ⚠️ **Profesor:** Vista para enviar comunicados a sus cursos asignados.
+    *   ⚠️ **Estudiante/Padres:** Bandeja de entrada de comunicados.
 
 ### 2. Agenda de Eventos
-*   **Backend:** Entidad `Evento` (Fecha, Título, Descripción).
-*   **Frontend:** Calendario interactivo en la pantalla de inicio mostrando feriados, exámenes, actividades cívicas.
+*   **Backend:**
+    *   ⚠️ **Modelo:** Entidad `Evento` (nombre, fecha, tipo, descripción).
+    *   ⚠️ **API:** CRUD de eventos.
+*   **Frontend:**
+    *   ⚠️ **Calendario/Lista:** Visualización de feriados, exámenes y actividades. la pantalla de inicio mostrando feriados, exámenes, actividades cívicas.
 
 ### 3. Optimizaciones UX
 *   **Dashboard:** Widgets con contadores reales (Total Alumnos, Pagos del día, etc.) en lugar de datos estáticos.
