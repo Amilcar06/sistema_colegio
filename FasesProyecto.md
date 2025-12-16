@@ -7,37 +7,37 @@ Este documento detalla la planificación estratégica para completar el sistema,
 ## 🏁 Fase 1: Cierre del Ciclo Académico (Prioridad Alta)
 **Objetivo:** Garantizar que el flujo principal de la institución funcione de principio a fin: Inscripción -> Asignación -> Avance -> Calificación -> Cobro.
 
-**Estado Actual:** 🟡 **90% Completada** (Faltan detalles críticos de Horarios).
+**Estado Actual:** � **100% Completada** (Fase Cerrada).
 
 ### ✅ Completado
 *   **Gestión de Usuarios:** Roles (Director, Secretaria, Profesor, Estudiante) funcionando.
 *   **Estructura Académica:** Cursos, Materias, Paralelos.
 *   **Inscripciones:** Registro funcional de estudiantes en cursos.
-*   **Calificaciones:** Profesores pueden registrar notas; Estudiantes pueden verlas.
+*   **Calificaciones:** Profesores pueden registrar notas; Estudiantes pueden ver las mismas.
 *   **Finanzas Básicas:** Generación de deudas y registro de pagos en efectivo.
+*   **Gestión de Horarios:**
+    *   Backend: Entidad `Horario` y validaciones implementadas.
+    *   Frontend: Director asigna horarios; Profesores y Estudiantes visualizan su agenda.
 
 ### 🔴 Pendiente Crítico (Para cerrar Fase 1)
-1.  **Gestión de Horarios (Horarios):**
-    *   **Backend:** Crear Entidad `Horario` (Día, Hora Inicio, Hora Fin, Aula) vinculada a `AsignacionDocente`.
-    *   **Backend:** Endpoint para verificar choques de horario (Validación).
-    *   **Frontend (Director):** Interfaz visual (Grid/Calendario) para asignar horarios a materias.
-    *   **Frontend (Est/Prof):** Vista de "Mi Horario" en el dashboard.
+*   *Ninguno. Fase cerrada exitosamente.*
 
 ---
 
 ## 🚀 Fase 2: Administración y Reportes (Prioridad Media)
 **Objetivo:** Proveer herramientas formales para la administración y respaldo documental (PDFs). Transformar datos en documentos oficiales.
 
-**Estado Actual:** 🔴 **0% Iniciado**
+**Estado Actual:** 🟡 **30% En Progreso**
 
 ### 1. Generación de Documentos (PDF)
-*   **Backend (JasperReports o iText):**
-    *   **Boletín de Notas:** Diseño de plantilla oficial. Endpoint para descargar PDF por estudiante/curso.
-    *   **Recibo de Pago:** Generación de comprobante tras un pago exitoso.
-    *   **Lista de Curso:** Reporte de estudiantes inscritos para impresión (para profesores).
+*   **Backend (JasperReports):**
+    *   ✅ **Boletín de Notas:** Plantilla `boletin_notas.jrxml` integrada, con cálculo dinámico de promedios.
+    *   ✅ **Endpoint Seguro:** Acceso restringido (`@PreAuthorize`) y descarga optimizada.
+    *   ⚪ **Recibo de Pago:** Pendiente validación final.
+    *   ⚪ **Lista de Curso:** Pendiente validación final.
 *   **Frontend:**
-    *   Botones de "Descargar PDF" en las vistas de Notas, Pagos y Listas.
-    *   Manejo de descargas/apertura de blobs en Flutter Web.
+    *   ✅ **Descarga Web:** Funcionalidad implementada en el Dashboard de Estudiante.
+    *   ⚪ **Vistas Administrativas:** Botones de descarga para Secretaria/Profesor pendientes.
 
 ### 2. Facturación y Comprobantes
 *   **Backend:**
@@ -57,7 +57,7 @@ Este documento detalla la planificación estratégica para completar el sistema,
 ### 1. Módulo de Comunicados
 *   **Backend:**
     *   Entidad `Comunicado` (Título, Cuerpo, Fecha, Adjunto?).
-    *   Lógica de destinatarios: `GLOBAL` (todos), `POR_CURSO` (ej. solo 1ro A), `INDIVIDUAL`.
+    *   Lógica de destinatarios: `GLOBAL` (todos), `POR_CURSO` (ej. solo 1ro A), `INDIVIDUAL` (solo un estudiante).
 *   **Frontend:**
     *   **Director:** Editor de texto enriquecido para crear noticias.
     *   **Todos:** Bandeja de entrada de comunicados/noticias en el Dashboard.
@@ -70,3 +70,14 @@ Este documento detalla la planificación estratégica para completar el sistema,
 *   **Dashboard:** Widgets con contadores reales (Total Alumnos, Pagos del día, etc.) en lugar de datos estáticos.
 *   **Perfil:** Permitir a usuarios cambiar su foto de perfil y contraseña.
 *   **Notificaciones:** Alertas visuales (Badge en campana) en Flutter.
+
+---
+
+## 🔄 Sincronización con Estado Actual
+
+Para una lista detallada de qué funcionalidades están operativas hoy, consulta **[EstadoProyecto.md](EstadoProyecto.md)**.
+
+*   **Fase 1 (Core):** Corresponde a las columnas marcadas con ✅ en `EstadoProyecto.md`.
+*   **Fase 2 (Documental):** Corresponde a las funcionalidades de **Reportes** y **Facturación** marcadas con ❌ o ⚠️.
+*   **Fase 3 (Comunidad):** Corresponde a **Comunicados** y **Eventos**.
+

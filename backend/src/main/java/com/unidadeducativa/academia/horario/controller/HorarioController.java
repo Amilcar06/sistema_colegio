@@ -29,7 +29,7 @@ public class HorarioController {
     }
 
     @Operation(summary = "Listar horarios de un curso")
-    @PreAuthorize("hasAnyRole('ROLE_DIRECTOR', 'ROLE_SECRETARIA', 'ROLE_ALUMNO', 'ROLE_PROFESOR')")
+    @PreAuthorize("hasAnyRole('ROLE_DIRECTOR', 'ROLE_SECRETARIA', 'ROLE_ESTUDIANTE', 'ROLE_PROFESOR')")
     @GetMapping("/curso/{idCurso}")
     public ResponseEntity<List<HorarioResponseDTO>> listarPorCurso(@PathVariable Long idCurso) {
         return ResponseEntity.ok(service.listarPorCurso(idCurso));

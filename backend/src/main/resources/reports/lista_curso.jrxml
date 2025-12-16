@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.20.0.final -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="ListaCurso"
+              pageWidth="595"
+              pageHeight="842"
+              columnWidth="555"
+              leftMargin="20"
+              rightMargin="20"
+              topMargin="20"
+              bottomMargin="20"
+              uuid="4c1d9d9a-8c4f-4c55-9e3b-9c4f6a4d8c11">
+
+    <property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+
+    <parameter name="titulo" class="java.lang.String"/>
+    <parameter name="nombreProfesor" class="java.lang.String"/>
+    <parameter name="curso" class="java.lang.String"/>
+
+    <queryString><![CDATA[]]></queryString>
+
+    <field name="nombreEstudiante" class="java.lang.String"/>
+    <field name="codigoRude" class="java.lang.String"/>
+    <field name="nroLista" class="java.lang.Integer"/>
+
+    <background>
+        <band splitType="Stretch"/>
+    </background>
+
+    <title>
+        <band height="79">
+            <textField>
+                <reportElement x="80" y="20" width="400" height="30"
+                               uuid="a1b2c3d4-e5f6-7890-1234-567890abcdef"/>
+                <textElement textAlignment="Center">
+                    <font size="18" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{titulo}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="0" y="50" width="555" height="20"
+                               uuid="a1b2c3d4-e5f6-7123-1234-567890abcdef"/>
+                <textElement textAlignment="Center">
+                    <font size="12"/>
+                </textElement>
+                <text><![CDATA[UNIDAD EDUCATIVA "AMILCAR YUJRA"]]></text>
+            </staticText>
+        </band>
+    </title>
+
+    <pageHeader>
+        <band height="60">
+            <staticText>
+                <reportElement x="0" y="10" width="80" height="20"
+                               uuid="b2c3d4e5-f678-9012-3456-7890abcdef12"/>
+                <textElement>
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Profesor:]]></text>
+            </staticText>
+
+            <textField>
+                <reportElement x="80" y="10" width="200" height="20"
+                               uuid="c3d4e5f6-7890-1234-5678-90abcdef1234"/>
+                <textFieldExpression><![CDATA[$P{nombreProfesor}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="300" y="10" width="50" height="20"
+                               uuid="d4e5f678-9012-3456-7890-abcdef123456"/>
+                <textElement>
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Curso:]]></text>
+            </staticText>
+
+            <textField>
+                <reportElement x="350" y="10" width="100" height="20"
+                               uuid="e5f67890-1234-5678-90ab-cdef12345678"/>
+                <textFieldExpression><![CDATA[$P{curso}]]></textFieldExpression>
+            </textField>
+        </band>
+    </pageHeader>
+
+    <columnHeader>
+        <band height="30">
+            <staticText>
+                <reportElement x="0" y="0" width="50" height="30"
+                               uuid="f6789012-3456-7890-abcd-ef1234567890"/>
+                <box>
+                    <bottomPen lineWidth="1.0"/>
+                </box>
+                <textElement verticalAlignment="Middle">
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Nro]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="50" y="0" width="300" height="30"
+                               uuid="f6789012-3456-7890-abcd-ef1234567899"/>
+                <box>
+                    <bottomPen lineWidth="1.0"/>
+                </box>
+                <textElement verticalAlignment="Middle">
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Apellidos y Nombres]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="350" y="0" width="150" height="30"
+                               uuid="67890123-4567-890a-bcde-f12345678901"/>
+                <box>
+                    <bottomPen lineWidth="1.0"/>
+                </box>
+                <textElement verticalAlignment="Middle">
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Rude]]></text>
+            </staticText>
+        </band>
+    </columnHeader>
+
+    <detail>
+        <band height="30">
+            <textField>
+                <reportElement x="0" y="0" width="50" height="30"
+                               uuid="89012345-6789-0abc-def1-234567890123"/>
+                <textElement verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{nroLista}]]></textFieldExpression>
+            </textField>
+
+            <textField>
+                <reportElement x="50" y="0" width="300" height="30"
+                               uuid="89012345-6789-0abc-def1-234567890199"/>
+                <textElement verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{nombreEstudiante}]]></textFieldExpression>
+            </textField>
+
+            <textField>
+                <reportElement x="350" y="0" width="150" height="30"
+                               uuid="90123456-7890-abcd-ef12-345678901234"/>
+                <textElement verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{codigoRude}]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+
+    <pageFooter>
+        <band height="54">
+            <textField>
+                <reportElement x="230" y="20" width="100" height="30"
+                               uuid="12345678-90ab-cdef-1234-567890123456"/>
+                <textElement textAlignment="Center"/>
+                <textFieldExpression><![CDATA["Página " + $V{PAGE_NUMBER}]]></textFieldExpression>
+            </textField>
+
+            <textField pattern="MMMMM dd, yyyy">
+                <reportElement x="0" y="20" width="100" height="30"
+                               uuid="12345678-90ab-cdef-1234-567890123457"/>
+                <textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+            </textField>
+        </band>
+    </pageFooter>
+
+</jasperReport>

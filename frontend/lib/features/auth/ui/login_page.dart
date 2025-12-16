@@ -57,7 +57,7 @@ class _LoginPageState extends State<LoginPage> {
         context.go('/dashboard-director');
       } else if (rolNormalizado == 'profesor') {
         context.go('/dashboard-profesor');
-      } else if (rolNormalizado == 'alumno' || rolNormalizado == 'estudiante') {
+      } else if (rolNormalizado == 'estudiante') {
         context.go('/dashboard-estudiante');
       } else if (rolNormalizado == 'secretaria') {
         context.go('/dashboard-secretaria');

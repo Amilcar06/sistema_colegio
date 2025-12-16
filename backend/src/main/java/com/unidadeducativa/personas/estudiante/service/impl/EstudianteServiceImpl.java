@@ -24,6 +24,8 @@ import java.time.Period;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.unidadeducativa.academia.inscripcion.repository.InscripcionRepository;
+
 @Service
 @RequiredArgsConstructor
 public class EstudianteServiceImpl implements IEstudianteService {
@@ -33,14 +35,29 @@ public class EstudianteServiceImpl implements IEstudianteService {
     private final EstudianteMapper estudianteMapper;
     private final RolRepository rolRepository;
     private final PasswordEncoder passwordEncoder;
+    private final InscripcionRepository inscripcionRepository;
 
     @Override
     public List<EstudianteResponseDTO> listarEstudiantes(Boolean estado) {
         List<Estudiante> estudiantes = (estado == null)
                 ? estudianteRepository.findAll()
                 : estudianteRepository.findByUsuarioEstado(estado);
-        return estudiantes.stream()
-                .map(estudianteMapper::toDTO)
+        return estudiantes.stream().map(estudianteMapper::toDTO).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<com.unidadeducativa.academia.gestion.dto.GestionResponseDTO> listarGestionesEstudiante(
+            Long idEstudiante) {
+        return inscripcionRepository.findByEstudianteIdEstudiante(idEstudiante).stream()
+                .map(inscripcion -> {
+                    var gestion = inscripcion.getGestion();
+                    return com.unidadeducativa.academia.gestion.dto.GestionResponseDTO.builder()
+                            .idGestion(gestion.getIdGestion())
+                            .anio(gestion.getAnio())
+                            .estado(gestion.getEstado())
+                            .build();
+                })
+                .distinct()
                 .collect(Collectors.toList());
     }
 
@@ -72,8 +89,8 @@ public class EstudianteServiceImpl implements IEstudianteService {
 
         validarEdad(dto.getFechaNacimiento());
 
-        Rol rol = rolRepository.findByNombre(RolNombre.ALUMNO)
-                .orElseThrow(() -> new NotFoundException("No se encontró el rol ALUMNO"));
+        Rol rol = rolRepository.findByNombre(RolNombre.ESTUDIANTE)
+                .orElseThrow(() -> new NotFoundException("No se encontró el rol ESTUDIANTE"));
 
         Usuario usuario = Usuario.builder()
                 .nombres(dto.getNombres())
@@ -134,7 +151,7 @@ public class EstudianteServiceImpl implements IEstudianteService {
         Usuario usuario = usuarioRepository.findByCorreo(correo)
                 .orElseThrow(() -> new NotFoundException("Usuario no encontrado"));
 
-        if (usuario.getRol().getNombre() != RolNombre.ALUMNO) {
+        if (usuario.getRol().getNombre() != RolNombre.ESTUDIANTE) {
             throw new IllegalArgumentException("El usuario no corresponde a un estudiante");
         }
 

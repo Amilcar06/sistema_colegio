@@ -34,13 +34,13 @@ final Map<String, List<Map<String, String>>> menuPorRol = {
     {'label': 'Notas', 'route': '/dashboard-profesor/notas'},
     {'label': 'Comunicados por Curso', 'route': '/dashboard-profesor/comunicados'},
   ],
-  'alumno': [
-    {'label': 'Mis Notas', 'route': '/dashboard-alumno/notas'},
-    {'label': 'Pagos', 'route': '/dashboard-alumno/pagos'},
-    {'label': 'Comprobantes', 'route': '/dashboard-alumno/comprobantes'},
-    {'label': 'Eventos', 'route': '/dashboard-alumno/eventos'},
-    {'label': 'Comunicados', 'route': '/dashboard-alumno/comunicados'},
-    {'label': 'Horarios', 'route': '/dashboard-alumno/horarios'},
+  'estudiante': [
+    {'label': 'Mis Notas', 'route': '/dashboard-estudiante/notas'},
+    {'label': 'Pagos', 'route': '/dashboard-estudiante/pagos'},
+    {'label': 'Comprobantes', 'route': '/dashboard-estudiante/comprobantes'},
+    {'label': 'Eventos', 'route': '/dashboard-estudiante/eventos'},
+    {'label': 'Comunicados', 'route': '/dashboard-estudiante/comunicados'},
+    {'label': 'Horarios', 'route': '/dashboard-estudiante/horarios'},
   ],
 };
 

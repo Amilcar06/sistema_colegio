@@ -4,6 +4,8 @@ import '../services/pago_pension_service.dart';
 import '../../estudiante/services/estudiante_service.dart';
 import '../../estudiante/models/estudiante_response.dart';
 import 'package:intl/intl.dart';
+import '../../../../core/utils/pdf_util.dart';
+
 
 class DashboardSecretariaComprobantesPage extends StatefulWidget {
   const DashboardSecretariaComprobantesPage({super.key});
@@ -135,10 +137,15 @@ class _DashboardSecretariaComprobantesPageState extends State<DashboardSecretari
                         ),
                         trailing: IconButton(
                           icon: const Icon(Icons.print),
-                          onPressed: () {
-                             ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Simulando impresión de recibo...')),
+                          onPressed: () async {
+                            try {
+                              final pdfData = await _pagoService.descargarRecibo(pago['idPago']);
+                              PdfUtil.descargarPdfWeb(pdfData, 'Recibo_${pago['numeroRecibo'] ?? pago['idPago']}.pdf');
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Error al descargar recibo: $e')),
                               );
+                            }
                           },
                         ),
                       ),

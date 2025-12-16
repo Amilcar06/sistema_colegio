@@ -35,14 +35,14 @@ public class PagoMensualidadController {
     }
 
     @Operation(summary = "Ver estado de cuenta del estudiante")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SECRETARIA', 'ROLE_ESTUDIANTE', 'ROLE_ALUMNO')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SECRETARIA', 'ROLE_ESTUDIANTE')")
     @GetMapping("/estudiante/{idEstudiante}")
     public ResponseEntity<List<CuentaCobrarResponseDTO>> listarDeudas(@PathVariable Long idEstudiante) {
         return ResponseEntity.ok(pagoService.listarDeudasEstudiante(idEstudiante));
     }
 
     @Operation(summary = "Ver historial de pagos de una cuenta")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SECRETARIA', 'ROLE_ESTUDIANTE', 'ROLE_ALUMNO')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SECRETARIA', 'ROLE_ESTUDIANTE')")
     @GetMapping("/cuenta/{idCuenta}")
     public ResponseEntity<List<PagoResponseDTO>> listarPagosPorCuenta(@PathVariable Long idCuenta) {
         return ResponseEntity.ok(pagoService.listarPagosPorCuenta(idCuenta));

@@ -25,7 +25,9 @@ public interface NotaRepository extends JpaRepository<Nota, Long> {
         i.id_estudiante,
         i.id_gestion,
         m.nombre AS materia,
+        m.id_materia,
         t.trimestre,
+        ad.id_asignacion,
         COALESCE(n.valor, 0) AS valor,
         CONCAT_WS(' ', u.nombres, u.apellido_paterno, u.apellido_materno) AS nombre_profesor
       FROM inscripcion i

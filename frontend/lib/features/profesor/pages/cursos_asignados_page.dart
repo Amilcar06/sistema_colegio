@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:unidad_educatica_frontend/shared/widgets/main_scaffold.dart';
 import '../services/profesor_service.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/utils/pdf_util.dart';
+
 
 class CursosAsignadosPage extends StatefulWidget {
   const CursosAsignadosPage({super.key});
@@ -44,11 +46,10 @@ class _CursosAsignadosPageState extends State<CursosAsignadosPage> {
               itemCount: _asignaciones.length,
               itemBuilder: (context, index) {
                 final item = _asignaciones[index];
-                // Estructura esperada: { "id": 1, "materia": {...}, "curso": {...}, "gestion": {...} }
-                final materia = item['materia']?['nombre'] ?? 'Sin materia';
-                final curso = item['curso']?['nombre'] ?? '';
-                final paralelo = item['curso']?['paralelo'] ?? '';
-                final gestion = item['gestion']?['anio']?.toString() ?? '';
+                // Estructura REAL: { "idAsignacion": 1, "nombreMateria": "...", "idCurso": 1, "nombreCurso": "...", "anioGestion": 2025 }
+                final materia = item['nombreMateria'] ?? 'Sin materia';
+                final curso = item['nombreCurso'] ?? 'Curso';
+                final gestion = item['anioGestion']?.toString() ?? '';
 
                 return Card(
                   elevation: 4,
@@ -63,7 +64,7 @@ class _CursosAsignadosPageState extends State<CursosAsignadosPage> {
                           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blueAccent),
                         ),
                         const SizedBox(height: 8),
-                        Text('Curso: $curso "$paralelo"', style: const TextStyle(fontSize: 16)),
+                        Text('Curso: $curso', style: const TextStyle(fontSize: 16)),
                         Text('Gestión: $gestion', style: const TextStyle(fontSize: 14, color: Colors.grey)),
                         const SizedBox(height: 16),
                         SizedBox(
@@ -72,9 +73,25 @@ class _CursosAsignadosPageState extends State<CursosAsignadosPage> {
                             icon: const Icon(Icons.grade),
                             label: const Text('Registrar Notas'),
                             onPressed: () {
-                              // Navegar a registro de notas
-                              // Necesitamos pasar el ID de la asignacion
                               context.push('/dashboard-profesor/notas/${item['idAsignacion']}');
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            icon: const Icon(Icons.download),
+                            label: const Text('Descargar Lista de Curso'),
+                            onPressed: () async {
+                              try {
+                                final pdfData = await _service.descargarListaCurso(item['idCurso']); 
+                                PdfUtil.descargarPdfWeb(pdfData, 'Lista_${curso}.pdf');
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Error al descargar lista: $e')),
+                                );
+                              }
                             },
                           ),
                         ),

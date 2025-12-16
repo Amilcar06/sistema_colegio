@@ -106,7 +106,7 @@ public class UsuarioController {
 
         @Operation(summary = "Obtener perfil del usuario autenticado", description = "Devuelve los datos del usuario que ha iniciado sesión con JWT.")
         @ApiResponse(responseCode = "200", description = "Datos del usuario autenticado obtenidos correctamente")
-        @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_DIRECTOR', 'ROLE_SECRETARIA', 'ROLE_PROFESOR', 'ROLE_ALUMNO')")
+        @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_DIRECTOR', 'ROLE_SECRETARIA', 'ROLE_PROFESOR', 'ROLE_ESTUDIANTE')")
         @GetMapping("/me")
         public ResponseEntity<UsuarioResponseDTO> obtenerUsuarioActual() {
                 return ResponseEntity.ok(usuarioService.obtenerUsuarioActual());
@@ -114,7 +114,7 @@ public class UsuarioController {
 
         @Operation(summary = "Actualizar perfil del usuario autenticado", description = "Permite al usuario autenticado modificar su propia información personal.")
         @ApiResponse(responseCode = "200", description = "Perfil actualizado correctamente")
-        @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_DIRECTOR', 'ROLE_SECRETARIA', 'ROLE_PROFESOR', 'ROLE_ALUMNO')")
+        @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_DIRECTOR', 'ROLE_SECRETARIA', 'ROLE_PROFESOR', 'ROLE_ESTUDIANTE')")
         @PutMapping("/me")
         public ResponseEntity<UsuarioResponseDTO> actualizarPerfil(
                         @Valid @RequestBody UsuarioUpdateDTO dto) {
@@ -123,7 +123,7 @@ public class UsuarioController {
 
         @Operation(summary = "Cambiar contraseña del usuario autenticado", description = "Permite al usuario autenticado cambiar su propia contraseña.")
         @ApiResponse(responseCode = "204", description = "Contraseña actualizada correctamente")
-        @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_DIRECTOR', 'ROLE_SECRETARIA', 'ROLE_PROFESOR', 'ROLE_ALUMNO')")
+        @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_DIRECTOR', 'ROLE_SECRETARIA', 'ROLE_PROFESOR', 'ROLE_ESTUDIANTE')")
         @PutMapping("/me/contrasena")
         public ResponseEntity<Void> cambiarPassword(
                         @Valid @RequestBody PasswordUpdateDTO dto) {

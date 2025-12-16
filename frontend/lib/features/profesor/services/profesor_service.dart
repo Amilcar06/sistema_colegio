@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+import 'package:dio/dio.dart';
 import '../../../core/api.dart';
 import '../models/profesor_registro_completo.dart';
 import '../models/profesor_response.dart';
@@ -58,5 +60,14 @@ class ProfesorService {
 
   Future<void> actualizarNota(int idNota, Map<String, dynamic> data) async {
     await dio.put('/notas/$idNota', data: data);
+  }
+
+  // Descargar Lista de Estudiantes
+  Future<Uint8List> descargarListaCurso(int idCurso) async {
+    final response = await dio.get(
+      '/reportes/curso/$idCurso',
+      options: Options(responseType: ResponseType.bytes),
+    );
+    return response.data;
   }
 }

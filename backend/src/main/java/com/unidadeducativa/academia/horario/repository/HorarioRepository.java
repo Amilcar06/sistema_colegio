@@ -12,7 +12,7 @@ public interface HorarioRepository extends JpaRepository<Horario, Long> {
     List<Horario> findByAsignacionDocenteIdAsignacion(Long idAsignacion);
 
     // Listar horarios de un curso entero (para validar choques o ver agenda del
-    // alumno)
+    // estudiante)
     @Query("SELECT h FROM Horario h WHERE h.asignacionDocente.curso.idCurso = :idCurso ORDER BY h.diaSemana, h.horaInicio")
     List<Horario> findByCurso(@Param("idCurso") Long idCurso);
 

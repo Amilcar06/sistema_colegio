@@ -1,10 +1,11 @@
 import '../../../core/api.dart';
 
 class NotaService {
-  /// Obtener boletín de notas del estudiante por ID
-  Future<Map<String, dynamic>> obtenerBoletin(int idEstudiante) async {
+  /// Obtener boletín de notas del estudiante por ID (con opción de gestión)
+  Future<Map<String, dynamic>> obtenerBoletin(int idEstudiante, {int? idGestion}) async {
     try {
-      final response = await dio.get('/notas/boletin/$idEstudiante');
+      final query = idGestion != null ? {'gestion': idGestion} : null;
+      final response = await dio.get('/notas/boletin/$idEstudiante', queryParameters: query);
       return response.data;
     } catch (e) {
       throw Exception('Error al obtener boletín: $e');

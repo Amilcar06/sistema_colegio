@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+import 'package:dio/dio.dart';
 import 'package:unidad_educatica_frontend/core/api.dart';
 import '../models/estudiante_response.dart';
 import '../models/estudiante_registro_completo.dart';
@@ -49,5 +51,22 @@ class EstudianteService {
   /// Eliminar estudiante
   Future<void> eliminar(int idEstudiante) async {
     await dio.delete('/estudiantes/$idEstudiante');
+  }
+
+  /// Descargar Boletín de Notas (PDF)
+  Future<Uint8List> descargarBoletin(int idEstudiante, {int? idGestion}) async {
+    final query = idGestion != null ? {'gestion': idGestion} : null;
+    final response = await dio.get(
+      '/reportes/boletin/$idEstudiante',
+      queryParameters: query,
+      options: Options(responseType: ResponseType.bytes),
+    );
+    return response.data;
+  }
+
+  /// Listar gestiones donde el estudiante ha estado inscrito
+  Future<List<Map<String, dynamic>>> listarGestiones(int idEstudiante) async {
+    final response = await dio.get('/estudiantes/$idEstudiante/gestiones');
+    return (response.data as List).cast<Map<String, dynamic>>();
   }
 }

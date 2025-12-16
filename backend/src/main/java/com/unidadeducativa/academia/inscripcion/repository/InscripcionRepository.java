@@ -9,21 +9,24 @@ import java.util.Optional;
 
 public interface InscripcionRepository extends JpaRepository<Inscripcion, Long> {
 
-    List<Inscripcion> findByEstudianteIdEstudiante(Long idEstudiante);
+        List<Inscripcion> findByEstudianteIdEstudiante(Long idEstudiante);
 
-    List<Inscripcion> findByCursoIdCurso(Long idCurso);
+        List<Inscripcion> findByCursoIdCurso(Long idCurso);
 
-    List<Inscripcion> findByGestionIdGestion(Long idGestion);
+        List<Inscripcion> findByGestionIdGestion(Long idGestion);
 
-    List<Inscripcion> findByCursoIdCursoAndGestionIdGestion(Long idCurso, Long idGestion);
+        List<Inscripcion> findByCursoIdCursoAndGestionIdGestion(Long idCurso, Long idGestion);
 
-    Optional<Inscripcion> findByEstudianteAndGestionEstadoTrue(Estudiante estudiante);
+        Optional<Inscripcion> findByEstudianteAndGestionEstadoTrue(Estudiante estudiante);
 
-    // Este es el método que usa tu service:
-    // Este es el método que usa tu service:
-    boolean existsByEstudianteIdEstudianteAndCursoIdCursoAndGestionIdGestion(Long idEstudiante, Long idCurso,
-            Long idGestion);
+        // Este es el método que usa tu service:
+        // Este es el método que usa tu service:
+        boolean existsByEstudianteIdEstudianteAndCursoIdCursoAndGestionIdGestion(Long idEstudiante, Long idCurso,
+                        Long idGestion);
 
-    Optional<Inscripcion> findByEstudianteAndGestion(Estudiante estudiante,
-            com.unidadeducativa.academia.gestion.model.GestionAcademica gestion);
+        Optional<Inscripcion> findByEstudianteAndGestion(Estudiante estudiante,
+                        com.unidadeducativa.academia.gestion.model.GestionAcademica gestion);
+
+        List<Inscripcion> findByCursoIdCursoAndEstado(Long idCurso,
+                        com.unidadeducativa.shared.enums.EstadoInscripcion estado);
 }

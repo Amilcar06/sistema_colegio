@@ -15,8 +15,12 @@ public interface GradoMateriaRepository extends JpaRepository<GradoMateria, Long
 
     boolean existsByGradoAndMateriaAndGestion(Grado grado, Materia materia, GestionAcademica gestion);
 
+    List<GradoMateria> findByMateria_IdMateria(Long idMateria);
+
     List<GradoMateria> findByGradoIdGrado(Long idGrado);
 
     @Query("SELECT gm.materia FROM GradoMateria gm WHERE gm.grado.idGrado = :idGrado")
     List<Materia> findMateriasByGrado_IdGrado(@Param("idGrado") Long idGrado);
+
+    List<GradoMateria> findByGradoAndGestion(Grado grado, GestionAcademica gestion);
 }

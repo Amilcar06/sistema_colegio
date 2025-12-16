@@ -16,7 +16,7 @@ public class Materia {
     @Column(name = "id_materia")
     private Long idMateria;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false, length = 100, unique = true)
     private String nombre;
 
     @ManyToOne(fetch = FetchType.LAZY)

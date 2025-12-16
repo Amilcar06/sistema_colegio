@@ -104,16 +104,41 @@ public class NotaServiceImpl implements INotaService {
 
         @Override
         @Transactional(readOnly = true)
-        public NotaBoletinDTO obtenerBoletin(Long idEstudiante) {
+        public NotaBoletinDTO obtenerBoletin(Long idEstudiante, Long idGestion) {
                 Estudiante estudiante = estudianteRepository.findById(idEstudiante)
                                 .orElseThrow(() -> new EntityNotFoundException("Estudiante no encontrado"));
 
-                var inscripcion = inscripcionRepository.findByEstudianteAndGestionEstadoTrue(estudiante)
-                                .orElseThrow(() -> new EntityNotFoundException("Inscripción activa no encontrada"));
+                Long gestionUsada = idGestion;
+                String gestionNombre = "";
+                String cursoNombre = "";
 
-                Long idGestion = inscripcion.getGestion().getIdGestion();
+                if (gestionUsada == null) {
+                        var inscripcion = inscripcionRepository.findByEstudianteAndGestionEstadoTrue(estudiante)
+                                        .orElseThrow(() -> new EntityNotFoundException(
+                                                        "Inscripción activa no encontrada"));
+                        gestionUsada = inscripcion.getGestion().getIdGestion();
+                        gestionNombre = inscripcion.getGestion().getAnio().toString();
+                        cursoNombre = inscripcion.getCurso().getGrado().getNombre() + " "
+                                        + inscripcion.getCurso().getParalelo();
+                } else {
+                        // Si se pasa gestion, buscar la inscripcion de esa gestion para sacar datos del
+                        // curso
+                        // Ojo: podria no estar inscrito en esa gestion, validamos
+                        var inscripcion = inscripcionRepository.findByEstudianteIdEstudiante(idEstudiante).stream()
+                                        .filter(i -> i.getGestion().getIdGestion().equals(idGestion))
+                                        .findFirst()
+                                        .orElseThrow(() -> new EntityNotFoundException(
+                                                        "No se encontró inscripción para la gestión solicitada"));
 
-                List<Map<String, Object>> rows = notaRepository.obtenerBoletinCompletoRaw(idEstudiante, idGestion);
+                        gestionNombre = inscripcion.getGestion().getAnio().toString();
+                        cursoNombre = inscripcion.getCurso().getGrado().getNombre() + " "
+                                        + inscripcion.getCurso().getParalelo();
+                        // Nota: idGestion es el parametro 'gestionUsada' (pero necesitamos el de la
+                        // lambda, que es el mismo)
+                        // y gestionUsada ya tiene valor.
+                }
+
+                List<Map<String, Object>> rows = notaRepository.obtenerBoletinCompletoRaw(idEstudiante, gestionUsada);
 
                 List<NotaTrimestreDTO> detalle = rows.stream()
                                 .map(row -> NotaTrimestreDTO.builder()
@@ -126,15 +151,11 @@ public class NotaServiceImpl implements INotaService {
                                                 .build())
                                 .collect(Collectors.toList());
 
-                String curso = inscripcion.getCurso().getGrado().getNombre() + " "
-                                + inscripcion.getCurso().getParalelo();
-                String gestion = inscripcion.getGestion().getAnio().toString();
-
                 return NotaBoletinDTO.builder()
                                 .idEstudiante(estudiante.getIdEstudiante())
                                 .nombreEstudiante(estudiante.getUsuario().getNombreCompleto())
-                                .curso(curso)
-                                .gestion(gestion)
+                                .curso(cursoNombre)
+                                .gestion(gestionNombre)
                                 .notas(detalle)
                                 .build();
         }

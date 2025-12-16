@@ -45,7 +45,7 @@ final Map<String, List<MenuItem>> menuPorRol = {
     MenuItem('Notas', Icons.grade, '/dashboard-profesor/cursos'),
     MenuItem('Comunicados por Curso', Icons.record_voice_over, '/dashboard-profesor/comunicados'),
   ],
-  'alumno': [
+  'estudiante': [
     MenuItem('Dashboard', Icons.dashboard, '/dashboard-estudiante'),
     MenuItem('Mis Notas', Icons.grade, '/dashboard-estudiante/notas'),
     MenuItem('Pagos', Icons.payments, '/dashboard-estudiante/pagos'),

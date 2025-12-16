@@ -1,4 +1,7 @@
 import 'package:dio/dio.dart';
+import 'dart:typed_data';
+import '../../../../core/api.dart';
+import '../../../../core/api.dart';
 import 'package:unidad_educatica_frontend/core/api_config.dart';
 import 'package:unidad_educatica_frontend/core/services/auth_service.dart';
 
@@ -33,6 +36,14 @@ class PagoPensionService {
     final response = await _dio.get('/api/finanzas/pagos', queryParameters: {
       if (idEstudiante != null) 'idEstudiante': idEstudiante,
     });
+    return response.data;
+  }
+  // Descargar Recibo
+  Future<Uint8List> descargarRecibo(int idPago) async {
+    final response = await dio.get(
+      '/reportes/recibo/$idPago',
+      options: Options(responseType: ResponseType.bytes),
+    );
     return response.data;
   }
 }

@@ -5,5 +5,5 @@ public enum RolNombre {
     DIRECTOR,
     SECRETARIA,
     PROFESOR,
-    ALUMNO
+    ESTUDIANTE
 }

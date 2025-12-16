@@ -22,7 +22,7 @@ public interface INotaService {
 
     List<NotaResponseDTO> obtenerNotasPorEstudianteYTrimestre(Long idEstudiante, Trimestre trimestre);
 
-    NotaBoletinDTO obtenerBoletin(Long idEstudiante);
+    NotaBoletinDTO obtenerBoletin(Long idEstudiante, Long idGestion);
 
     LibretaDigitalDTO obtenerLibreta(Long idAsignacion);
 }

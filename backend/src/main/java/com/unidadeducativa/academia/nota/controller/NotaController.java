@@ -58,7 +58,7 @@ public class NotaController {
     // -----------------------------------
     @Operation(summary = "Obtener notas por estudiante")
     @ApiResponse(responseCode = "200", description = "Notas obtenidas", content = @Content(array = @ArraySchema(schema = @Schema(implementation = NotaResponseDTO.class))))
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_PROFESOR', 'ROLE_SECRETARIA', 'ROLE_ESTUDIANTE', 'ROLE_ALUMNO')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_PROFESOR', 'ROLE_SECRETARIA', 'ROLE_ESTUDIANTE')")
     @GetMapping("/estudiante/{id}")
     public ResponseEntity<List<NotaResponseDTO>> obtenerNotasPorEstudiante(@PathVariable Long id) {
         return ResponseEntity.ok(notaService.obtenerNotasPorEstudiante(id));
@@ -69,7 +69,7 @@ public class NotaController {
     // -----------------------------------
     @Operation(summary = "Obtener notas por estudiante y trimestre")
     @ApiResponse(responseCode = "200", description = "Notas obtenidas", content = @Content(array = @ArraySchema(schema = @Schema(implementation = NotaResponseDTO.class))))
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_PROFESOR', 'ROLE_SECRETARIA', 'ROLE_ESTUDIANTE', 'ROLE_ALUMNO')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_PROFESOR', 'ROLE_SECRETARIA', 'ROLE_ESTUDIANTE')")
     @GetMapping("/estudiante/{id}/trimestre/{trimestre}")
     public ResponseEntity<List<NotaResponseDTO>> obtenerNotasPorEstudianteYTrimestre(
             @PathVariable Long id,
@@ -109,8 +109,10 @@ public class NotaController {
     @ApiResponse(responseCode = "200", description = "Boletín generado correctamente", content = @Content(schema = @Schema(implementation = NotaBoletinDTO.class)))
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ESTUDIANTE', 'ROLE_SECRETARIA')")
     @GetMapping("/boletin/{idEstudiante}")
-    public ResponseEntity<NotaBoletinDTO> obtenerBoletinPorEstudiante(@PathVariable Long idEstudiante) {
-        return ResponseEntity.ok(notaService.obtenerBoletin(idEstudiante));
+    public ResponseEntity<NotaBoletinDTO> obtenerBoletinPorEstudiante(
+            @PathVariable Long idEstudiante,
+            @RequestParam(required = false) Long gestion) {
+        return ResponseEntity.ok(notaService.obtenerBoletin(idEstudiante, gestion));
     }
 
     // -----------------------------------

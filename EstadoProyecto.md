@@ -1,93 +1,95 @@
 # 📊 Estado del Proyecto: Sistema "Unidad Educativa"
 
-Este documento detalla la funcionalidad esperada vs. el estado actual del sistema, desglosado por roles.
+Este documento detalla la funcionalidad esperada vs. el estado actual del sistema, desglosado por roles, incluyendo el alcance de las operaciones (CRUD).
 
 **Leyenda:**
 *   ✅ **Completado**: Funcionalidad implementada y verificable.
 *   ⚠️ **Parcial**: Implementado pero con limitaciones o bugs conocidos.
 *   ❌ **Pendiente**: No implementado o solo bocetado.
+*   **CRUD**: **C** (Crear), **R** (Leer), **U** (Actualizar), **D** (Eliminar).
 
 ---
 
 ## 👨‍🎓 Rol: Estudiante
 
-El estudiante debe poder consultar su información académica y financiera.
+El estudiante tiene un perfil principalmente de **consulta (Read-Only)**.
 
-| Funcionalidad | Backend | Frontend | Comentarios |
-| :--- | :---: | :---: | :--- |
-| **Login** | ✅ | ✅ | Acceso con correo y contraseña. |
-| **Ver Notas** | ✅ | ✅ | Consulta de notas por trimestre. (Recién corregido). |
-| **Ver Deudas/Pensiones** | ✅ | ✅ | Consulta de mensualidades pendientes. |
-| **Ver Horarios** | ❌ | ⚠️ | Frontend tiene placeholder, backend falta endpoints específicos. |
-| **Ver Comunicados** | ❌ | ⚠️ | Frontend tiene placeholder, backend falta lógica de destinatarios. |
-| **Ver Eventos** | ❌ | ⚠️ | Frontend tiene placeholder. |
-| **Descargar Boletín** | ⚠️ | ❌ | Backend genera datos, falta generación PDF. Frontend sin botón. |
+| Funcionalidad | CRUD Esperado | Backend | Frontend | Comentarios |
+| :--- | :---: | :---: | :---: | :--- |
+| **Login** | - | ✅ | ✅ | Acceso seguro (Refactorizado a `ROLE_ESTUDIANTE`). |
+| **Ver Notas** | R | ✅ | ✅ | Consulta por año + **Descarga PDF oficial**. |
+| **Ver Deudas/Pensiones** | R | ✅ | ✅ | Consulta de mensualidades y estados. |
+| **Ver Horarios** | R | ✅ | ✅ | Visualización de horario semanal. |
+| **Ver Comunicados** | R | ❌ | ⚠️ | Pendiente lógica backend. |
+| **Ver Eventos** | R | ❌ | ⚠️ | Pendiente lógica backend. |
 
 ---
 
 ## 👨‍🏫 Rol: Profesor
 
-El profesor debe gestionar sus clases y calificar a los estudiantes.
+El profesor gestiona la información académica de sus asignaturas.
 
-| Funcionalidad | Backend | Frontend | Comentarios |
-| :--- | :---: | :---: | :--- |
-| **Login** | ✅ | ✅ |  |
-| **Mis Cursos** | ✅ | ✅ | Lista cursos asignados (Ej. 1ro Sec - Matemáticas). |
-| **Registrar Notas** | ✅ | ✅ | Ingreso de notas por estudiante y trimestre. |
-| **Ver Lista Estudiantes** | ✅ | ✅ | Ve quiénes están inscritos en sus materias. |
-| **Ver Horarios** | ❌ | ⚠️ | Placeholder. |
-| **Enviar Comunicados** | ❌ | ❌ | No implementado. |
-| **Toma de Asistencia** | ❌ | ❌ | No implementado ni planificado en fase 1. |
+| Funcionalidad | CRUD Esperado | Backend | Frontend | Comentarios |
+| :--- | :---: | :---: | :---: | :--- |
+| **Login** | - | ✅ | ✅ | . |
+| **Mis Cursos** | R | ✅ | ✅ | Ver lista de cursos asignados. |
+| **Registrar Notas** | C R U | ✅ | ✅ | Carga y edición de notas por trimestre. |
+| **Ver Lista Estudiantes** | R | ✅ | ✅ | Listado de alumnos inscritos. |
+| **Ver Horarios** | R | ✅ | ✅ | **Nuevo:** Visualización de su carga horaria. |
+| **Enviar Comunicados** | C R | ❌ | ❌ | Enviar notas a sus cursos (Fase 3). |
 
 ---
 
 ## 👩‍💼 Rol: Secretaria
 
-La secretaria gestiona la operatividad diaria: inscripciones y cobros.
+La secretaria tiene control operativo sobre alumnos y pagos.
 
-| Funcionalidad | Backend | Frontend | Comentarios |
-| :--- | :---: | :---: | :--- |
-| **Login** | ✅ | ✅ |  |
-| **Gestionar Estudiantes** | ✅ | ✅ | CRUD Estudiantes. Lista recién implementada. |
-| **Inscribir Estudiantes** | ✅ | ✅ | Registro en cursos. (Recién corregido error 404). |
-| **Cobro de Pensiones** | ✅ | ✅ | Registro de pagos y cálculo de deuda. |
-| **Facturación** | ❌ | ⚠️ | Frontend tiene placeholder. Backend sin módulo de facturación. |
-| **Emitir Comprobantes** | ❌ | ⚠️ | Frontend tiene placeholder. |
+| Funcionalidad | CRUD Esperado | Backend | Frontend | Comentarios |
+| :--- | :---: | :---: | :---: | :--- |
+| **Login** | - | ✅ | ✅ | . |
+| **Gestionar Estudiantes** | C R U D | ✅ | ✅ | Gestión completa de legajos. |
+| **Inscribir Estudiantes** | C R | ✅ | ✅ | Matricular alumnos en cursos. |
+| **Cobro de Pensiones** | C R | ✅ | ✅ | Registrar pagos (Crear Transacción). |
+| **Gestionar Horarios** | R | ✅ | ⚠️ | Puede ver, pero la gestión es del Director. |
+| **Facturación** | C R | ❌ | ⚠️ | Emisión de facturas (Fase 2). |
 
 ---
 
 ## 👨‍💼 Rol: Director (Admin)
 
-El director tiene control total y gestiona la estructura de la institución.
+El director tiene control total (Full Access) sobre la configuración institucional.
 
-| Funcionalidad | Backend | Frontend | Comentarios |
-| :--- | :---: | :---: | :--- |
-| **Login** | ✅ | ✅ |  |
-| **Gestión Usuarios** | ✅ | ✅ | Crear/Editar Director, Secretaria, Prof, Est. |
-| **Gestión Académica** | ✅ | ✅ | Crear Cursos, Materias, Paralelos. |
-| **Asignación Docente** | ✅ | ✅ | Asignar materias a profesores. |
-| **Gestión Horarios** | ❌ | ⚠️ | Frontend tiene página, pero falta lógica backend. |
-| **Config. Pensiones** | ✅ | ✅ | Definir costos y tipos de pago. |
-| **Reportes/KPIs** | ❌ | ⚠️ | Dashboard principal es estático. Falta data real. |
-
----
-
-## 🛠️ Resumen Técnico
-
-### ✅ Lo que Funciona Bien
-1.  **Autenticación y Seguridad:** Roles y protección de rutas.
-2.  **Flujo Académico Básico:** Materias -> Cursos -> Inscripción -> Calificación.
-3.  **Flujo Financiero Básico:** Deuda -> Pago.
-4.  **Estructura del Proyecto:** Backend (Spring Boot) y Frontend (Flutter) bien organizados.
-
-### ⚠️ Áreas Críticas a Mejorar (Próximos Pasos)
-1.  **Horarios:** Es un hueco funcional importante para todos los roles.
-2.  **Comunicados:** Necesario para la interacción Institución-Comunidad.
-3.  **Reportes PDF:** Esencial para imprimir libretas y recibos.
-4.  **Validaciones de Negocio:**
-    *   Controlar cupos en cursos.
-    *   Validar choques de horarios.
-    *   Bloquear notas fuera de fecha.
+| Funcionalidad | CRUD Esperado | Backend | Frontend | Comentarios |
+| :--- | :---: | :---: | :---: | :--- |
+| **Login** | - | ✅ | ✅ | . |
+| **Gestión Usuarios** | C R U D | ✅ | ✅ | ABM Total de personal y alumnos. |
+| **Gestión Académica** | C R U D | ✅ | ✅ | Cursos, Materias, Paralelos, Gestión. |
+| **Asignación Docente** | C R U D | ✅ | ✅ | Asignar materias a profesores. |
+| **Gestión Horarios** | C R U D | ✅ | ✅ | **Nuevo:** Asignar días/horas a materias. |
+| **Config. Pensiones** | C R U D | ✅ | ✅ | Definir costos anuales. |
+| **Reportes/KPIs** | R | ❌ | ⚠️ | Dashboard estadístico (Fase 2/3). |
 
 ---
-*Última actualización: 15 Diciembre 2025*
+
+## 🛠️ Resumen Técnico & Próximos Pasos
+
+### ✅ Completado (Fase 1)
+Todo el flujo "Core" operativo está funcionando:
+1.  **Usuarios y Seguridad.**
+2.  **Inscripciones y Academia.**
+3.  **Calificaciones y Avance.**
+4.  **Horarios y Asignaciones.**
+5.  **Caja y Pensiones.**
+
+### 🟡 En Progreso (Fase 2 - Documental)
+El sistema comienza a generar documentos oficiales.
+1.  **Reportes PDF (Read):** ✅ Boletín Notas completado. Pendiente Recibos/Listas.
+2.  **Facturación (Create):** Lógica formal de impuestos/recibos.
+
+### ❌ Pendiente (Fase 3 - Comunidad)
+Funcionalidades sociales/comunicativas.
+1.  **Comunicados (Create/Read):** Sistema de mensajería interna.
+2.  **Eventos (CRUD):** Calendario institucional.
+
+---
+*Última actualización: 16 Diciembre 2025*

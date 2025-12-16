@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.20.0.final -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="ReciboPago"
+              pageWidth="595"
+              pageHeight="420"
+              orientation="Landscape"
+              columnWidth="555"
+              leftMargin="20"
+              rightMargin="20"
+              topMargin="20"
+              bottomMargin="20"
+              uuid="e3d20786-9819-4591-bd80-2a548232c4e1">
+
+    <property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+
+    <parameter name="nroRecibo" class="java.lang.String"/>
+    <parameter name="fecha" class="java.lang.String"/>
+    <parameter name="estudiante" class="java.lang.String"/>
+    <parameter name="rude" class="java.lang.String"/>
+    <parameter name="concepto" class="java.lang.String"/>
+    <parameter name="monto" class="java.lang.String"/>
+    <parameter name="cajero" class="java.lang.String"/>
+
+    <queryString>
+        <![CDATA[]]>
+    </queryString>
+
+    <background>
+        <band splitType="Stretch"/>
+    </background>
+
+    <title>
+        <band height="60">
+            <staticText>
+                <reportElement x="0" y="0" width="300" height="20"
+                               uuid="a1b2c3d4-e5f6-7123-1234-567890abcdef"/>
+                <textElement>
+                    <font size="14" isBold="true"/>
+                </textElement>
+                <text><![CDATA[UNIDAD EDUCATIVA "AMILCAR YUJRA"]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="350" y="0" width="100" height="20"
+                               uuid="a1b2c3d4-e5f6-7123-1234-567890abc999"/>
+                <textElement textAlignment="Right">
+                    <font size="12" isBold="true"/>
+                </textElement>
+                <text><![CDATA[RECIBO N°:]]></text>
+            </staticText>
+
+            <textField>
+                <reportElement x="460" y="0" width="90" height="20"
+                               forecolor="#FF0000"
+                               uuid="c3d4e5f6-7890-1234-5678-90abcdef1234"/>
+                <textElement textAlignment="Right">
+                    <font size="12" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{nroRecibo}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="0" y="30" width="555" height="1"
+                               uuid="a1b2c3d4-e5f6-7123-1234-567890abc888"/>
+                <box>
+                    <bottomPen lineWidth="1.0" lineStyle="Dashed"/>
+                </box>
+                <text><![CDATA[]]></text>
+            </staticText>
+        </band>
+    </title>
+
+    <detail>
+        <band height="180">
+
+            <staticText>
+                <reportElement x="0" y="10" width="100" height="20"
+                               uuid="b2c3d4e5-f678-9012-3456-7890abcdef12"/>
+                <textElement>
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Fecha de Pago:]]></text>
+            </staticText>
+
+            <textField>
+                <reportElement x="110" y="10" width="200" height="20"
+                               uuid="c3d4e5f6-7890-1234-5678-90abcdef1234"/>
+                <textFieldExpression><![CDATA[$P{fecha}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="0" y="40" width="100" height="20"
+                               uuid="b2c3d4e5-f678-9012-3456-7890abcdef13"/>
+                <textElement>
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Estudiante:]]></text>
+            </staticText>
+
+            <textField>
+                <reportElement x="110" y="40" width="250" height="20"
+                               uuid="c3d4e5f6-7890-1234-5678-90abcdef1235"/>
+                <textFieldExpression><![CDATA[$P{estudiante}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="370" y="40" width="50" height="20"
+                               uuid="b2c3d4e5-f678-9012-3456-7890abcdef14"/>
+                <textElement>
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Rude:]]></text>
+            </staticText>
+
+            <textField>
+                <reportElement x="420" y="40" width="130" height="20"
+                               uuid="c3d4e5f6-7890-1234-5678-90abcdef1236"/>
+                <textFieldExpression><![CDATA[$P{rude}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="0" y="70" width="100" height="20"
+                               uuid="b2c3d4e5-f678-9012-3456-7890abcdef15"/>
+                <textElement>
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Concepto:]]></text>
+            </staticText>
+
+            <textField>
+                <reportElement x="110" y="70" width="440" height="20"
+                               uuid="c3d4e5f6-7890-1234-5678-90abcdef1237"/>
+                <textFieldExpression><![CDATA[$P{concepto}]]></textFieldExpression>
+            </textField>
+
+            <!-- RECTÁNGULO CORREGIDO -->
+            <rectangle>
+                <reportElement x="0" y="100" width="555" height="30"
+                               backcolor="#E0E0E0"
+                               uuid="9f4a1e2c-7c5b-4d90-8c0a-6d9d9b6f3c21"/>
+                <graphicElement>
+                    <pen lineWidth="0.0"/>
+                </graphicElement>
+            </rectangle>
+
+            <staticText>
+                <reportElement x="10" y="105" width="100" height="20"
+                               uuid="b2c3d4e5-f678-9012-3456-7890abcdef16"/>
+                <textElement verticalAlignment="Middle">
+                    <font size="12" isBold="true"/>
+                </textElement>
+                <text><![CDATA[TOTAL PAGADO:]]></text>
+            </staticText>
+
+            <textField>
+                <reportElement x="120" y="105" width="200" height="20"
+                               uuid="c3d4e5f6-7890-1234-5678-90abcdef1238"/>
+                <textElement verticalAlignment="Middle">
+                    <font size="12" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{monto}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="0" y="150" width="60" height="20"
+                               uuid="b2c3d4e5-f678-9012-3456-7890abcdef17"/>
+                <textElement>
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Cajero:]]></text>
+            </staticText>
+
+            <textField>
+                <reportElement x="60" y="150" width="200" height="20"
+                               uuid="c3d4e5f6-7890-1234-5678-90abcdef1239"/>
+                <textFieldExpression><![CDATA[$P{cajero}]]></textFieldExpression>
+            </textField>
+
+        </band>
+    </detail>
+
+</jasperReport>

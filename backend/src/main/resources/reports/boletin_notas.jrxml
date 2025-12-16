@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.20.0.final -->
+<jasperReport 
+    xmlns="http://jasperreports.sourceforge.net/jasperreports" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" 
+    name="BoletinNotas" 
+    pageWidth="595" 
+    pageHeight="842" 
+    columnWidth="555" 
+    leftMargin="20" 
+    rightMargin="20" 
+    topMargin="20" 
+    bottomMargin="20" 
+    uuid="e3d20786-9819-4591-bd80-2a548232c4e1">
+
+    <property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+
+    <parameter name="titulo" class="java.lang.String"/>
+    <parameter name="nombreEstudiante" class="java.lang.String"/>
+    <parameter name="curso" class="java.lang.String"/>
+    <parameter name="gestion" class="java.lang.String"/>
+
+    <queryString><![CDATA[]]></queryString>
+
+    <field name="materia" class="java.lang.String"/>
+    <field name="nota1" class="java.lang.Double"/>
+    <field name="nota2" class="java.lang.Double"/>
+    <field name="nota3" class="java.lang.Double"/>
+    <field name="promedio" class="java.lang.Double"/>
+    <field name="observacion" class="java.lang.String"/>
+
+    <background>
+        <band splitType="Stretch"/>
+    </background>
+
+    <!-- ================= TITLE ================= -->
+    <title>
+        <band height="79">
+            <textField>
+                <reportElement x="80" y="20" width="400" height="30"/>
+                <textElement textAlignment="Center">
+                    <font size="18" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{titulo}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="0" y="50" width="555" height="20"/>
+                <textElement textAlignment="Center">
+                    <font size="12"/>
+                </textElement>
+                <text><![CDATA[UNIDAD EDUCATIVA "AMILCAR YUJRA"]]></text>
+            </staticText>
+        </band>
+    </title>
+
+    <!-- ================= PAGE HEADER ================= -->
+    <pageHeader>
+        <band height="60">
+
+            <staticText>
+                <reportElement x="0" y="10" width="80" height="20"/>
+                <textElement>
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Estudiante:]]></text>
+            </staticText>
+
+            <textField>
+                <reportElement x="80" y="10" width="200" height="20"/>
+                <textFieldExpression><![CDATA[$P{nombreEstudiante}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="300" y="10" width="50" height="20"/>
+                <textElement>
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Curso:]]></text>
+            </staticText>
+
+            <textField>
+                <reportElement x="350" y="10" width="100" height="20"/>
+                <textFieldExpression><![CDATA[$P{curso}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="460" y="10" width="50" height="20"/>
+                <textElement>
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Gestión:]]></text>
+            </staticText>
+
+            <textField>
+                <reportElement x="510" y="10" width="40" height="20"/>
+                <textFieldExpression><![CDATA[$P{gestion}]]></textFieldExpression>
+            </textField>
+
+        </band>
+    </pageHeader>
+
+    <!-- ================= COLUMN HEADER ================= -->
+    <columnHeader>
+        <band height="30">
+
+            <staticText>
+                <reportElement x="0" y="0" width="150" height="30"/>
+                <box><bottomPen lineWidth="1.0"/></box>
+                <textElement verticalAlignment="Middle">
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Materia]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="160" y="0" width="50" height="30"/>
+                <box><bottomPen lineWidth="1.0"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Trim 1]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="220" y="0" width="50" height="30"/>
+                <box><bottomPen lineWidth="1.0"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Trim 2]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="280" y="0" width="50" height="30"/>
+                <box><bottomPen lineWidth="1.0"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Trim 3]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="340" y="0" width="60" height="30"/>
+                <box><bottomPen lineWidth="1.0"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Promedio]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="410" y="0" width="140" height="30"/>
+                <box><bottomPen lineWidth="1.0"/></box>
+                <textElement verticalAlignment="Middle">
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Observación]]></text>
+            </staticText>
+
+        </band>
+    </columnHeader>
+
+    <!-- ================= DETAIL ================= -->
+    <detail>
+        <band height="30">
+
+            <textField>
+                <reportElement x="0" y="0" width="150" height="30"/>
+                <textElement verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{materia}]]></textFieldExpression>
+            </textField>
+
+            <textField>
+                <reportElement x="160" y="0" width="50" height="30"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{nota1} != null ? $F{nota1} : "-"]]></textFieldExpression>
+            </textField>
+
+            <textField>
+                <reportElement x="220" y="0" width="50" height="30"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{nota2} != null ? $F{nota2} : "-"]]></textFieldExpression>
+            </textField>
+
+            <textField>
+                <reportElement x="280" y="0" width="50" height="30"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{nota3} != null ? $F{nota3} : "-"]]></textFieldExpression>
+            </textField>
+
+            <textField>
+                <reportElement x="340" y="0" width="60" height="30"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{promedio} != null ? String.format("%.1f", $F{promedio}) : "-"]]></textFieldExpression>
+            </textField>
+
+            <textField>
+                <reportElement x="410" y="0" width="140" height="30"/>
+                <textElement verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{observacion}]]></textFieldExpression>
+            </textField>
+
+        </band>
+    </detail>
+
+    <!-- ================= FOOTER ================= -->
+    <pageFooter>
+        <band height="54">
+
+            <textField>
+                <reportElement x="230" y="20" width="100" height="30"/>
+                <textElement textAlignment="Center"/>
+                <textFieldExpression><![CDATA["Página " + $V{PAGE_NUMBER}]]></textFieldExpression>
+            </textField>
+
+            <textField pattern="MMMMM dd, yyyy">
+                <reportElement x="0" y="20" width="100" height="30"/>
+                <textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+            </textField>
+
+        </band>
+    </pageFooter>
+
+</jasperReport>
