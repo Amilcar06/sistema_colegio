@@ -23,10 +23,22 @@ class MateriaService {
     }
   }
 
+  Future<void> updateMateria(int id, String nombre) async {
+    try {
+      await _dio.put('/materias/$id', data: {'nombre': nombre});
+    } catch (e) {
+      throw Exception('Error al actualizar materia: $e');
+    }
+  }
+
   Future<void> eliminarMateria(int id) async {
     try {
       await _dio.delete('/materias/$id');
     } catch (e) {
+      if (e is DioException && e.response?.statusCode == 500) {
+         // Check for foreign key constraint violation message if possible
+         throw Exception('No se puede eliminar: Materia en uso.');
+      }
       throw Exception('Error al eliminar materia: $e');
     }
   }

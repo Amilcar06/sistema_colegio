@@ -42,6 +42,15 @@ public class HorarioController {
         return ResponseEntity.ok(service.listarPorProfesor(idProfesor));
     }
 
+    @Operation(summary = "Actualizar horario")
+    @PreAuthorize("hasAnyRole('ROLE_DIRECTOR', 'ROLE_SECRETARIA')")
+    @PutMapping("/{id}")
+    public ResponseEntity<HorarioResponseDTO> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody HorarioRequestDTO dto) {
+        return ResponseEntity.ok(service.actualizar(id, dto));
+    }
+
     @Operation(summary = "Eliminar horario")
     @PreAuthorize("hasAnyRole('ROLE_DIRECTOR', 'ROLE_SECRETARIA')")
     @DeleteMapping("/{id}")

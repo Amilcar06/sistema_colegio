@@ -52,6 +52,18 @@ class CursoController extends ChangeNotifier {
     }
   }
 
+  Future<bool> updateCurso(int id, int idGrado, String paralelo, String turno) async {
+    try {
+      await _service.updateCurso(id, idGrado, paralelo, turno);
+      await cargarCursos();
+      return true;
+    } catch (e) {
+      errorMessage = e.toString();
+      notifyListeners();
+      return false;
+    }
+  }
+
   Future<void> eliminarCurso(int id) async {
     try {
       await _service.eliminarCurso(id);

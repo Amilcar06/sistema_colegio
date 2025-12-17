@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../features/auth/ui/login_page.dart';
@@ -25,6 +26,9 @@ import '../features/director/pages/dashboard_director_pagos_page.dart';
 import '../features/director/pages/dashboard_director_tipo_pension_page.dart';
 import '../features/director/pages/dashboard_director_notas_page.dart';
 import '../features/director/pages/dashboard_director_usuarios_page.dart';
+import '../features/director/pages/dashboard_director_gestiones_page.dart';
+import '../features/director/pages/dashboard_director_configuracion_page.dart';
+import '../features/director/pages/dashboard_director_paralelos_page.dart';
 
 // Secretaria Pages
 import '../features/secretaria/pages/dashboard_secretaria_estudiantes_page.dart';
@@ -94,6 +98,10 @@ final GoRouter appRouter = GoRouter(
       builder: (_, __) => const DashboardDirectorCursosPage(),
     ),
     GoRoute(
+      path: '/dashboard-director/paralelos',
+      builder: (_, __) => const DashboardDirectorParalelosPage(),
+    ),
+    GoRoute(
       path: '/dashboard-director/materias',
       builder: (_, __) => const DashboardDirectorMateriasPage(),
     ),
@@ -132,6 +140,14 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/dashboard-director/usuarios',
       builder: (_, __) => const DashboardDirectorUsuariosPage(),
+    ),
+    GoRoute(
+      path: '/dashboard-director/gestiones',
+      builder: (_, __) => const DashboardDirectorGestionesPage(),
+    ),
+    GoRoute(
+      path: '/dashboard-director/configuracion',
+      builder: (_, __) => const DashboardDirectorConfiguracionPage(),
     ),
     GoRoute(
       path: '/directores/profesores',

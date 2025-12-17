@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../shared/widgets/main_scaffold.dart';
 import '../controller/materia_controller.dart';
+import '../models/materia.dart';
 
 class DashboardDirectorMateriasPage extends StatelessWidget {
   const DashboardDirectorMateriasPage({super.key});
@@ -15,12 +16,25 @@ class DashboardDirectorMateriasPage extends StatelessWidget {
   }
 }
 
-class _MateriasView extends StatelessWidget {
+class _MateriasView extends StatefulWidget {
   const _MateriasView();
+
+  @override
+  State<_MateriasView> createState() => _MateriasViewState();
+}
+
+class _MateriasViewState extends State<_MateriasView> {
+  TextEditingController _searchCtrl = TextEditingController();
+  String _filter = '';
 
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<MateriaController>();
+    
+    // Filter logic
+    final materiasFiltradas = controller.materias.where((m) => 
+      m.nombre.toLowerCase().contains(_filter.toLowerCase())
+    ).toList();
 
     return MainScaffold(
       child: Column(
@@ -29,14 +43,24 @@ class _MateriasView extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Gestión de Materias',
-                    style: Theme.of(context).textTheme.headlineSmall),
+                Expanded(
+                  child: TextField(
+                    controller: _searchCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Buscar materia...',
+                      prefixIcon: Icon(Icons.search),
+                      border: OutlineInputBorder(),
+                    ),
+                    onChanged: (v) => setState(() => _filter = v),
+                  ),
+                ),
+                const SizedBox(width: 10),
                 ElevatedButton.icon(
-                  onPressed: () => _abrirDialogoCrear(context),
+                  onPressed: () => _abrirDialogoMateria(context),
                   icon: const Icon(Icons.add),
                   label: const Text('Nueva Materia'),
+                  style: ElevatedButton.styleFrom(padding: const EdgeInsets.all(16)),
                 ),
               ],
             ),
@@ -51,20 +75,29 @@ class _MateriasView extends StatelessWidget {
           else
             Expanded(
               child: ListView.builder(
-                itemCount: controller.materias.length,
+                padding: const EdgeInsets.all(16),
+                itemCount: materiasFiltradas.length,
                 itemBuilder: (context, index) {
-                  final materia = controller.materias[index];
+                  final materia = materiasFiltradas[index];
                   return Card(
-                    margin:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    margin: const EdgeInsets.only(bottom: 8),
                     child: ListTile(
                       leading: CircleAvatar(
-                        child: Text(materia.nombre.substring(0, 1).toUpperCase()),
+                        child: Text(materia.nombre.isNotEmpty ? materia.nombre.substring(0, 1).toUpperCase() : '?'),
                       ),
-                      title: Text(materia.nombre),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.grey),
-                        onPressed: () => controller.eliminarMateria(materia.idMateria),
+                      title: Text(materia.nombre, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit, color: Colors.blue),
+                            onPressed: () => _abrirDialogoMateria(context, materia: materia),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.redAccent),
+                            onPressed: () => _confirmarEliminar(context, controller, materia),
+                          ),
+                        ],
                       ),
                     ),
                   );
@@ -76,27 +109,55 @@ class _MateriasView extends StatelessWidget {
     );
   }
 
-  void _abrirDialogoCrear(BuildContext parentContext) {
+  void _confirmarEliminar(BuildContext context, MateriaController ctrl, Materia m) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Eliminar Materia'),
+        content: Text('¿Está seguro de eliminar "${m.nombre}"?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () {
+              Navigator.pop(context);
+              ctrl.eliminarMateria(m.idMateria);
+            },
+            child: const Text('Eliminar'),
+          )
+        ],
+      ),
+    );
+  }
+
+  void _abrirDialogoMateria(BuildContext parentContext, {Materia? materia}) {
     showDialog(
       context: parentContext,
       builder: (_) => ChangeNotifierProvider.value(
         value: parentContext.read<MateriaController>(),
-        child: const _CrearMateriaDialog(),
+        child: _MateriaDialog(materia: materia),
       ),
     );
   }
 }
 
-class _CrearMateriaDialog extends StatefulWidget {
-  const _CrearMateriaDialog();
+class _MateriaDialog extends StatefulWidget {
+  final Materia? materia;
+  const _MateriaDialog({this.materia});
 
   @override
-  State<_CrearMateriaDialog> createState() => _CrearMateriaDialogState();
+  State<_MateriaDialog> createState() => _MateriaDialogState();
 }
 
-class _CrearMateriaDialogState extends State<_CrearMateriaDialog> {
+class _MateriaDialogState extends State<_MateriaDialog> {
   final _formKey = GlobalKey<FormState>();
-  final _nombreController = TextEditingController();
+  late TextEditingController _nombreController;
+
+  @override
+  void initState() {
+    super.initState();
+    _nombreController = TextEditingController(text: widget.materia?.nombre ?? '');
+  }
 
   @override
   void dispose() {
@@ -107,9 +168,10 @@ class _CrearMateriaDialogState extends State<_CrearMateriaDialog> {
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<MateriaController>();
+    final isEditing = widget.materia != null;
 
     return AlertDialog(
-      title: const Text('Registrar Nueva Materia'),
+      title: Text(isEditing ? 'Editar Materia' : 'Registrar Nueva Materia'),
       content: Form(
         key: _formKey,
         child: TextFormField(
@@ -127,16 +189,22 @@ class _CrearMateriaDialogState extends State<_CrearMateriaDialog> {
         ElevatedButton(
           onPressed: () async {
             if (_formKey.currentState!.validate()) {
-              final exito = await controller.crearMateria(_nombreController.text);
+              bool exito;
+              if (isEditing) {
+                exito = await controller.updateMateria(widget.materia!.idMateria, _nombreController.text);
+              } else {
+                exito = await controller.crearMateria(_nombreController.text);
+              }
+              
               if (exito && mounted) {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Materia creada exitosamente')),
+                  SnackBar(content: Text(isEditing ? 'Materia actualizada' : 'Materia creada')),
                 );
               }
             }
           },
-          child: const Text('Guardar'),
+          child: Text(isEditing ? 'Actualizar' : 'Guardar'),
         ),
       ],
     );

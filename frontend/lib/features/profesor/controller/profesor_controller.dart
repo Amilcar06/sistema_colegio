@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
 import '../models/profesor_response.dart';
 import '../models/profesor_registro_completo.dart';
 import '../services/profesor_service.dart';
@@ -19,7 +20,7 @@ class ProfesorController with ChangeNotifier {
     try {
       profesores = await _service.listarProfesores();
     } catch (e) {
-      errorMessage = 'Error al cargar profesores: $e';
+      _handleError(e, 'Error al cargar profesores');
     } finally {
       cargando = false;
       notifyListeners();
@@ -34,7 +35,7 @@ class ProfesorController with ChangeNotifier {
       await cargarProfesores();
       return true;
     } catch (e) {
-      errorMessage = 'Error al registrar profesor: $e';
+      _handleError(e, 'Error al registrar profesor');
       return false;
     }
   }
@@ -47,7 +48,7 @@ class ProfesorController with ChangeNotifier {
       await cargarProfesores();
       return true;
     } catch (e) {
-      errorMessage = 'Error al eliminar profesor: $e';
+      _handleError(e, 'Error al eliminar profesor');
       notifyListeners();
       return false;
     }
@@ -76,7 +77,7 @@ class ProfesorController with ChangeNotifier {
       await cargarProfesores();
       return true;
     } catch (e) {
-      errorMessage = 'Error al actualizar profesor: $e';
+      _handleError(e, 'Error al actualizar profesor');
       notifyListeners();
       return false;
     }
@@ -91,7 +92,7 @@ class ProfesorController with ChangeNotifier {
       }
       await cargarProfesores();
     } catch (e) {
-      errorMessage = 'Error al cambiar estado: $e';
+      _handleError(e, 'Error al cambiar estado');
       notifyListeners();
     }
   }
@@ -131,4 +132,18 @@ class ProfesorController with ChangeNotifier {
     }
   }
 
+
+
+  void _handleError(Object e, String prefix) {
+    if (e is DioException) {
+      if (e.response != null && e.response!.data is Map) {
+        final data = e.response!.data as Map;
+        if (data.containsKey('error')) {
+          errorMessage = data['error'];
+          return;
+        }
+      }
+    }
+    errorMessage = '$prefix: $e';
+  }
 }

@@ -40,6 +40,18 @@ class MateriaController extends ChangeNotifier {
     }
   }
 
+  Future<bool> updateMateria(int id, String nombre) async {
+    try {
+      await _service.updateMateria(id, nombre);
+      await cargarMaterias();
+      return true;
+    } catch (e) {
+      errorMessage = e.toString();
+      notifyListeners();
+      return false;
+    }
+  }
+
   Future<void> eliminarMateria(int id) async {
     try {
       await _service.eliminarMateria(id);

@@ -39,6 +39,26 @@ public class HorarioService {
         return mapToDTO(horarioRepository.save(horario));
     }
 
+    @Transactional
+    public HorarioResponseDTO actualizar(Long id, HorarioRequestDTO dto) {
+        Horario horario = horarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Horario no encontrado"));
+
+        // Si cambia la asignación docente
+        if (!horario.getAsignacionDocente().getIdAsignacion().equals(dto.getIdAsignacion())) {
+            AsignacionDocente nuevaAsignacion = asignacionRepository.findById(dto.getIdAsignacion())
+                    .orElseThrow(() -> new RuntimeException("Asignación docente no encontrada"));
+            horario.setAsignacionDocente(nuevaAsignacion);
+        }
+
+        horario.setDiaSemana(dto.getDiaSemana());
+        horario.setHoraInicio(dto.getHoraInicio());
+        horario.setHoraFin(dto.getHoraFin());
+        horario.setAula(dto.getAula());
+
+        return mapToDTO(horarioRepository.save(horario));
+    }
+
     @Transactional(readOnly = true)
     public List<HorarioResponseDTO> listarPorCurso(Long idCurso) {
         return horarioRepository.findByCurso(idCurso).stream()

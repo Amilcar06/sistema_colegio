@@ -7,7 +7,7 @@ class DashboardDirectorPagosPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MainScaffold(
-      child: Center(child: Text('Página: Pagos')),
+      child: Center(child: Text('Reportes Económicos (En Desarrollo)')),
     );
   }
 }

@@ -33,4 +33,21 @@ public class EventoController {
     public ResponseEntity<List<EventoResponseDTO>> listarEventos() {
         return ResponseEntity.ok(eventoService.listarProximosEventos());
     }
+
+    @Operation(summary = "Actualizar evento")
+    @PreAuthorize("hasRole('ROLE_DIRECTOR')")
+    @PutMapping("/{id}")
+    public ResponseEntity<EventoResponseDTO> actualizarEvento(
+            @PathVariable Long id,
+            @Valid @RequestBody EventoRequestDTO request) {
+        return ResponseEntity.ok(eventoService.actualizarEvento(id, request));
+    }
+
+    @Operation(summary = "Eliminar evento")
+    @PreAuthorize("hasRole('ROLE_DIRECTOR')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminarEvento(@PathVariable Long id) {
+        eventoService.eliminarEvento(id);
+        return ResponseEntity.noContent().build();
+    }
 }

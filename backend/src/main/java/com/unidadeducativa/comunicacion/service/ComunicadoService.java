@@ -87,6 +87,27 @@ public class ComunicadoService {
                 .collect(Collectors.toList());
     }
 
+    public ComunicadoResponseDTO actualizarComunicado(Long id, ComunicadoRequestDTO request) {
+        Comunicado comunicado = comunicadoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Comunicado no encontrado con ID: " + id));
+
+        comunicado.setTitulo(request.getTitulo());
+        comunicado.setContenido(request.getContenido());
+        comunicado.setPrioridad(request.getPrioridad());
+        comunicado.setTipoDestinatario(request.getTipoDestinatario());
+        comunicado.setIdReferencia(request.getIdReferencia());
+
+        Comunicado actualizado = comunicadoRepository.save(comunicado);
+        return mapToDTO(actualizado);
+    }
+
+    public void eliminarComunicado(Long id) {
+        if (!comunicadoRepository.existsById(id)) {
+            throw new RuntimeException("Comunicado no encontrado con ID: " + id);
+        }
+        comunicadoRepository.deleteById(id);
+    }
+
     private ComunicadoResponseDTO mapToDTO(Comunicado c) {
         return ComunicadoResponseDTO.builder()
                 .idComunicado(c.getIdComunicado())

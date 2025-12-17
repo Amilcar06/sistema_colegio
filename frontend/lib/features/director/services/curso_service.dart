@@ -38,6 +38,18 @@ class CursoService {
     }
   }
 
+  Future<void> updateCurso(int id, int idGrado, String paralelo, String turno) async {
+    try {
+      await _dio.put('/cursos/$id', data: {
+        'idGrado': idGrado,
+        'paralelo': paralelo,
+        'turno': turno
+      });
+    } catch (e) {
+      throw Exception('Error al actualizar curso: $e');
+    }
+  }
+
   Future<void> eliminarCurso(int id) async {
     try {
       await _dio.delete('/cursos/$id');

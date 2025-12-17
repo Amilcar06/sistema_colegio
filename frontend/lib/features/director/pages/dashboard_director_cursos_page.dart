@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../shared/widgets/main_scaffold.dart';
 import '../controller/curso_controller.dart';
 import '../models/grado.dart';
+import '../models/curso.dart'; // Add this import
 
 class DashboardDirectorCursosPage extends StatelessWidget {
   const DashboardDirectorCursosPage({super.key});
@@ -16,12 +17,37 @@ class DashboardDirectorCursosPage extends StatelessWidget {
   }
 }
 
-class _CursosView extends StatelessWidget {
+class _CursosView extends StatefulWidget {
   const _CursosView();
+
+  @override
+  State<_CursosView> createState() => _CursosViewState();
+}
+
+class _CursosViewState extends State<_CursosView> {
+  TextEditingController _searchCtrl = TextEditingController();
+  String _filter = '';
 
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<CursoController>();
+    final cursosFiltrados = controller.cursos.where((c) {
+      final term = _filter.toLowerCase();
+      return c.nombreGrado.toLowerCase().contains(term) ||
+             c.paralelo.toLowerCase().contains(term) ||
+             c.turno.toLowerCase().contains(term);
+    }).toList();
+
+    // Agrupar por nombre de grado + nivel
+    final grouped = <String, List<Curso>>{};
+    for (var c in cursosFiltrados) {
+      final key = '${c.nombreGrado} - ${c.nivel}';
+      if (!grouped.containsKey(key)) grouped[key] = [];
+      grouped[key]!.add(c);
+    }
+    
+    // Ordenar llaves
+    final sortedKeys = grouped.keys.toList()..sort();
 
     return MainScaffold(
       child: Column(
@@ -30,14 +56,24 @@ class _CursosView extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Gestión de Cursos',
-                    style: Theme.of(context).textTheme.headlineSmall),
+                Expanded(
+                  child: TextField(
+                    controller: _searchCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Buscar curso...',
+                      prefixIcon: Icon(Icons.search),
+                      border: OutlineInputBorder(),
+                    ),
+                    onChanged: (v) => setState(() => _filter = v),
+                  ),
+                ),
+                const SizedBox(width: 10),
                 ElevatedButton.icon(
-                  onPressed: () => _abrirDialogoCrear(context),
+                  onPressed: () => _abrirDialogoCurso(context, controller),
                   icon: const Icon(Icons.add),
                   label: const Text('Nuevo Curso'),
+                  style: ElevatedButton.styleFrom(padding: const EdgeInsets.all(16)),
                 ),
               ],
             ),
@@ -45,31 +81,42 @@ class _CursosView extends StatelessWidget {
           if (controller.isLoading)
             const Expanded(child: Center(child: CircularProgressIndicator()))
           else if (controller.errorMessage != null)
-            Expanded(
-                child: Center(
-                    child: Text('Error: ${controller.errorMessage}',
-                        style: const TextStyle(color: Colors.red))))
+            Expanded(child: Center(child: Text('Error: ${controller.errorMessage}')))
           else
             Expanded(
               child: ListView.builder(
-                itemCount: controller.cursos.length,
+                padding: const EdgeInsets.all(16),
+                itemCount: sortedKeys.length,
                 itemBuilder: (context, index) {
-                  final curso = controller.cursos[index];
+                  final groupKey = sortedKeys[index];
+                  final cursosEnGrupo = grouped[groupKey]!;
+                  
                   return Card(
-                    margin:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        child: Text(curso.paralelo),
-                        backgroundColor: _getColorForTurno(curso.turno),
-                        foregroundColor: Colors.white,
-                      ),
-                      title: Text(curso.nombreGrado),
-                      subtitle: Text('${curso.nivel} - ${curso.turno}'),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.grey),
-                        onPressed: () => controller.eliminarCurso(curso.idCurso),
-                      ),
+                    margin: const EdgeInsets.only(bottom: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.withOpacity(0.1),
+                            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                          ),
+                          child: Text(
+                            groupKey, 
+                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Wrap(
+                            spacing: 12,
+                            runSpacing: 12,
+                            children: cursosEnGrupo.map((c) => _buildCursoChip(context, controller, c)).toList(),
+                          ),
+                        ),
+                      ],
                     ),
                   );
                 },
@@ -80,43 +127,70 @@ class _CursosView extends StatelessWidget {
     );
   }
 
+  Widget _buildCursoChip(BuildContext context, CursoController controller, Curso c) {
+    return InputChip(
+      avatar: CircleAvatar(
+        backgroundColor: Colors.white,
+        child: Text(c.paralelo[0], style: const TextStyle(fontWeight: FontWeight.bold)),
+      ),
+      label: Text('${c.paralelo} (${c.turno})'),
+      backgroundColor: _getColorForTurno(c.turno).withOpacity(0.2),
+      deleteIcon: const Icon(Icons.close, size: 18),
+      onDeleted: () => _confirmarEliminar(context, controller, c),
+      onPressed: () => _abrirDialogoCurso(context, controller, curso: c), // Editar
+    );
+  }
+
   Color _getColorForTurno(String turno) {
     switch (turno.toUpperCase()) {
-      case 'MANANA':
-        return Colors.orange;
-      case 'TARDE':
-        return Colors.blue;
-      case 'NOCHE':
-        return Colors.indigo;
-      default:
-        return Colors.grey;
+      case 'MANANA': case 'MAÑANA': return Colors.orange;
+      case 'TARDE': return Colors.blue;
+      case 'NOCHE': return Colors.indigo;
+      default: return Colors.grey;
     }
   }
 
-  void _abrirDialogoCrear(BuildContext parentContext) {
-    // Usamos parentContext.read porque el dialog se construye en otro ambito, 
-    // pero queremos acceder al controlador existente.
-    // Sin embargo, showDialog crea una nueva ruta. Lo mejor es pasar el controller o usar consumer dentro.
-    // O mejor aun, instanciar un widget Stateful que use el provider.
-    
+  void _confirmarEliminar(BuildContext context, CursoController ctrl, Curso c) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Eliminar Curso'),
+        content: Text('¿Eliminar ${c.nombreGrado} ${c.paralelo}?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () {
+              Navigator.pop(context);
+              ctrl.eliminarCurso(c.idCurso);
+            },
+            child: const Text('Eliminar'),
+          )
+        ],
+      ),
+    );
+  }
+
+  void _abrirDialogoCurso(BuildContext parentContext, CursoController controller, {Curso? curso}) {
     showDialog(
       context: parentContext,
       builder: (_) => ChangeNotifierProvider.value(
-        value: parentContext.read<CursoController>(),
-        child: const _CrearCursoDialog(),
+        value: controller,
+        child: _CursoDialog(curso: curso),
       ),
     );
   }
 }
 
-class _CrearCursoDialog extends StatefulWidget {
-  const _CrearCursoDialog();
+class _CursoDialog extends StatefulWidget {
+  final Curso? curso;
+  const _CursoDialog({this.curso});
 
   @override
-  State<_CrearCursoDialog> createState() => _CrearCursoDialogState();
+  State<_CursoDialog> createState() => _CursoDialogState();
 }
 
-class _CrearCursoDialogState extends State<_CrearCursoDialog> {
+class _CursoDialogState extends State<_CursoDialog> {
   final _formKey = GlobalKey<FormState>();
   
   Grado? _gradoSeleccionado;
@@ -127,18 +201,41 @@ class _CrearCursoDialogState extends State<_CrearCursoDialog> {
   final List<String> _turnos = ['MAÑANA', 'TARDE', 'NOCHE'];
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.curso != null) {
+      final c = widget.curso!;
+      // En modo edición, cargamos valores. 
+      // Nota: El grado debería venir del backend pre-seleccionado, pero aqui lo buscamos en el controller
+      // Esto requiere que el controller ya tenga la lista.
+      // Simplificación: Asumimos que podemos encontrarlo por ID o nombre.
+      _paralelo = c.paralelo;
+      _turno = c.turno == 'MANANA' ? 'MAÑANA' : c.turno;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final controller = context.watch<CursoController>();
+    
+    // Inicializar grado si es edición
+    if (widget.curso != null && _gradoSeleccionado == null && controller.grados.isNotEmpty) {
+      // Intentar encontrar el grado que coincida. El modelo Curso tiene idGrado?
+      // Revisando modelo Curso... probablemente tenga idCurso, pero no idGrado explicito a veces.
+      // Asumiremos que podemos matchear por nombreGrado.
+      try {
+        _gradoSeleccionado = controller.grados.firstWhere((g) => g.nombre == widget.curso!.nombreGrado);
+      } catch (_) {}
+    }
 
     return AlertDialog(
-      title: const Text('Registrar Nuevo Curso'),
+      title: Text(widget.curso == null ? 'Registrar Nuevo Curso' : 'Editar Curso'),
       content: SingleChildScrollView(
         child: Form(
           key: _formKey,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Dropdown Grados
               DropdownButtonFormField<Grado>(
                 decoration: const InputDecoration(labelText: 'Grado'),
                 value: _gradoSeleccionado,
@@ -148,13 +245,11 @@ class _CrearCursoDialogState extends State<_CrearCursoDialog> {
                     child: Text('${grado.nombre} (${grado.nivel})'),
                   );
                 }).toList(),
-                onChanged: (value) => setState(() => _gradoSeleccionado = value),
+                onChanged: widget.curso == null ? (value) => setState(() => _gradoSeleccionado = value) : null, // Deshabilitar cambio de grado en edición si se desea
+                 // O permitirlo.
                 validator: (value) => value == null ? 'Seleccione un grado' : null,
               ),
-
               const SizedBox(height: 16),
-
-              // Dropdown Paralelo
               DropdownButtonFormField<String>(
                 decoration: const InputDecoration(labelText: 'Paralelo'),
                 value: _paralelo,
@@ -162,10 +257,7 @@ class _CrearCursoDialogState extends State<_CrearCursoDialog> {
                 onChanged: (value) => setState(() => _paralelo = value),
                 validator: (value) => value == null ? 'Seleccione un paralelo' : null,
               ),
-
               const SizedBox(height: 16),
-              
-              // Dropdown Turno
               DropdownButtonFormField<String>(
                 decoration: const InputDecoration(labelText: 'Turno'),
                 value: _turno,
@@ -177,30 +269,20 @@ class _CrearCursoDialogState extends State<_CrearCursoDialog> {
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancelar'),
-        ),
+        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
         ElevatedButton(
           onPressed: () async {
             if (_formKey.currentState!.validate()) {
-              // Convertir turno a formato Enum si es necesario, o enviar string directo si el backend lo soporta
-              // El backend espera MANANA, TARDE, NOCHE sin ñ creo.
-              // Revisemos el DTO Enum Java: TipoTurno { MANANA, TARDE, NOCHE }
               String turnoEnvio = _turno == 'MAÑANA' ? 'MANANA' : _turno;
               
-              final exito = await controller.crearCurso(
-                _gradoSeleccionado!.idGrado,
-                _paralelo!,
-                turnoEnvio,
-              );
-              
-              if (exito && mounted) {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Curso creado exitosamente')),
-                );
+              bool exito;
+              if (widget.curso == null) {
+                exito = await controller.crearCurso(_gradoSeleccionado!.idGrado, _paralelo!, turnoEnvio);
+              } else {
+                exito = await controller.updateCurso(widget.curso!.idCurso, _gradoSeleccionado!.idGrado, _paralelo!, turnoEnvio);
               }
+              
+              if (exito && mounted) Navigator.pop(context);
             }
           },
           child: const Text('Guardar'),

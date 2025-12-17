@@ -42,4 +42,21 @@ public class ComunicadoController {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         return ResponseEntity.ok(comunicadoService.listarComunicados(usuario));
     }
+
+    @Operation(summary = "Actualizar comunicado")
+    @PreAuthorize("hasAnyRole('ROLE_DIRECTOR', 'ROLE_PROFESOR')")
+    @PutMapping("/{id}")
+    public ResponseEntity<ComunicadoResponseDTO> actualizarComunicado(
+            @PathVariable Long id,
+            @Valid @RequestBody ComunicadoRequestDTO request) {
+        return ResponseEntity.ok(comunicadoService.actualizarComunicado(id, request));
+    }
+
+    @Operation(summary = "Eliminar comunicado")
+    @PreAuthorize("hasAnyRole('ROLE_DIRECTOR', 'ROLE_PROFESOR')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminarComunicado(@PathVariable Long id) {
+        comunicadoService.eliminarComunicado(id);
+        return ResponseEntity.noContent().build();
+    }
 }

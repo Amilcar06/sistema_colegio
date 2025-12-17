@@ -39,6 +39,28 @@ public class EventoService {
                 .collect(Collectors.toList());
     }
 
+    public EventoResponseDTO actualizarEvento(Long id, EventoRequestDTO request) {
+        Evento evento = eventoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Evento no encontrado con ID: " + id));
+
+        evento.setTitulo(request.getTitulo());
+        evento.setDescripcion(request.getDescripcion());
+        evento.setFechaInicio(request.getFechaInicio());
+        evento.setFechaFin(request.getFechaFin());
+        evento.setUbicacion(request.getUbicacion());
+        evento.setTipoEvento(request.getTipoEvento());
+
+        Evento actualizado = eventoRepository.save(evento);
+        return mapToDTO(actualizado);
+    }
+
+    public void eliminarEvento(Long id) {
+        if (!eventoRepository.existsById(id)) {
+            throw new RuntimeException("Evento no encontrado con ID: " + id);
+        }
+        eventoRepository.deleteById(id);
+    }
+
     private EventoResponseDTO mapToDTO(Evento e) {
         return EventoResponseDTO.builder()
                 .idEvento(e.getIdEvento())

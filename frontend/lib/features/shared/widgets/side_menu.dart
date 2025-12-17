@@ -51,14 +51,32 @@ class SideMenu extends StatelessWidget {
                     _navigateToHome(context, roleKey);
                   },
                 ),
-                ...menuItems.map((item) => _createDrawerItem(
-                  icon: item.icon,
-                  text: item.label,
-                  onTap: () {
-                     context.pop(); // Close drawer
-                     context.go(item.route);
-                  },
-                )),
+                ...menuItems.map((item) {
+                  if (item is MenuHeader) {
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                      child: Text(
+                        item.title,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[600],
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                    );
+                  } else if (item is MenuItem) {
+                    return _createDrawerItem(
+                      icon: item.icon,
+                      text: item.label,
+                      onTap: () {
+                         context.pop(); // Close drawer
+                         context.go(item.route);
+                      },
+                    );
+                  }
+                  return const SizedBox.shrink();
+                }),
                 const Divider(),
                 _createDrawerItem(
                   icon: Icons.notifications,

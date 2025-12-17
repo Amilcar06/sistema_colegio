@@ -61,7 +61,7 @@ public class UsuarioController {
                         @ApiResponse(responseCode = "200", description = "Usuario encontrado"),
                         @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
         })
-        @PreAuthorize("hasRole('ROLE_ADMIN')")
+        @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_DIRECTOR')")
         @GetMapping("/{id}")
         public ResponseEntity<UsuarioResponseDTO> obtenerPorId(
                         @PathVariable Long id) {
@@ -82,7 +82,7 @@ public class UsuarioController {
 
         @Operation(summary = "Actualizar un usuario existente", description = "Actualiza los datos de un usuario registrado, identificado por su ID.")
         @ApiResponse(responseCode = "200", description = "Usuario actualizado correctamente")
-        @PreAuthorize("hasRole('ROLE_ADMIN')")
+        @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_DIRECTOR')")
         @PutMapping("/{id}")
         public ResponseEntity<UsuarioResponseDTO> actualizarUsuario(
                         @PathVariable Long id,
@@ -146,7 +146,7 @@ public class UsuarioController {
 
         @Operation(summary = "Activar usuario", description = "Habilita el acceso de un usuario al sistema.")
         @ApiResponse(responseCode = "204", description = "Usuario activado correctamente")
-        @PreAuthorize("hasRole('ROLE_ADMIN')")
+        @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_DIRECTOR')")
         @PutMapping("/{id}/activar")
         public ResponseEntity<Void> activarUsuario(@PathVariable Long id) {
                 usuarioService.cambiarEstadoUsuario(id, true);
@@ -155,7 +155,7 @@ public class UsuarioController {
 
         @Operation(summary = "Desactivar usuario", description = "Inhabilita temporalmente el acceso del usuario al sistema.")
         @ApiResponse(responseCode = "204", description = "Usuario desactivado correctamente")
-        @PreAuthorize("hasRole('ROLE_ADMIN')")
+        @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_DIRECTOR')")
         @PutMapping("/{id}/desactivar")
         public ResponseEntity<Void> desactivarUsuario(@PathVariable Long id) {
                 usuarioService.cambiarEstadoUsuario(id, false);

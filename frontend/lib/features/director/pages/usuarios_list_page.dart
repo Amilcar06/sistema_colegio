@@ -17,8 +17,22 @@ class UsuariosListWrapper extends StatelessWidget {
   }
 }
 
-class UsuariosListPage extends StatelessWidget {
+class UsuariosListPage extends StatefulWidget {
   const UsuariosListPage({super.key});
+
+  @override
+  State<UsuariosListPage> createState() => _UsuariosListPageState();
+}
+
+class _UsuariosListPageState extends State<UsuariosListPage> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   void _abrirFormularioNuevoUsuario(BuildContext context) {
     final controller = context.read<UsuarioController>();
@@ -123,79 +137,125 @@ class UsuariosListPage extends StatelessWidget {
             return const Center(child: Text('No hay usuarios registrados.'));
           }
 
-          return ListView.separated(
-            padding: const EdgeInsets.all(12),
-            itemCount: ctrl.usuarios.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 10),
-            itemBuilder: (_, index) {
-              final u = ctrl.usuarios[index];
-              return Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                child: ListTile(
-                  leading: const CircleAvatar(child: Icon(Icons.person)),
-                  title: Text('${u.nombres} ${u.apellidoPaterno} ${u.apellidoMaterno ?? ''}'),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Correo: ${u.correo}'),
-                      Text('Rol: ${u.rol.nombre}'),
-                    ],
+          // Filtrado local
+          final filtrados = ctrl.usuarios.where((u) {
+            final query = _searchQuery.toLowerCase();
+            final nombreCompleto = '${u.nombres} ${u.apellidoPaterno} ${u.apellidoMaterno ?? ''}'.toLowerCase();
+            final email = u.correo.toLowerCase();
+            final rol = u.rol.nombre.toLowerCase();
+            return nombreCompleto.contains(query) || email.contains(query) || rol.contains(query);
+          }).toList();
+
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    labelText: 'Buscar por nombre, correo o rol',
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    suffixIcon: _searchQuery.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () {
+                              _searchController.clear();
+                              setState(() {
+                                _searchQuery = '';
+                              });
+                            },
+                          )
+                        : null,
                   ),
-                  isThreeLine: true,
-                  trailing: Wrap(
-                    spacing: 8,
-                    children: [
-                      Switch(
-                        value: u.estado,
-                        onChanged: (nuevoEstado) async {
-                          await ctrl.cambiarEstado(u, nuevoEstado);
-                        },
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.info_outline, color: Colors.blue),
-                        tooltip: 'Ver detalles',
-                        onPressed: () => ctrl.verDetallesUsuario(u.idUsuario, context),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.edit, color: Colors.orange),
-                        onPressed: () => _abrirFormularioEdicion(context, u),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () async {
-                          final confirm = await showDialog<bool>(
-                            context: context,
-                            builder: (ctx) => AlertDialog(
-                              title: const Text('¿Eliminar usuario?'),
-                              content: Text('Esto eliminará al usuario (${u.correo})'),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(ctx, false),
-                                  child: const Text('Cancelar'),
-                                ),
-                                ElevatedButton(
-                                  onPressed: () => Navigator.pop(ctx, true),
-                                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                                  child: const Text('Eliminar'),
-                                ),
-                              ],
+                  onChanged: (val) {
+                    setState(() {
+                      _searchQuery = val;
+                    });
+                  },
+                ),
+              ),
+              Expanded(
+                child: filtrados.isEmpty
+                    ? const Center(child: Text('No se encontraron resultados.'))
+                    : ListView.separated(
+                        padding: const EdgeInsets.all(12),
+                        itemCount: filtrados.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 10),
+                        itemBuilder: (_, index) {
+                          final u = filtrados[index];
+                          return Card(
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            child: ListTile(
+                              leading: const CircleAvatar(child: Icon(Icons.person)),
+                              title: Text('${u.nombres} ${u.apellidoPaterno} ${u.apellidoMaterno ?? ''}'),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Correo: ${u.correo}'),
+                                  Text('Rol: ${u.rol.nombre}'),
+                                ],
+                              ),
+                              isThreeLine: true,
+                              trailing: Wrap(
+                                spacing: 8,
+                                children: [
+                                  Switch(
+                                    value: u.estado,
+                                    onChanged: (nuevoEstado) async {
+                                      await ctrl.cambiarEstado(u, nuevoEstado);
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.info_outline, color: Colors.blue),
+                                    tooltip: 'Ver detalles',
+                                    onPressed: () => ctrl.verDetallesUsuario(u.idUsuario, context),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.edit, color: Colors.orange),
+                                    onPressed: () => _abrirFormularioEdicion(context, u),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete, color: Colors.red),
+                                    onPressed: () async {
+                                      final confirm = await showDialog<bool>(
+                                        context: context,
+                                        builder: (ctx) => AlertDialog(
+                                          title: const Text('¿Eliminar usuario?'),
+                                          content: Text('Esto eliminará al usuario (${u.correo})'),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () => Navigator.pop(ctx, false),
+                                              child: const Text('Cancelar'),
+                                            ),
+                                            ElevatedButton(
+                                              onPressed: () => Navigator.pop(ctx, true),
+                                              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                                              child: const Text('Eliminar'),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+
+                                      if (confirm == true) {
+                                        await ctrl.eliminarUsuario(u.idUsuario);
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(content: Text('Usuario eliminado')),
+                                        );
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
                             ),
                           );
-
-                          if (confirm == true) {
-                            await ctrl.eliminarUsuario(u.idUsuario);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Usuario eliminado')),
-                            );
-                          }
                         },
                       ),
-                    ],
-                  ),
-                ),
-              );
-            },
+              ),
+            ],
           );
         },
       ),

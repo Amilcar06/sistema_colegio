@@ -28,6 +28,20 @@ class HorarioService {
     }
   }
 
+  // Actualizar horario
+  Future<void> updateHorario(int id, Map<String, dynamic> data) async {
+    final headers = await _getHeaders();
+    final response = await http.put(
+      Uri.parse('${ApiConfig.baseUrl}/api/horarios/$id'),
+      headers: headers,
+      body: jsonEncode(data),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Error al actualizar horario: ${response.body}');
+    }
+  }
+
   // Eliminar horario
   Future<void> eliminarHorario(int id) async {
     final headers = await _getHeaders();

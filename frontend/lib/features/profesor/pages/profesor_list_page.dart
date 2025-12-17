@@ -16,8 +16,22 @@ class ProfesorListWrapper extends StatelessWidget {
   }
 }
 
-class ProfesorListPage extends StatelessWidget {
+class ProfesorListPage extends StatefulWidget {
   const ProfesorListPage({super.key});
+
+  @override
+  State<ProfesorListPage> createState() => _ProfesorListPageState();
+}
+
+class _ProfesorListPageState extends State<ProfesorListPage> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   void _abrirFormularioNuevoProfesor(BuildContext context) {
     final controller = context.read<ProfesorController>();
@@ -71,84 +85,133 @@ class ProfesorListPage extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
 
+          if (ctrl.errorMessage != null) {
+            return Center(child: Text('Error: ${ctrl.errorMessage}', style: const TextStyle(color: Colors.red)));
+          }
+
           if (ctrl.profesores.isEmpty) {
             return const Center(child: Text('No hay profesores registrados.'));
           }
 
-          return ListView.separated(
-            padding: const EdgeInsets.all(12),
-            itemCount: ctrl.profesores.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 10),
-            itemBuilder: (_, index) {
-              final p = ctrl.profesores[index];
-              return Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                child: ListTile(
-                  leading: const CircleAvatar(child: Icon(Icons.school)),
-                  title: Text('${p.nombres} ${p.apellidoPaterno} ${p.apellidoMaterno}'),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('CI: ${p.ci}'),
-                      Text('Correo: ${p.correo}'), // Mejor que Teléfono
-                      Text('Rol: PROFESOR'), // hardcodeado si no viene desde backend
-                    ],
+          // Filtrado local
+          final filtrados = ctrl.profesores.where((p) {
+            final query = _searchQuery.toLowerCase();
+            final nombreCompleto = '${p.nombres} ${p.apellidoPaterno} ${p.apellidoMaterno ?? ''}'.toLowerCase();
+            final ci = p.ci.toLowerCase();
+            return nombreCompleto.contains(query) || ci.contains(query);
+          }).toList();
+
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    labelText: 'Buscar por nombre o CI',
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    suffixIcon: _searchQuery.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () {
+                              _searchController.clear();
+                              setState(() {
+                                _searchQuery = '';
+                              });
+                            },
+                          )
+                        : null,
                   ),
-                  isThreeLine: true,
-                  trailing: Wrap(
-                    spacing: 8,
-                    children: [
-                      Switch(
-                        value: p.estado,
-                        onChanged: (nuevoEstado) async {
-                          await ctrl.cambiarEstado(p, nuevoEstado);
-                        },
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.info_outline, color: Colors.blue),
-                        tooltip: 'Ver detalles',
-                        onPressed: () => ctrl.verDetallesProfesor(p.idProfesor, context),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.edit, color: Colors.orange),
-                        onPressed: () => _abrirFormularioEdicion(context, p),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () async {
-                          final confirm = await showDialog<bool>(
-                            context: context,
-                            builder: (ctx) => AlertDialog(
-                              title: const Text('¿Eliminar profesor?'),
-                              content: Text('Esto eliminará también al usuario asociado (${p.correo})'),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(ctx, false),
-                                  child: const Text('Cancelar'),
-                                ),
-                                ElevatedButton(
-                                  onPressed: () => Navigator.pop(ctx, true),
-                                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                                  child: const Text('Eliminar'),
-                                ),
-                              ],
+                  onChanged: (val) {
+                    setState(() {
+                      _searchQuery = val;
+                    });
+                  },
+                ),
+              ),
+              Expanded(
+                child: filtrados.isEmpty
+                    ? const Center(child: Text('No se encontraron resultados.'))
+                    : ListView.separated(
+                        padding: const EdgeInsets.all(12),
+                        itemCount: filtrados.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 10),
+                        itemBuilder: (_, index) {
+                          final p = filtrados[index];
+                          return Card(
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            child: ListTile(
+                              leading: const CircleAvatar(child: Icon(Icons.school)),
+                              title: Text('${p.nombres} ${p.apellidoPaterno} ${p.apellidoMaterno ?? ''}'),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('CI: ${p.ci}'),
+                                  Text('Correo: ${p.correo}'),
+                                  Text('Rol: PROFESOR'),
+                                ],
+                              ),
+                              isThreeLine: true,
+                              trailing: Wrap(
+                                spacing: 8,
+                                children: [
+                                  Switch(
+                                    value: p.estado,
+                                    onChanged: (nuevoEstado) async {
+                                      await ctrl.cambiarEstado(p, nuevoEstado);
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.info_outline, color: Colors.blue),
+                                    tooltip: 'Ver detalles',
+                                    onPressed: () => ctrl.verDetallesProfesor(p.idProfesor, context),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.edit, color: Colors.orange),
+                                    onPressed: () => _abrirFormularioEdicion(context, p),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete, color: Colors.red),
+                                    onPressed: () async {
+                                      final confirm = await showDialog<bool>(
+                                        context: context,
+                                        builder: (ctx) => AlertDialog(
+                                          title: const Text('¿Eliminar profesor?'),
+                                          content: Text('Esto eliminará también al usuario asociado (${p.correo})'),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () => Navigator.pop(ctx, false),
+                                              child: const Text('Cancelar'),
+                                            ),
+                                            ElevatedButton(
+                                              onPressed: () => Navigator.pop(ctx, true),
+                                              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                                              child: const Text('Eliminar'),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+
+                                      if (confirm == true) {
+                                        await ctrl.eliminarProfesor(p.idProfesor);
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(content: Text('Profesor eliminado')),
+                                        );
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
                             ),
                           );
-
-                          if (confirm == true) {
-                            await ctrl.eliminarProfesor(p.idProfesor);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Profesor eliminado')),
-                            );
-                          }
                         },
                       ),
-                    ],
-                  ),
-                ),
-              );
-            },
+              ),
+            ],
           );
         },
       ),

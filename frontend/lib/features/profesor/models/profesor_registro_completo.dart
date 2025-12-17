@@ -8,6 +8,7 @@ class ProfesorRegistroCompletoDTO {
   final String ci;
   final String telefono;
   final String? profesion;
+  final DateTime fechaNacimiento;
 
   ProfesorRegistroCompletoDTO({
     required this.nombres,
@@ -19,6 +20,7 @@ class ProfesorRegistroCompletoDTO {
     required this.ci,
     required this.telefono,
     this.profesion,
+    required this.fechaNacimiento,
   });
 
   Map<String, dynamic> toJson() => {
@@ -26,10 +28,11 @@ class ProfesorRegistroCompletoDTO {
     'apellidoPaterno': apellidoPaterno,
     'apellidoMaterno': apellidoMaterno,
     'correo': correo,
-    'password': password,
-    'fotoPerfilUrl': fotoPerfilUrl,
+    'contrasena': password,
+    'fotoPerfil': fotoPerfilUrl,
     'ci': ci,
     'telefono': telefono,
     'profesion': profesion,
+    'fechaNacimiento': fechaNacimiento.toIso8601String().split('T')[0],
   };
 }
