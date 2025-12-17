@@ -7,6 +7,8 @@ import '../features/director/pages/dashboard_director.dart';
 import '../features/secretaria/pages/dashboard_secretaria.dart';
 import '../features/profesor/pages/dashboard_profesor.dart';
 import '../features/estudiante/pages/dashboard_estudiante.dart';
+import '../features/shared/screens/perfil_screen.dart';
+import '../features/notificaciones/screens/notificaciones_screen.dart';
 
 // Director Pages
 import '../features/director/pages/dashboard_director_inscripciones_page.dart';
@@ -60,6 +62,14 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/login',
       builder: (_, __) => const LoginPage(),
+    ),
+    GoRoute(
+      path: '/perfil',
+      builder: (_, __) => const PerfilScreen(),
+    ),
+    GoRoute(
+      path: '/notificaciones',
+      builder: (_, __) => const NotificacionesScreen(),
     ),
 
     // Director

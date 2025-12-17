@@ -23,11 +23,20 @@ class SideMenu extends StatelessWidget {
     return Drawer(
       child: Column(
         children: [
-          UserAccountsDrawerHeader(
-            accountName: Text(rawRole.toUpperCase()),
-            accountEmail: const Text('Usuario autenticado'),
-            currentAccountPicture: const CircleAvatar(
-              child: Icon(Icons.person),
+          GestureDetector(
+            onTap: () {
+              context.pop(); // Cerrar drawer
+              context.push('/perfil');
+            },
+            child: UserAccountsDrawerHeader(
+              accountName: Text(rawRole.toUpperCase()),
+              accountEmail: const Text('Usuario autenticado (Tap para ver perfil)'),
+              currentAccountPicture: const CircleAvatar(
+                child: Icon(Icons.person),
+              ),
+              decoration: const BoxDecoration(
+                color: Colors.blue,
+              ),
             ),
           ),
           Expanded(
@@ -50,6 +59,15 @@ class SideMenu extends StatelessWidget {
                      context.go(item.route);
                   },
                 )),
+                const Divider(),
+                _createDrawerItem(
+                  icon: Icons.notifications,
+                  text: 'Notificaciones',
+                  onTap: () {
+                    context.pop();
+                    context.push('/notificaciones');
+                  },
+                ),
               ],
             ),
           ),

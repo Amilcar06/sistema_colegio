@@ -211,4 +211,23 @@ class UsuarioController with ChangeNotifier {
       return false;
     }
   }
+
+  /// Subir foto de perfil (Usuario Autenticado)
+  Future<bool> subirFotoPerfil(dynamic file) async {
+    try {
+      final url = await _service.subirFotoPerfil(file);
+      // Actualizar estado local
+      if (usuarioAutenticado != null) {
+        // usuarioAutenticado = usuarioAutenticado!.copyWith(fotoPerfil: url); // Si tuviera copyWith, sino:
+        // Hack rápido: no podemos modificar campos final si es DTO inmutable.
+        // Mejor recargar perfil.
+        await cargarPerfilAutenticado();
+      }
+      return true;
+    } catch (e) {
+      errorMessage = 'Error al subir foto: $e';
+      notifyListeners();
+      return false;
+    }
+  }
 }

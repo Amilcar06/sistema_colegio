@@ -91,6 +91,8 @@ El sistema genera documentos oficiales y métricas básicas.
 Funcionalidades sociales/comunicativas.
 1.  **Comunicados (Create/Read):** ✅ Sistema de mensajería interna (Global y Por Curso).
 2.  **Eventos (Create/Read):** ✅ Agenda académica y feriados.
+3.  **Notificaciones In-App:** ✅ Alertas de sistema leídas/no leídas.
+4.  **Perfil Usuario:** ✅ Foto de Perfil y Cambio de Contraseña.
 
 ---
-*Última actualización: 16 Diciembre 2025*
+*Última actualización: 17 Diciembre 2025*

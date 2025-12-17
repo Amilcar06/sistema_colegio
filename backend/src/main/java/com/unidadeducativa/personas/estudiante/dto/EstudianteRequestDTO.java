@@ -23,7 +23,6 @@ public class EstudianteRequestDTO {
     @Email
     private String correo;
 
-    @NotBlank
     private String contrasena;
 
     private String fotoPerfil;

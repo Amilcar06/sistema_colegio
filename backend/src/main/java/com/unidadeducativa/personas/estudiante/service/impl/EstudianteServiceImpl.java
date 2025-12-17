@@ -98,7 +98,11 @@ public class EstudianteServiceImpl implements IEstudianteService {
                 .apellidoMaterno(dto.getApellidoMaterno())
                 .ci(dto.getCi())
                 .correo(dto.getCorreo())
-                .contrasena(passwordEncoder.encode(dto.getContrasena()))
+                .correo(dto.getCorreo())
+                .contrasena(passwordEncoder.encode(
+                        (dto.getContrasena() == null || dto.getContrasena().isBlank())
+                                ? dto.getCi()
+                                : dto.getContrasena()))
                 .fotoPerfil(dto.getFotoPerfil())
                 .fechaNacimiento(dto.getFechaNacimiento())
                 .estado(true)

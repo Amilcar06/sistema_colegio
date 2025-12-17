@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:unidad_educatica_frontend/core/api.dart';
 import '../models/usuario_request.dart';
 import '../models/usuario_response.dart';
@@ -71,8 +72,32 @@ class UsuarioService {
     return UsuarioResponseDTO.fromJson(response.data);
   }
 
-  /// Actualizar contraseña del usuario autenticado
   Future<void> actualizarPassword(ActualizarPasswordDTO dto) async {
-    await dio.put('/usuarios/password', data: dto.toJson());
+    await dio.put('/usuarios/me/contrasena', data: dto.toJson());
+  }
+
+  /// Subir foto de perfil
+  Future<String> subirFotoPerfil(dynamic file) async {
+    // Nota: 'file' puede ser File (Mobile) o Uint8List (Web) o XFile. 
+    // Ajustar según implementación de image_picker.
+    // Asumiendo File para mobile por ahora.
+    
+    // Importante: Para Web se usa bytes, para IO se usa path. 
+    // dio.MultipartFile.fromFile vs MultipartFile.fromBytes
+    
+    // Simplificación para mobile (path):
+    /*
+    final formData = FormData.fromMap({
+      'file': await MultipartFile.fromFile(file.path),
+    });
+    */
+    
+    // Si usamos XFile de image_picker:
+    final formData = FormData.fromMap({
+      'file': await MultipartFile.fromFile(file.path, filename: file.name),
+    });
+
+    final response = await dio.post('/uploads/perfil', data: formData);
+    return response.data['url'];
   }
 }

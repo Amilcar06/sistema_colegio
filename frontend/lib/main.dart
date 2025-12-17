@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'state/auth_provider.dart';
+import 'features/director/controller/usuarios_controller.dart';
 import 'routes/app_router.dart';
 
 void main() async {
@@ -10,8 +11,11 @@ void main() async {
   await initializeDateFormatting('es');
 
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => AuthProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => UsuarioController()),
+      ],
       child: const MyApp(),
     ),
   );

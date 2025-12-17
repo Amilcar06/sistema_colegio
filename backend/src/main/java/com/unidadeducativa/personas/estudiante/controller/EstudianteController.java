@@ -95,7 +95,7 @@ public class EstudianteController {
                         @ApiResponse(responseCode = "200", description = "Estudiante registrado exitosamente", content = @Content(schema = @Schema(implementation = EstudianteResponseDTO.class))),
                         @ApiResponse(responseCode = "400", description = "Datos inválidos o duplicados")
         })
-        @PreAuthorize("hasAnyRole('ROLE_SECRETARIA')")
+        @PreAuthorize("hasAnyRole('ROLE_SECRETARIA', 'ROLE_DIRECTOR')")
         @PostMapping("/registro")
         public ResponseEntity<EstudianteResponseDTO> registrar(
                         @RequestBody @Valid EstudianteRequestDTO dto) {
@@ -112,7 +112,7 @@ public class EstudianteController {
                         @ApiResponse(responseCode = "400", description = "Datos inválidos"),
                         @ApiResponse(responseCode = "404", description = "Estudiante no encontrado")
         })
-        @PreAuthorize("hasAnyRole('ROLE_SECRETARIA')")
+        @PreAuthorize("hasAnyRole('ROLE_SECRETARIA', 'ROLE_DIRECTOR')")
         @PutMapping("/{id}")
         public ResponseEntity<EstudianteResponseDTO> actualizar(
                         @Parameter(description = "ID del estudiante a actualizar") @PathVariable Long id,

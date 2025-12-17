@@ -19,6 +19,14 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    // Argumentos ilegales (Validaciones de negocio manuales)
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, String>> handleIllegalArgument(IllegalArgumentException ex) {
+        Map<String, String> respuesta = new HashMap<>();
+        respuesta.put("error", ex.getMessage());
+        return ResponseEntity.badRequest().body(respuesta);
+    }
+
     // Errores de validación de campos (DTOs con @Valid)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationErrors(MethodArgumentNotValidException ex) {

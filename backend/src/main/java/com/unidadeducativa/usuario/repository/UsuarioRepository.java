@@ -19,4 +19,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     boolean existsByCiAndUnidadEducativa_IdUnidadEducativa(String ci, Long idUnidadEducativa);
 
     long countByRol_Nombre(com.unidadeducativa.shared.enums.RolNombre nombre);
+
+    long countByRol_NombreAndUnidadEducativa_IdUnidadEducativa(com.unidadeducativa.shared.enums.RolNombre nombre,
+            Long idUnidadEducativa);
 }

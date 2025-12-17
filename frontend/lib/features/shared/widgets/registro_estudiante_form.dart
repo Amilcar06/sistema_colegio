@@ -287,11 +287,23 @@ class _RegistroEstudianteFormState extends State<RegistroEstudianteForm> {
   }
 
   Future<void> _seleccionarFechaNacimiento() async {
+    final now = DateTime.now();
+    final yesterday = now.subtract(const Duration(days: 1));
+    
+    // Ensure initialDate is valid
+    DateTime initialDate = _fechaNacimiento ?? DateTime(2010);
+    if (initialDate.isAfter(yesterday)) {
+      initialDate = yesterday;
+    }
+    if (initialDate.isBefore(DateTime(1900))) {
+      initialDate = DateTime(1900);
+    }
+
     final picked = await showDatePicker(
       context: context,
-      initialDate: _fechaNacimiento ?? DateTime(2010),
-      firstDate: DateTime(1990),
-      lastDate: DateTime.now(),
+      initialDate: initialDate,
+      firstDate: DateTime(1900),
+      lastDate: yesterday,
     );
 
     if (picked != null) {
@@ -428,6 +440,7 @@ class _RegistroEstudianteFormState extends State<RegistroEstudianteForm> {
               TextFormField(
                 controller: _direccionController,
                 decoration: const InputDecoration(labelText: 'Dirección'),
+                validator: (v) => v == null || v.isEmpty ? 'Campo obligatorio' : null,
               ),
               const SizedBox(height: 12),
               Row(

@@ -19,10 +19,13 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/reportes")
 @RequiredArgsConstructor
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Reportes", description = "Generación de documentos PDF (Boletines, Listas, Recibos)")
 public class ReporteController {
 
     private final ReporteService reporteService;
 
+    @io.swagger.v3.oas.annotations.Operation(summary = "Generar boletín de notas", description = "Genera un PDF con el boletín de notas del estudiante.")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "PDF generado correctamente", content = @io.swagger.v3.oas.annotations.media.Content(mediaType = "application/pdf"))
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SECRETARIA', 'ROLE_ESTUDIANTE')")
     @GetMapping("/boletin/{idEstudiante}")
     public ResponseEntity<byte[]> generarBoletin(@PathVariable Long idEstudiante) {
@@ -34,6 +37,8 @@ public class ReporteController {
                 .body(pdfContent);
     }
 
+    @io.swagger.v3.oas.annotations.Operation(summary = "Generar lista de curso", description = "Genera un PDF con la lista de estudiantes inscritos en un curso.")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "PDF generado correctamente", content = @io.swagger.v3.oas.annotations.media.Content(mediaType = "application/pdf"))
     @GetMapping("/curso/{idCurso}")
     public ResponseEntity<byte[]> generarListaCurso(@PathVariable Long idCurso) {
         byte[] pdfContent = reporteService.generarListaCurso(idCurso);
@@ -44,6 +49,8 @@ public class ReporteController {
                 .body(pdfContent);
     }
 
+    @io.swagger.v3.oas.annotations.Operation(summary = "Generar recibo de pago", description = "Genera un PDF con el recibo de un pago realizado.")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "PDF generado correctamente", content = @io.swagger.v3.oas.annotations.media.Content(mediaType = "application/pdf"))
     @GetMapping("/recibo/{idPago}")
     public ResponseEntity<byte[]> generarRecibo(@PathVariable Long idPago) {
         byte[] pdfContent = reporteService.generarRecibo(idPago);
@@ -54,6 +61,7 @@ public class ReporteController {
                 .body(pdfContent);
     }
 
+    @io.swagger.v3.oas.annotations.Operation(summary = "Prueba de generación de reporte", description = "Endpoint de prueba para verificar el servicio de reportes.")
     @GetMapping("/test")
     public ResponseEntity<byte[]> testReport() {
         // TODO: Este es un placeholder. En el próximo paso crearemos una plantilla

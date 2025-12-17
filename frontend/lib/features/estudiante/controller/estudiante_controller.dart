@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
 import 'package:unidad_educatica_frontend/features/estudiante/models/estudiante_request.dart';
 import '../models/estudiante_response.dart';
 import '../models/estudiante_registro_completo.dart';
@@ -38,7 +39,16 @@ class EstudianteController with ChangeNotifier {
       await cargarEstudiantes();
       return true;
     } catch (e) {
-      errorMessage = 'Error al registrar estudiante: $e';
+      if (e is DioException && e.response?.data is Map) {
+        final data = e.response?.data as Map;
+        if (data.containsKey('error')) {
+          errorMessage = data['error'].toString();
+        } else {
+          errorMessage = 'Error al registrar estudiante: ${e.message}';
+        }
+      } else {
+        errorMessage = 'Error al registrar estudiante: $e';
+      }
       return false;
     }
   }
@@ -67,7 +77,16 @@ class EstudianteController with ChangeNotifier {
       await cargarEstudiantes();
       return true;
     } catch (e) {
-      errorMessage = 'Error al actualizar estudiante: $e';
+      if (e is DioException && e.response?.data is Map) {
+        final data = e.response?.data as Map;
+        if (data.containsKey('error')) {
+          errorMessage = data['error'].toString();
+        } else {
+          errorMessage = 'Error al actualizar estudiante: ${e.message}';
+        }
+      } else {
+        errorMessage = 'Error al actualizar estudiante: $e';
+      }
       notifyListeners();
       return false;
     }
@@ -81,7 +100,16 @@ class EstudianteController with ChangeNotifier {
       await cargarEstudiantes();
       return true;
     } catch (e) {
-      errorMessage = 'Error al eliminar estudiante: $e';
+      if (e is DioException && e.response?.data is Map) {
+        final data = e.response?.data as Map;
+        if (data.containsKey('error')) {
+          errorMessage = data['error'].toString();
+        } else {
+          errorMessage = 'Error al eliminar estudiante: ${e.message}';
+        }
+      } else {
+        errorMessage = 'Error al eliminar estudiante: $e';
+      }
       notifyListeners();
       return false;
     }
@@ -97,7 +125,16 @@ class EstudianteController with ChangeNotifier {
       }
       await cargarEstudiantes();
     } catch (e) {
-      errorMessage = 'Error al cambiar estado: $e';
+      if (e is DioException && e.response?.data is Map) {
+        final data = e.response?.data as Map;
+        if (data.containsKey('error')) {
+          errorMessage = data['error'].toString();
+        } else {
+          errorMessage = 'Error al cambiar estado: ${e.message}';
+        }
+      } else {
+        errorMessage = 'Error al cambiar estado: $e';
+      }
       notifyListeners();
     }
   }

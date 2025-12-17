@@ -49,31 +49,17 @@ Este documento detalla la planificación estratégica para completar el sistema,
 
 ---
 
-## 📣 Fase 3: Comunicación y Comunidad (Prioridad Baja)
+### 3. Optimizaciones UX (Completado)
+*   ✅ **Dashboard:** Widgets con contadores reales (Total Alumnos, Pagos del día, etc.) implementados con `DashboardService`.
+*   ✅ **Perfil:** Usuarios pueden cambiar su foto de perfil (Persistencia en `uploads/`) y contraseña.
+*   ✅ **Notificaciones:** Sistema In-App implementado (Campana, Lista de no leídos, Marcar como leída).
+
+---
+
+## ✅ Fase 3: Comunicación y Comunidad (Cerrada)
 **Objetivo:** Fomentar la interacción entre los actores de la comunidad educativa.
 
-**Estado Actual:** ✅ **Completado (100%)**
-
-### 1. Sistema de Comunicados (Noticias)
-*   **Backend:**
-    *   ✅ **Modelo de Datos:** Entidad `Comunicado` implementada.
-    *   ✅ **API Rest:** Endpoints `/api/comunicados` operativos.
-*   **Frontend:**
-    *   ✅ **Director:** Publicación de noticias generales.
-    *   ✅ **Profesor:** Envío de comunicados por curso.
-    *   ✅ **Estudiante:** Bandeja de entrada filtrada (Global + Curso).
-
-### 2. Agenda de Eventos
-*   **Backend:**
-    *   ✅ **Modelo:** Entidad `Evento`.
-    *   ✅ **API:** Endpoints `/api/eventos`.
-*   **Frontend:**
-    *   ✅ **Calendario/Lista:** Visualización de agenda escolar (Feriados, Exámenes).
-
-### 3. Optimizaciones UX
-*   **Dashboard:** Widgets con contadores reales (Total Alumnos, Pagos del día, etc.) en lugar de datos estáticos.
-*   **Perfil:** Permitir a usuarios cambiar su foto de perfil y contraseña.
-*   **Notificaciones:** Alertas visuales (Badge en campana) en Flutter.
+**Estado Actual:** ✅ **100% Completada** (Fase Cerrada).
 
 ---
 
