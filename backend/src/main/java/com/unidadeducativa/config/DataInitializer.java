@@ -440,7 +440,13 @@ public class DataInitializer implements CommandLineRunner {
                         .nombre("Mensualidad Febrero 2025")
                         .montoDefecto(new BigDecimal("350.00"))
                         .gestion(gestion)
+                        .unidadEducativa(ue)
                         .build()));
+
+        if (tipoPago.getUnidadEducativa() == null) {
+            tipoPago.setUnidadEducativa(ue);
+            tipoPagoRepository.save(tipoPago);
+        }
 
         // Generar deuda para todos los estudiantes
         List<Estudiante> estudiantes = estudianteRepository.findAll();

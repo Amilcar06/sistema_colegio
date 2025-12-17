@@ -24,6 +24,7 @@ public class GestionAcademica {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_unidad_educativa", nullable = true)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private UnidadEducativa unidadEducativa;
 
     @Column(nullable = false)

@@ -7,7 +7,7 @@ Este documento detalla la planificación estratégica para completar el sistema,
 ## 🏁 Fase 1: Cierre del Ciclo Académico (Prioridad Alta)
 **Objetivo:** Garantizar que el flujo principal de la institución funcione de principio a fin: Inscripción -> Asignación -> Avance -> Calificación -> Cobro.
 
-**Estado Actual:** � **100% Completada** (Fase Cerrada).
+**Estado Actual:** ✅ **100% Completada** (Fase Cerrada).
 
 ### ✅ Completado
 *   **Gestión de Usuarios:** Roles (Director, Secretaria, Profesor, Estudiante) funcionando.
@@ -52,23 +52,23 @@ Este documento detalla la planificación estratégica para completar el sistema,
 ## 📣 Fase 3: Comunicación y Comunidad (Prioridad Baja)
 **Objetivo:** Fomentar la interacción entre los actores de la comunidad educativa.
 
-**Estado Actual:** 🟡 **En Progreso**
+**Estado Actual:** ✅ **Completado (100%)**
 
 ### 1. Sistema de Comunicados (Noticias)
 *   **Backend:**
-    *   ⚠️ **Modelo de Datos:** Implementar entidad `Comunicado` (título, contenido, fecha, destinatarios).
-    *   ⚠️ **API Rest:** Endpoints para crear, listar y filtrar comunicados (General vs Por Curso).
+    *   ✅ **Modelo de Datos:** Entidad `Comunicado` implementada.
+    *   ✅ **API Rest:** Endpoints `/api/comunicados` operativos.
 *   **Frontend:**
-    *   ⚠️ **Director:** Vista para redactar y publicar comunicados generales.
-    *   ⚠️ **Profesor:** Vista para enviar comunicados a sus cursos asignados.
-    *   ⚠️ **Estudiante/Padres:** Bandeja de entrada de comunicados.
+    *   ✅ **Director:** Publicación de noticias generales.
+    *   ✅ **Profesor:** Envío de comunicados por curso.
+    *   ✅ **Estudiante:** Bandeja de entrada filtrada (Global + Curso).
 
 ### 2. Agenda de Eventos
 *   **Backend:**
-    *   ⚠️ **Modelo:** Entidad `Evento` (nombre, fecha, tipo, descripción).
-    *   ⚠️ **API:** CRUD de eventos.
+    *   ✅ **Modelo:** Entidad `Evento`.
+    *   ✅ **API:** Endpoints `/api/eventos`.
 *   **Frontend:**
-    *   ⚠️ **Calendario/Lista:** Visualización de feriados, exámenes y actividades. la pantalla de inicio mostrando feriados, exámenes, actividades cívicas.
+    *   ✅ **Calendario/Lista:** Visualización de agenda escolar (Feriados, Exámenes).
 
 ### 3. Optimizaciones UX
 *   **Dashboard:** Widgets con contadores reales (Total Alumnos, Pagos del día, etc.) en lugar de datos estáticos.

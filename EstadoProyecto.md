@@ -20,8 +20,8 @@ El estudiante tiene un perfil principalmente de **consulta (Read-Only)**.
 | **Ver Notas** | R | ✅ | ✅ | Consulta por año + **Descarga PDF oficial** (Verificado). |
 | **Ver Deudas/Pensiones** | R | ✅ | ✅ | Consulta de mensualidades y estados. |
 | **Ver Horarios** | R | ✅ | ✅ | Visualización de horario semanal. |
-| **Ver Comunicados** | R | ❌ | ⚠️ | Pendiente lógica backend. |
-| **Ver Eventos** | R | ❌ | ⚠️ | Pendiente lógica backend. |
+| **Ver Comunicados** | R | ✅ | ✅ | Bandeja de entrada (Global + Curso). |
+| **Ver Eventos** | R | ✅ | ✅ | Agenda de actividades. |
 
 ---
 
@@ -34,9 +34,9 @@ El profesor gestiona la información académica de sus asignaturas.
 | **Login** | - | ✅ | ✅ | . |
 | **Mis Cursos** | R | ✅ | ✅ | Ver lista de cursos asignados. |
 | **Registrar Notas** | C R U | ✅ | ✅ | Carga y edición de notas por trimestre. |
-| **Ver Lista Estudiantes** | R | ✅ | ⚠️ | Listado visual OK. Descarga PDF pendiente de botón. |
+| **Ver Lista Estudiantes** | R | ✅ | ✅ | Listado visual OK. Descarga PDF operativa. |
 | **Ver Horarios** | R | ✅ | ✅ | **Nuevo:** Visualización de su carga horaria. |
-| **Enviar Comunicados** | C R | ❌ | ❌ | Enviar notas a sus cursos (Fase 3). |
+| **Enviar Comunicados** | C R | ✅ | ✅ | Enviar notas a sus cursos. |
 
 ---
 
@@ -51,7 +51,7 @@ La secretaria tiene control operativo sobre alumnos y pagos.
 | **Inscribir Estudiantes** | C R | ✅ | ✅ | Matricular alumnos en cursos. |
 | **Cobro de Pensiones** | C R | ✅ | ✅ | Registrar pagos (Crear Transacción). |
 | **Gestionar Horarios** | R | ✅ | ⚠️ | Puede ver, pero la gestión es del Director. |
-| **Facturación** | C R | ⚠️ | ⚠️ | Backend Logic/Reporte listo. Falta integración UI. |
+| **Facturación** | C R | ✅ | ✅ | Backend Logic/Reporte listo. Integración UI completada. |
 
 ---
 
@@ -67,7 +67,7 @@ El director tiene control total (Full Access) sobre la configuración institucio
 | **Asignación Docente** | C R U D | ✅ | ✅ | Asignar materias a profesores. |
 | **Gestión Horarios** | C R U D | ✅ | ✅ | **Nuevo:** Asignar días/horas a materias. |
 | **Config. Pensiones** | C R U D | ✅ | ✅ | Definir costos anuales. |
-| **Reportes/KPIs** | R | ❌ | ⚠️ | Dashboard estadístico (Fase 2/3). |
+| **Reportes/KPIs** | R | ✅ | ✅ | Dashboard estadístico + Reportes PDF. |
 
 ---
 
@@ -87,8 +87,10 @@ El sistema genera documentos oficiales y métricas básicas.
 2.  **Facturación (Create):** ✅ Recibos PDF tras cada pago.
 3.  **KPIs Director:** ✅ Dashboard con contadores (Estudiantes, Profesores, Ingresos).
 
-### ❌ Pendiente (Fase 3 - Comunidad)
+### ✅ Completado (Fase 3 - Comunidad)
 Funcionalidades sociales/comunicativas.
-1.  **Comunicados (Create/Read):** Sistema de mensajería interna.
+1.  **Comunicados (Create/Read):** ✅ Sistema de mensajería interna (Global y Por Curso).
+2.  **Eventos (Create/Read):** ✅ Agenda académica y feriados.
+
 ---
 *Última actualización: 16 Diciembre 2025*

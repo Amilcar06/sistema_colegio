@@ -32,9 +32,11 @@ public class TipoPago {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_unidad_educativa", nullable = true)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private UnidadEducativa unidadEducativa;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_gestion", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private GestionAcademica gestion;
 }
