@@ -32,6 +32,11 @@ public class UploadController {
     private final UsuarioRepository usuarioRepository;
 
     @Operation(summary = "Subir foto de perfil (Usuario autenticado)")
+    @io.swagger.v3.oas.annotations.responses.ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Foto subida correctamente. Devuelve la URL de la imagen (clave 'url').", content = @io.swagger.v3.oas.annotations.media.Content(mediaType = "application/json", schema = @io.swagger.v3.oas.annotations.media.Schema(example = "{\"url\": \"http://localhost:8080/uploads/perfil/1_123456789.jpg\"}"))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error al guardar el archivo")
+    })
     @PostMapping(value = "/perfil", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Map<String, String>> subirFotoPerfil(
             @RequestParam("file") MultipartFile file,

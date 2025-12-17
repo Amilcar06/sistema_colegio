@@ -20,6 +20,7 @@ public class DashboardController {
     private final DashboardService dashboardService;
 
     @Operation(summary = "Obtener estadísticas generales (Director)")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Estadísticas obtenidas correctamente (Total alumnos, profesores, recaudación, deudas)", content = @io.swagger.v3.oas.annotations.media.Content(schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = DashboardResponseDTO.class)))
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
     @GetMapping("/stats")
     public ResponseEntity<DashboardResponseDTO> getStats() {
