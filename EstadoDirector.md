@@ -14,10 +14,10 @@ Actualmente, los paralelos (A, B, C) son solo strings en la clase `Curso`. Neces
 - [x] **Frontend:** Conectar la pestaña 2 de `DashboardDirectorParalelosPage` para leer/escribir esta configuración real.
 
 ### 1.2 Configuración Institucional (Global)
-El formulario de "Configuración General" es visualmente funcional pero no persiste datos.
-- [ ] **Backend (JPA):** Crear entidad `Institucion` (id, nombre, direccion, sie, logoUrl, gestionActualId).
-- [ ] **Backend (API):** Endpoints para obtener y actualizar los datos de la institución.
-- [ ] **Frontend:** Conectar `DashboardDirectorConfiguracionPage` al endpoint real.
+El formulario de "Configuración General" ya persiste datos en la base de datos.
+- [x] **Backend (JPA):** Crear entidad `Institucion` (id, nombre, direccion, sie, logoUrl, gestionActualId).
+- [x] **Backend (API):** Endpoints para obtener y actualizar los datos de la institución.
+- [x] **Frontend:** Conectar `DashboardDirectorConfiguracionPage` al endpoint real.
 
 ---
 
@@ -63,9 +63,9 @@ Reemplazar la pantalla placeholder actual con un dashboard financiero funcional.
 | Módulo | Característica | Estado Actual | Meta del Plan |
 | :--- | :--- | :--- | :--- |
 | **Configuración** | Paralelos | ✅ Completado | ✅ Entidad Configurable |
-| **Configuración** | Datos Institución | ❌ Simulado | ✅ Persistente (BD) |
+| **Configuración** | Datos Institución | ✅ Completado | ✅ Persistente (BD) |
 | **Dashboard** | KPIs | ⚠️ Parcial | ✅ Data Real 100% |
 | **Finanzas** | Reportes | ❌ "En Desarrollo" | ✅ Dashboard Financiero |
 
-Siguiente paso: **Sprint 1.2 Configuración Institucional**
+Siguiente paso: **Sprint 2: Integridad de Datos y Dashboard**
 

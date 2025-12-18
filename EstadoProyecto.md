@@ -96,10 +96,4 @@ Funcionalidades sociales/comunicativas.
 
 ---
 
-### 🚀 Pendientes / Mejoras Futuras
-
-1.  **Configuración de Paralelos (Backend):** 
-    *   Actualmente la pestaña "Configuración" en *Gestión de Paralelos* es solo visual.
-    *   Se requiere crear una entidad/tabla en BD para persistir qué paralelos (A, B, C...) están habilitados globalmente.
-
 *Última actualización: 17 Diciembre 2025*
