@@ -96,9 +96,9 @@ class _DashboardDirectorHorariosPageState
                     value: selectedAsignacionId,
                     items: _asignaciones.map((a) {
                       return DropdownMenuItem<int>(
-                        value: a['idAsignacion'] as int,
+                        value: a.idAsignacion,
                         child: Text(
-                            "${a['nombreMateria']} - ${a['nombreProfesor']}", 
+                            "${a.nombreMateria} - ${a.nombreProfesor}", 
                             style: const TextStyle(fontSize: 12),
                             overflow: TextOverflow.ellipsis),
                       );

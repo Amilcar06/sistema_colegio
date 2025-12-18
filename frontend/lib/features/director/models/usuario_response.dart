@@ -10,6 +10,8 @@ class UsuarioResponseDTO {
   final String? fotoPerfil;
   final bool estado;
   final RolResponseDTO rol;
+  final String? fechaNacimiento;
+  final int? idUnidadEducativa;
 
   // Alias for compatibility
   String? get fotoPerfilUrl => fotoPerfil;
@@ -24,6 +26,8 @@ class UsuarioResponseDTO {
     required this.estado,
     required this.rol,
     this.fotoPerfil,
+    this.fechaNacimiento,
+    this.idUnidadEducativa,
   });
 
   factory UsuarioResponseDTO.fromJson(Map<String, dynamic> json) {
@@ -37,6 +41,8 @@ class UsuarioResponseDTO {
       estado: json['estado'] ?? false,
       rol: RolResponseDTO.fromJson(json['rol']),
       fotoPerfil: json['fotoPerfil'] ?? json['fotoPerfilUrl'],
+      fechaNacimiento: json['fechaNacimiento'],
+      idUnidadEducativa: json['idUnidadEducativa'],
     );
   }
 }

@@ -92,6 +92,24 @@ public class ProfesorServiceImpl implements IProfesorService {
                 .rol(rol)
                 .build();
 
+        // Asignar Unidad Educativa del creador
+        try {
+            String correoCreador = org.springframework.security.core.context.SecurityContextHolder.getContext()
+                    .getAuthentication().getName();
+            if (correoCreador != null && !correoCreador.equals("anonymousUser")) {
+                Usuario creador = usuarioRepository.findByCorreo(correoCreador).orElse(null);
+                if (creador != null && creador.getUnidadEducativa() != null) {
+                    usuario.setUnidadEducativa(creador.getUnidadEducativa());
+                    System.out.println("DEBUG: Asignando UE " + creador.getUnidadEducativa().getIdUnidadEducativa()
+                            + " a nuevo profesor (creado por " + correoCreador + ")");
+                } else {
+                    System.out.println("WARNING: Creador " + correoCreador + " no tiene UE o es nulo.");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         usuarioRepository.save(usuario);
 
         Profesor profesor = profesorMapper.toEntity(dto);

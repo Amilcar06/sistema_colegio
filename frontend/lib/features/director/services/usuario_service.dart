@@ -76,6 +76,11 @@ class UsuarioService {
     await dio.put('/usuarios/me/contrasena', data: dto.toJson());
   }
 
+  Future<UsuarioResponseDTO> actualizarPerfil(UsuarioRequestDTO dto) async {
+    final response = await dio.put('/usuarios/me', data: dto.toJson());
+    return UsuarioResponseDTO.fromJson(response.data);
+  }
+
   /// Subir foto de perfil
   Future<String> subirFotoPerfil(dynamic file) async {
     // Nota: 'file' puede ser File (Mobile) o Uint8List (Web) o XFile. 

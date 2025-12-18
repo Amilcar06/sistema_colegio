@@ -227,6 +227,20 @@ class UsuarioController with ChangeNotifier {
     } catch (e) {
       errorMessage = 'Error al subir foto: $e';
       notifyListeners();
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> actualizarPerfilAutenticado(UsuarioRequestDTO dto) async {
+    try {
+      final actualizado = await _service.actualizarPerfil(dto);
+      usuarioAutenticado = actualizado;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      errorMessage = 'Error al actualizar perfil: $e';
+      notifyListeners();
       return false;
     }
   }

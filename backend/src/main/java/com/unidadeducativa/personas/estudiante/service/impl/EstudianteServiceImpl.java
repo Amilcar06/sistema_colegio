@@ -107,7 +107,30 @@ public class EstudianteServiceImpl implements IEstudianteService {
                 .fechaNacimiento(dto.getFechaNacimiento())
                 .estado(true)
                 .rol(rol)
+                .estado(true)
+                .rol(rol)
                 .build();
+
+        // Asignar Unidad Educativa del creador (Director/Admin)
+        try {
+            String correoCreador = org.springframework.security.core.context.SecurityContextHolder.getContext()
+                    .getAuthentication().getName();
+            if (correoCreador != null && !correoCreador.equals("anonymousUser")) {
+                Usuario creador = usuarioRepository.findByCorreo(correoCreador).orElse(null);
+                if (creador != null && creador.getUnidadEducativa() != null) {
+                    usuario.setUnidadEducativa(creador.getUnidadEducativa());
+                    System.out.println("DEBUG: Asignando UE " + creador.getUnidadEducativa().getIdUnidadEducativa()
+                            + " a nuevo estudiante (creado por " + correoCreador + ")");
+                } else {
+                    System.out.println("WARNING: Creador " + correoCreador + " no tiene UE o no existe.");
+                }
+            } else {
+                System.out.println("No hay contexto de seguridad o es anonymousUser");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Ignorar si no hay contexto de seguridad (ej. Seeder)
+        }
 
         usuarioRepository.save(usuario);
 

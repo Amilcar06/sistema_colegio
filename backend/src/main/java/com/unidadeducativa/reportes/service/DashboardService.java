@@ -23,7 +23,26 @@ public class DashboardService {
         private final UsuarioRepository usuarioRepository;
         private final PagoRepository pagoRepository;
 
-        public DashboardResponseDTO obtenerEstadisticas(Long idUnidadEducativa) {
+        public DashboardResponseDTO obtenerEstadisticas(String correoUsuario) {
+                var usuario = usuarioRepository.findByCorreo(correoUsuario)
+                                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+                System.out.println("DEBUG: Dashboard - Usuario: " + correoUsuario);
+
+                if (usuario.getUnidadEducativa() == null) {
+                        System.out.println("WARNING: Usuario sin Unidad Educativa. Retornando 0.");
+                        return DashboardResponseDTO.builder()
+                                        .totalEstudiantes(0L)
+                                        .totalProfesores(0L)
+                                        .ingresosHoy(BigDecimal.ZERO)
+                                        .pagosHoy(0L)
+                                        .deudaTotalPendiente(BigDecimal.ZERO)
+                                        .build();
+                }
+
+                Long idUnidadEducativa = usuario.getUnidadEducativa().getIdUnidadEducativa();
+                System.out.println("DEBUG: Dashboard - UE ID: " + idUnidadEducativa);
+
                 long totalEstudiantes = usuarioRepository.countByRol_NombreAndUnidadEducativa_IdUnidadEducativa(
                                 RolNombre.ESTUDIANTE,
                                 idUnidadEducativa);
@@ -48,7 +67,7 @@ public class DashboardService {
                                 .totalProfesores(totalProfesores)
                                 .ingresosHoy(ingresosHoy)
                                 .pagosHoy((long) pagosHoy.size())
-                                .deudaTotalPendiente(BigDecimal.ZERO)
+                                .deudaTotalPendiente(BigDecimal.ZERO) // Pendiente implementar query real
                                 .build();
         }
 }

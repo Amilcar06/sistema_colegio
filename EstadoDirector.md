@@ -25,11 +25,14 @@ El formulario de "Configuración General" ya persiste datos en la base de datos.
 **Objetivo:** Asegurar que los números que ve el Director sean reales y consistentes.
 
 ### 2.1 Auditoría del Dashboard
-- [ ] **Backend:** Revisar `DashboardController.java`. Confirmar que `getStats` haga `count()` reales sobre tablas `Estudiante` (activos), `Profesor` (activos) y `Pago` (ingresos del día).
-- [ ] **Frontend:** Verificar que los KPIs en `DashboardDirector` se actualicen correctamente al hacer cambios (ej. crear un estudiante nuevo).
+- [x] **Backend:** Revisar `DashboardController.java`. Confirmar que `getStats` haga `count()` reales sobre tablas `Estudiante` (activos), `Profesor` (activos) y `Pago` (ingresos del día).
+- [x] **Frontend:** Verificar que los KPIs en `DashboardDirector` se actualicen correctamente al hacer cambios (ej. crear un estudiante nuevo).
+- [x] **BugFix:** Solucionado el problema de usuarios "huérfanos" (sin Unidad Educativa) asignando automáticamente la UE del creador (Director/Admin).
+- [x] **Feature:** Implementado módulo "Mi Perfil" para edición de datos personales y actualización de foto.
 
 ### 2.2 Validación de Horarios
-- [ ] **Test:** Verificar la generación de la matriz de horarios. Asegurar que no se permitan choques de horario para un mismo profesor o aula (si aplica).
+- [x] **Test:** Verificar la generación de la matriz de horarios. Asegurar que no se permitan choques de horario para un mismo profesor o aula (si aplica).
+- [x] **Backend:** Implementada lógica de detección de solapamientos (Profesor, Curso, Aula) en `HorarioService`.
 
 ---
 
@@ -64,8 +67,8 @@ Reemplazar la pantalla placeholder actual con un dashboard financiero funcional.
 | :--- | :--- | :--- | :--- |
 | **Configuración** | Paralelos | ✅ Completado | ✅ Entidad Configurable |
 | **Configuración** | Datos Institución | ✅ Completado | ✅ Persistente (BD) |
-| **Dashboard** | KPIs | ⚠️ Parcial | ✅ Data Real 100% |
+| **Dashboard** | KPIs | ✅ Completado | ✅ Data Real 100% |
 | **Finanzas** | Reportes | ❌ "En Desarrollo" | ✅ Dashboard Financiero |
 
-Siguiente paso: **Sprint 2: Integridad de Datos y Dashboard**
+Siguiente paso: **Sprint 3: Módulo Financiero**
 
