@@ -317,6 +317,12 @@ public class DataInitializer implements CommandLineRunner {
             onCreated.accept(usuario);
         } else {
             Usuario usuario = usuarioRepository.findByCorreo(correo).get();
+            // SELF-HEALING: Fix missing UnidadEducativa for existing users
+            if (usuario.getUnidadEducativa() == null) {
+                log.warn("Usuario {} encontrado sin Unidad Educativa. Reparando...", correo);
+                usuario.setUnidadEducativa(ue);
+                usuario = usuarioRepository.save(usuario);
+            }
             onCreated.accept(usuario);
         }
     }

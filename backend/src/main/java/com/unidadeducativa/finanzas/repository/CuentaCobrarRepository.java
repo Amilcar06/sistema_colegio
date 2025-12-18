@@ -19,4 +19,10 @@ public interface CuentaCobrarRepository extends JpaRepository<CuentaCobrar, Long
 
     boolean existsByEstudianteAndTipoPago(com.unidadeducativa.personas.estudiante.model.Estudiante estudiante,
             com.unidadeducativa.finanzas.model.TipoPago tipoPago);
+
+    // Buscar morosos: Cuentas pendientes de estudiantes de una Unidad Educativa
+    @org.springframework.data.jpa.repository.Query("SELECT cc FROM CuentaCobrar cc WHERE cc.estado = :estado AND cc.estudiante.usuario.unidadEducativa.idUnidadEducativa = :idUnidadEducativa")
+    List<CuentaCobrar> findByEstadoAndEstudianteUsuarioUnidadEducativaIdUnidadEducativa(
+            @org.springframework.data.repository.query.Param("estado") EstadoPago estado,
+            @org.springframework.data.repository.query.Param("idUnidadEducativa") Long idUnidadEducativa);
 }

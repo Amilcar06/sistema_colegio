@@ -12,7 +12,8 @@ dependencies:
   dio: ^5.4.1                # Para consumir APIs REST
   flutter_secure_storage: ^10.0.0-beta.4  # Para guardar el token JWT
   provider: ^6.1.2           # Estado global (opcional, puedes usar Riverpod también)
-  go_router: ^15.2.4         # Navegación basada en rutas
+  go_router: ^13.0.0         # Navegación basada en rutas
+  fl_chart: ^0.66.0
   json_annotation: ^4.9.0    # Para modelos JSON
   image_picker: ^1.0.4
   intl: ^0.18.1

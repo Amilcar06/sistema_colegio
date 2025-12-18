@@ -41,15 +41,14 @@ El formulario de "Configuración General" ya persiste datos en la base de datos.
 
 ### 3.1 Backend de Reportes Financieros
 Ya existen entidades de `Pago`, pero faltan endpoints agregados para reportes.
-- [ ] **Endpoint:** `GET /api/reportes/ingresos` (Filtros: diario, mensual, rango fechas).
-- [ ] **Endpoint:** `GET /api/reportes/morosos` (Lista de estudiantes con cuotas vencidas).
+- [x] **Endpoint:** `GET /api/reportes/ingresos` (Filtros: diario, mensual, rango fechas).
+- [x] **Endpoint:** `GET /api/reportes/morosos` (Lista de estudiantes con cuotas vencidas).
 
 ### 3.2 Frontend - Pantalla de Pagos (`DashboardDirectorPagosPage`)
 Reemplazar la pantalla placeholder actual con un dashboard financiero funcional.
-- [ ] **Tab 1 - Transacciones Recientes:** Tabla con los últimos pagos recibidos (paginada).
-- [ ] **Tab 2 - Reporte Económico:** Selectores de fecha y Gráfico de barras (Ingresos por mes).
-- [ ] **Tab 3 - Control de Mora:** Lista de estudiantes deudores con botón para exportar PDF.
-
+- [x] **Tab 1 - Transacciones Recientes:** Tabla con los últimos pagos recibidos (paginada).
+- [x] **Tab 2 - Reporte Económico:** Selectores de fecha y Gráfico de barras (Ingresos por mes).
+- [x] **Tab 3 - Control de Mora:** Lista de estudiantes deudores con botón para exportar PDF.
 ---
 
 ## 🏃 Sprint 4: Pulido Final y UX
@@ -68,7 +67,7 @@ Reemplazar la pantalla placeholder actual con un dashboard financiero funcional.
 | **Configuración** | Paralelos | ✅ Completado | ✅ Entidad Configurable |
 | **Configuración** | Datos Institución | ✅ Completado | ✅ Persistente (BD) |
 | **Dashboard** | KPIs | ✅ Completado | ✅ Data Real 100% |
-| **Finanzas** | Reportes | ❌ "En Desarrollo" | ✅ Dashboard Financiero |
+| **Finanzas** | Reportes | ✅ Completado | ✅ Dashboard Financiero |
 
-Siguiente paso: **Sprint 3: Módulo Financiero**
+Siguiente paso: **Sprint 4: Pulido Final y UX**
 
