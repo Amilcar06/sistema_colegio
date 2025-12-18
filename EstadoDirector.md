@@ -9,9 +9,9 @@ Este documento detalla la hoja de ruta estratégica para completar el 100% de la
 
 ### 1.1 Configuración de Paralelos (Backend & Frontend)
 Actualmente, los paralelos (A, B, C) son solo strings en la clase `Curso`. Necesitamos controlarlos globalmente.
-- [ ] **Backend (JPA):** Crear entidad `ConfiguracionParalelo` (id, nombre, activo, orden).
-- [ ] **Backend (API):** Endpoint `GET /api/configuracion/paralelos` y `PUT /api/configuracion/paralelos` para habilitar/deshabilitar.
-- [ ] **Frontend:** Conectar la pestaña 2 de `DashboardDirectorParalelosPage` para leer/escribir esta configuración real.
+- [x] **Backend (JPA):** Crear entidad `ConfiguracionParalelo` (id, nombre, activo, orden).
+- [x] **Backend (API):** Endpoint `GET /api/configuracion/paralelos` y `PUT /api/configuracion/paralelos` para habilitar/deshabilitar.
+- [x] **Frontend:** Conectar la pestaña 2 de `DashboardDirectorParalelosPage` para leer/escribir esta configuración real.
 
 ### 1.2 Configuración Institucional (Global)
 El formulario de "Configuración General" es visualmente funcional pero no persiste datos.
@@ -62,9 +62,10 @@ Reemplazar la pantalla placeholder actual con un dashboard financiero funcional.
 
 | Módulo | Característica | Estado Actual | Meta del Plan |
 | :--- | :--- | :--- | :--- |
-| **Configuración** | Paralelos | ❌ String simple | ✅ Entidad Configurable |
+| **Configuración** | Paralelos | ✅ Completado | ✅ Entidad Configurable |
 | **Configuración** | Datos Institución | ❌ Simulado | ✅ Persistente (BD) |
 | **Dashboard** | KPIs | ⚠️ Parcial | ✅ Data Real 100% |
 | **Finanzas** | Reportes | ❌ "En Desarrollo" | ✅ Dashboard Financiero |
 
-¿Procedemos con el **Sprint 1**?
+Siguiente paso: **Sprint 1.2 Configuración Institucional**
+

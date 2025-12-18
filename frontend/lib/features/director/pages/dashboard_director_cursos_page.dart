@@ -3,7 +3,9 @@ import 'package:provider/provider.dart';
 import '../../../shared/widgets/main_scaffold.dart';
 import '../controller/curso_controller.dart';
 import '../models/grado.dart';
-import '../models/curso.dart'; // Add this import
+import '../models/curso.dart';
+import '../services/configuracion_paralelo_service.dart';
+import '../models/configuracion_paralelo.dart';
 
 class DashboardDirectorCursosPage extends StatelessWidget {
   const DashboardDirectorCursosPage({super.key});
@@ -190,39 +192,62 @@ class _CursoDialog extends StatefulWidget {
   State<_CursoDialog> createState() => _CursoDialogState();
 }
 
+
+
 class _CursoDialogState extends State<_CursoDialog> {
   final _formKey = GlobalKey<FormState>();
+  final ConfiguracionParaleloService _configService = ConfiguracionParaleloService();
   
   Grado? _gradoSeleccionado;
   String? _paralelo;
   String _turno = 'MAÑANA';
 
-  final List<String> _paralelos = ['A', 'B', 'C', 'D', 'E'];
+  List<String> _paralelos = []; // Dynamic list
+  bool _loadingParalelos = true;
   final List<String> _turnos = ['MAÑANA', 'TARDE', 'NOCHE'];
 
   @override
   void initState() {
     super.initState();
+    _cargarParalelos();
     if (widget.curso != null) {
       final c = widget.curso!;
-      // En modo edición, cargamos valores. 
-      // Nota: El grado debería venir del backend pre-seleccionado, pero aqui lo buscamos en el controller
-      // Esto requiere que el controller ya tenga la lista.
-      // Simplificación: Asumimos que podemos encontrarlo por ID o nombre.
       _paralelo = c.paralelo;
       _turno = c.turno == 'MANANA' ? 'MAÑANA' : c.turno;
     }
+  }
+
+  Future<void> _cargarParalelos() async {
+      try {
+          final configs = await _configService.listar();
+          if (mounted) {
+              setState(() {
+                  _paralelos = configs
+                      .where((c) => c.activo)
+                      .map((c) => c.nombre)
+                      .toList();
+                  _loadingParalelos = false;
+                  
+                  // Ensure existing parallel is in list if editing, even if inactive (edge case)
+                  if (_paralelo != null && !_paralelos.contains(_paralelo)) {
+                       _paralelos.add(_paralelo!);
+                  }
+              });
+          }
+      } catch (e) {
+          // Fallback
+          if (mounted) setState(() { 
+              _paralelos = ['A', 'B', 'C'];
+              _loadingParalelos = false; 
+          });
+      }
   }
 
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<CursoController>();
     
-    // Inicializar grado si es edición
     if (widget.curso != null && _gradoSeleccionado == null && controller.grados.isNotEmpty) {
-      // Intentar encontrar el grado que coincida. El modelo Curso tiene idGrado?
-      // Revisando modelo Curso... probablemente tenga idCurso, pero no idGrado explicito a veces.
-      // Asumiremos que podemos matchear por nombreGrado.
       try {
         _gradoSeleccionado = controller.grados.firstWhere((g) => g.nombre == widget.curso!.nombreGrado);
       } catch (_) {}
@@ -245,18 +270,20 @@ class _CursoDialogState extends State<_CursoDialog> {
                     child: Text('${grado.nombre} (${grado.nivel})'),
                   );
                 }).toList(),
-                onChanged: widget.curso == null ? (value) => setState(() => _gradoSeleccionado = value) : null, // Deshabilitar cambio de grado en edición si se desea
-                 // O permitirlo.
+                onChanged: widget.curso == null ? (value) => setState(() => _gradoSeleccionado = value) : null,
                 validator: (value) => value == null ? 'Seleccione un grado' : null,
               ),
               const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                decoration: const InputDecoration(labelText: 'Paralelo'),
-                value: _paralelo,
-                items: _paralelos.map((p) => DropdownMenuItem(value: p, child: Text(p))).toList(),
-                onChanged: (value) => setState(() => _paralelo = value),
-                validator: (value) => value == null ? 'Seleccione un paralelo' : null,
-              ),
+              _loadingParalelos 
+                  ? const CircularProgressIndicator()
+                  : DropdownButtonFormField<String>(
+                    decoration: const InputDecoration(labelText: 'Paralelo'),
+                    value: _paralelo,
+                    items: _paralelos.map((p) => DropdownMenuItem(value: p, child: Text(p))).toList(),
+                    onChanged: (value) => setState(() => _paralelo = value),
+                    validator: (value) => value == null ? 'Seleccione un paralelo' : null,
+                  ),
+
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 decoration: const InputDecoration(labelText: 'Turno'),

@@ -19,10 +19,31 @@ public class CursoServiceImpl implements ICursoService {
 
     private final CursoRepository cursoRepository;
     private final GradoRepository gradoRepository;
+    private final com.unidadeducativa.academia.paralelo.repository.ConfiguracionParaleloRepository configParaleloRepository;
     private final CursoMapper cursoMapper;
+
+    private void validarParaleloActivo(String nombreParalelo) {
+        configParaleloRepository.findAll().stream()
+                .filter(p -> p.getNombre().equalsIgnoreCase(nombreParalelo))
+                .findFirst()
+                .ifPresentOrElse(
+                        p -> {
+                            if (!Boolean.TRUE.equals(p.getActivo())) {
+                                throw new IllegalArgumentException(
+                                        "El paralelo " + nombreParalelo + " está deshabilitado en la configuración.");
+                            }
+                        },
+                        () -> {
+                            throw new IllegalArgumentException(
+                                    "El paralelo " + nombreParalelo + " no existe en la configuración.");
+                        });
+    }
 
     @Override
     public CursoResponseDTO crearCurso(CursoRequestDTO dto) {
+        // Validar que el paralelo esté activo
+        validarParaleloActivo(dto.getParalelo());
+
         // Verificamos que el grado exista
         gradoRepository.findById(dto.getIdGrado())
                 .orElseThrow(() -> new RuntimeException("Grado no encontrado"));
@@ -57,6 +78,9 @@ public class CursoServiceImpl implements ICursoService {
     public CursoResponseDTO actualizarCurso(Long id, CursoRequestDTO dto) {
         Curso curso = cursoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Curso no encontrado"));
+
+        // Validar nuevo paralelo si cambia o siempre
+        validarParaleloActivo(dto.getParalelo());
 
         Grado grado = gradoRepository.findById(dto.getIdGrado())
                 .orElseThrow(() -> new RuntimeException("Grado no encontrado"));

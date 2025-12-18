@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../controller/curso_controller.dart';
 import '../../../shared/widgets/main_scaffold.dart';
+import '../models/configuracion_paralelo.dart';
+import '../services/configuracion_paralelo_service.dart';
 
 class DashboardDirectorParalelosPage extends StatelessWidget {
   const DashboardDirectorParalelosPage({super.key});
@@ -23,8 +25,53 @@ class _ParalelosView extends StatefulWidget {
 }
 
 class _ParalelosViewState extends State<_ParalelosView> {
-  // Simulación de configuración
-  final Set<String> _habilitados = {'A', 'B', 'C'};
+  final ConfiguracionParaleloService _configService = ConfiguracionParaleloService();
+  List<ConfiguracionParalelo> _configuracion = [];
+  bool _isLoadingConfig = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarConfiguracion();
+  }
+
+  Future<void> _cargarConfiguracion() async {
+    try {
+      final data = await _configService.listar();
+      if (mounted) {
+        setState(() {
+          _configuracion = data;
+          _isLoadingConfig = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoadingConfig = false);
+        // Silent error or snackbar
+      }
+    }
+  }
+
+  Future<void> _toggleParalelo(ConfiguracionParalelo p) async {
+    // Optimistic update
+    setState(() {
+      final index = _configuracion.indexWhere((element) => element.id == p.id);
+      if (index != -1) {
+        // Create copy with inverted active status
+        // Since attributes are final, we can't just set active.
+        // But we are reloading anyway or should construct new object.
+        // For simple feedback, we rely on reload or just waiting.
+        // Actually, let's show loading or just wait.
+      }
+    });
+
+    try {
+        await _configService.toggleEstado(p.id, !p.activo);
+        _cargarConfiguracion(); // Reload to be sure
+    } catch (e) {
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error al actualizar')));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,42 +127,49 @@ class _ParalelosViewState extends State<_ParalelosView> {
                         },
                       ),
                       
-                  // Tab 2: Configuración (Dummy implementation kept)
-                  GridView.builder(
-                    padding: const EdgeInsets.all(16),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 4,
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
-                    ),
-                    itemCount: 8, // A-H
-                    itemBuilder: (context, index) {
-                      final p = String.fromCharCode(65 + index); // A, B, C...
-                      final isEnabled = _habilitados.contains(p);
-                      return InkWell(
-                        onTap: () => setState(() {
-                          if (isEnabled) _habilitados.remove(p); else _habilitados.add(p);
-                        }),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: isEnabled ? Colors.green : Colors.grey[200],
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: isEnabled ? Colors.green : Colors.grey),
+                  // Tab 2: Configuración Real
+                  _isLoadingConfig
+                      ? const Center(child: CircularProgressIndicator())
+                      : GridView.builder(
+                          padding: const EdgeInsets.all(16),
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 4,
+                            crossAxisSpacing: 10,
+                            mainAxisSpacing: 10,
                           ),
-                          child: Center(
-                            child: Text(
-                              p,
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: isEnabled ? Colors.white : Colors.black54,
+                          itemCount: _configuracion.length,
+                          itemBuilder: (context, index) {
+                            final p = _configuracion[index];
+                            final isEnabled = p.activo;
+                            return InkWell(
+                              onTap: () => _toggleParalelo(p),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: isEnabled ? Colors.green : Colors.grey[200],
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: isEnabled ? Colors.green : Colors.grey),
+                                ),
+                                child: Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        p.nombre,
+                                        style: TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                          color: isEnabled ? Colors.white : Colors.black54,
+                                        ),
+                                      ),
+                                      if (isEnabled)
+                                        const Icon(Icons.check_circle, color: Colors.white, size: 16)
+                                    ],
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
+                            );
+                          },
                         ),
-                      );
-                    },
-                  ),
                 ],
               ),
             ),
