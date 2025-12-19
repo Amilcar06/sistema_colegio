@@ -20,7 +20,7 @@ class MenuItem extends MenuEntry {
 final Map<String, List<MenuEntry>> menuPorRol = {
   'director': [
     // Dashboard
-    const MenuItem('Inicio (Dashboard)', Icons.dashboard, '/dashboard-director'),
+    // const MenuItem('Inicio (Dashboard)', Icons.dashboard, '/dashboard-director'), // Redundant
 
     // Gestión Institucional
     const MenuHeader('GESTIÓN INSTITUCIONAL'),
@@ -52,7 +52,8 @@ final Map<String, List<MenuEntry>> menuPorRol = {
     const MenuItem('Eventos', Icons.event, '/dashboard-director/eventos'),
   ],
   'secretaria': [
-    const MenuItem('Dashboard', Icons.dashboard, '/dashboard-secretaria'),
+    // const MenuItem('Dashboard', Icons.dashboard, '/dashboard-secretaria'),
+
     const MenuItem('Estudiantes', Icons.people, '/dashboard-secretaria/estudiantes'),
     const MenuItem('Inscripciones', Icons.how_to_reg, '/dashboard-secretaria/inscripciones'),
     const MenuItem('Cursos', Icons.school, '/dashboard-secretaria/cursos'),
@@ -62,7 +63,8 @@ final Map<String, List<MenuEntry>> menuPorRol = {
     const MenuItem('Eventos Académicos', Icons.event, '/dashboard-secretaria/eventos'),
   ],
   'profesor': [
-    const MenuItem('Dashboard', Icons.dashboard, '/dashboard-profesor'),
+    // const MenuItem('Dashboard', Icons.dashboard, '/dashboard-profesor'),
+
     const MenuItem('Mis Cursos', Icons.class_, '/dashboard-profesor/cursos'),
     const MenuItem('Horarios', Icons.schedule, '/dashboard-profesor/horarios'),
     const MenuItem('Estudiantes del Curso', Icons.group, '/dashboard-profesor/inscritos'),
@@ -70,7 +72,8 @@ final Map<String, List<MenuEntry>> menuPorRol = {
     const MenuItem('Comunicados por Curso', Icons.record_voice_over, '/dashboard-profesor/comunicados'),
   ],
   'estudiante': [
-    const MenuItem('Dashboard', Icons.dashboard, '/dashboard-estudiante'),
+    // const MenuItem('Dashboard', Icons.dashboard, '/dashboard-estudiante'),
+
     const MenuItem('Mis Notas', Icons.grade, '/dashboard-estudiante/notas'),
     const MenuItem('Pagos', Icons.payments, '/dashboard-estudiante/pagos'),
     const MenuItem('Comprobantes', Icons.receipt, '/dashboard-estudiante/comprobantes'),

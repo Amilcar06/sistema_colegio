@@ -93,7 +93,7 @@ class _DashboardDirectorTipoPensionPageState extends State<DashboardDirectorTipo
           : SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   LayoutBuilder(
                     builder: (context, constraints) {
