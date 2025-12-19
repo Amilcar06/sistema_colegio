@@ -20,6 +20,9 @@ class SideMenu extends StatelessWidget {
 
     final menuItems = menuPorRol[roleKey] ?? [];
 
+    // Get current path to highlight active menu item
+    final String currentPath = GoRouterState.of(context).uri.path;
+
     return Drawer(
       child: Column(
         children: [
@@ -34,8 +37,8 @@ class SideMenu extends StatelessWidget {
               currentAccountPicture: const CircleAvatar(
                 child: Icon(Icons.person),
               ),
-              decoration: const BoxDecoration(
-                color: Colors.blue,
+              decoration: BoxDecoration(
+                color: Colors.blue[900], // Updated color for better aesthetics
               ),
             ),
           ),
@@ -46,6 +49,7 @@ class SideMenu extends StatelessWidget {
                 _createDrawerItem(
                   icon: Icons.home,
                   text: 'Inicio',
+                  isActive: _isHomeActive(currentPath, roleKey),
                   onTap: () {
                     context.pop(); // Cierra el drawer
                     _navigateToHome(context, roleKey);
@@ -69,6 +73,7 @@ class SideMenu extends StatelessWidget {
                     return _createDrawerItem(
                       icon: item.icon,
                       text: item.label,
+                      isActive: currentPath == item.route,
                       onTap: () {
                          context.pop(); // Close drawer
                          context.go(item.route);
@@ -81,6 +86,7 @@ class SideMenu extends StatelessWidget {
                 _createDrawerItem(
                   icon: Icons.notifications,
                   text: 'Notificaciones',
+                  isActive: currentPath == '/notificaciones',
                   onTap: () {
                     context.pop();
                     context.push('/notificaciones');
@@ -104,6 +110,14 @@ class SideMenu extends StatelessWidget {
     );
   }
 
+  bool _isHomeActive(String currentPath, String role) {
+    if (role == 'director' && currentPath == '/dashboard-director') return true;
+    if (role == 'secretaria' && currentPath == '/dashboard-secretaria') return true;
+    if (role == 'profesor' && currentPath == '/dashboard-profesor') return true;
+    if (role == 'estudiante' && currentPath == '/dashboard-estudiante') return true;
+    return false;
+  }
+
   void _navigateToHome(BuildContext context, String role) {
     if (role == 'director') context.go('/dashboard-director');
     if (role == 'secretaria') context.go('/dashboard-secretaria');
@@ -115,10 +129,26 @@ class SideMenu extends StatelessWidget {
     required IconData icon,
     required String text,
     required VoidCallback onTap,
+    bool isActive = false,
   }) {
     return ListTile(
-      leading: Icon(icon),
-      title: Text(text),
+      leading: Icon(
+        icon,
+        color: isActive ? Colors.blue[900] : Colors.grey[700],
+      ),
+      title: Text(
+        text,
+        style: TextStyle(
+          color: isActive ? Colors.blue[900] : Colors.grey[800],
+          fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+        ),
+      ),
+      selected: isActive,
+      selectedTileColor: Colors.blue.withOpacity(0.1),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8.0), // Rounded corners for active item
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
       onTap: onTap,
     );
   }

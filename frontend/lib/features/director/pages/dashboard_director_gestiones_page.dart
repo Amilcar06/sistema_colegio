@@ -71,6 +71,9 @@ class _DashboardDirectorGestionesPageState extends State<DashboardDirectorGestio
     try {
       await _service.update(g.idGestion, g.anio, nuevoEstado);
       _loadGestiones();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Estado actualizado correctamente')));
+      }
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
     }

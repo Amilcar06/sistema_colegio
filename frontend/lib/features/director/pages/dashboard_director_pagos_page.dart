@@ -1,6 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+
 import '../../../../core/api_config.dart';
 import '../../../shared/widgets/main_scaffold.dart';
 import '../services/reporte_service.dart';
@@ -50,7 +50,7 @@ class _DashboardDirectorPagosPageState extends State<DashboardDirectorPagosPage>
     } catch (e) {
       if (mounted) {
         setState(() => _isLoadingTransacciones = false);
-        // Error silencioso o snackbar opcional
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }
