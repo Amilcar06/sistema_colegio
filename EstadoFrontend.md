@@ -54,8 +54,3 @@ El frontend tiene una estructura **clara y profesional**.
 
 **¿Hay que reordenar?** NO.
 La separación por roles en `features` es la decisión correcta para una app con perfiles tan distintos.
-
-**Sugerencias de Mejora:**
-1.  **Persistencia de Rol:** Decodificar el JWT al inicio (`jwt_decoder`) para restaurar el rol del usuario sin obligarlo a loguearse de nuevo.
-2.  **Theming:** Definir una paleta de colores institucional en `core/theme.dart` para dar identidad propia (alejarse del azul Flutter por defecto).
-3.  **Responsive:** Verificar el comportamiento del `SideMenu` en pantallas pequeñas (celulares).

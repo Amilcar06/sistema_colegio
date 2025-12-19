@@ -38,7 +38,7 @@ class SideMenu extends StatelessWidget {
                 child: Icon(Icons.person),
               ),
               decoration: BoxDecoration(
-                color: Colors.blue[900], // Updated color for better aesthetics
+                color: Theme.of(context).primaryColor,
               ),
             ),
           ),
@@ -47,6 +47,7 @@ class SideMenu extends StatelessWidget {
               padding: EdgeInsets.zero,
               children: [
                 _createDrawerItem(
+                  context: context,
                   icon: Icons.home,
                   text: 'Inicio',
                   isActive: _isHomeActive(currentPath, roleKey),
@@ -71,6 +72,7 @@ class SideMenu extends StatelessWidget {
                     );
                   } else if (item is MenuItem) {
                     return _createDrawerItem(
+                      context: context,
                       icon: item.icon,
                       text: item.label,
                       isActive: currentPath == item.route,
@@ -84,6 +86,7 @@ class SideMenu extends StatelessWidget {
                 }),
                 const Divider(),
                 _createDrawerItem(
+                  context: context,
                   icon: Icons.notifications,
                   text: 'Notificaciones',
                   isActive: currentPath == '/notificaciones',
@@ -126,6 +129,7 @@ class SideMenu extends StatelessWidget {
   }
 
   Widget _createDrawerItem({
+    required BuildContext context,
     required IconData icon,
     required String text,
     required VoidCallback onTap,
@@ -134,17 +138,17 @@ class SideMenu extends StatelessWidget {
     return ListTile(
       leading: Icon(
         icon,
-        color: isActive ? Colors.blue[900] : Colors.grey[700],
+        color: isActive ? Theme.of(context).primaryColor : Colors.grey[700],
       ),
       title: Text(
         text,
         style: TextStyle(
-          color: isActive ? Colors.blue[900] : Colors.grey[800],
+          color: isActive ? Theme.of(context).primaryColor : Colors.grey[800],
           fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
         ),
       ),
       selected: isActive,
-      selectedTileColor: Colors.blue.withOpacity(0.1),
+      selectedTileColor: Theme.of(context).primaryColor.withOpacity(0.1),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8.0), // Rounded corners for active item
       ),

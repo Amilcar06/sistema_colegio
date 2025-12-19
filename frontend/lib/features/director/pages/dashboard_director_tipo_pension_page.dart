@@ -95,23 +95,49 @@ class _DashboardDirectorTipoPensionPageState extends State<DashboardDirectorTipo
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Conceptos de Pago (Gestión 2025)',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
-                      ElevatedButton.icon(
-                        onPressed: () => _mostrarFormulario(),
-                        icon: const Icon(Icons.add),
-                        label: const Text('Nuevo Concepto'),
-                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blueAccent,
-                         foregroundColor: Colors.white,
-                        ),
-                      ),
-                    ],
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      if (constraints.maxWidth < 600) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            const Text(
+                              'Conceptos de Pago (Gestión 2025)',
+                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 10),
+                            ElevatedButton.icon(
+                              onPressed: () => _mostrarFormulario(),
+                              icon: const Icon(Icons.add),
+                              label: const Text('Nuevo Concepto'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Theme.of(context).primaryColor,
+                                foregroundColor: Colors.white,
+                              ),
+                            ),
+                          ],
+                        );
+                      } else {
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Conceptos de Pago (Gestión 2025)',
+                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                            ElevatedButton.icon(
+                              onPressed: () => _mostrarFormulario(),
+                              icon: const Icon(Icons.add),
+                              label: const Text('Nuevo Concepto'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Theme.of(context).primaryColor,
+                                foregroundColor: Colors.white,
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+                    },
                   ),
                   const SizedBox(height: 20),
                   Card(

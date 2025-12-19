@@ -1,5 +1,6 @@
 // lib/state/auth_provider.dart
 import 'package:flutter/material.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import '../core/storage.dart';
 
 class AuthProvider with ChangeNotifier {
@@ -28,9 +29,14 @@ class AuthProvider with ChangeNotifier {
   Future<void> checkAuthOnStart() async {
     final storedToken = await readToken();
     if (storedToken != null) {
-      _token = storedToken;
-      // Puedes decodificar el JWT para sacar el rol
-      // o hacer un endpoint tipo `/auth/me`
+      if (JwtDecoder.isExpired(storedToken)) {
+        await logout();
+      } else {
+        _token = storedToken;
+        final decodedToken = JwtDecoder.decode(storedToken);
+        // The backend uses key "role" for the role name
+        _rol = decodedToken['role'] as String?;
+      }
     }
     notifyListeners();
   }
