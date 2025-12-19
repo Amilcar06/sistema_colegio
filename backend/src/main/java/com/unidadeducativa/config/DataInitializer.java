@@ -196,6 +196,26 @@ public class DataInitializer implements CommandLineRunner {
                 e.printStackTrace(); // PRINT TRACE FOR MIGRATION
             }
 
+            // 0.5 MIGRATION: Fix NULL dimensions in Nota table for existing records
+            try {
+                // Check if we need to update nulls to 0.0
+                int updated = entityManager.createNativeQuery(
+                        "UPDATE nota SET " +
+                                "ser = COALESCE(ser, 0), " +
+                                "saber = COALESCE(saber, 0), " +
+                                "hacer = COALESCE(hacer, 0), " +
+                                "decidir = COALESCE(decidir, 0), " +
+                                "autoevaluacion = COALESCE(autoevaluacion, 0), " +
+                                "nota_final = COALESCE(nota_final, valor, 0) " + // Copy from old valor if needed
+                                "WHERE ser IS NULL OR nota_final IS NULL")
+                        .executeUpdate();
+                if (updated > 0) {
+                    log.info("MIGRATION SQL: Updated {} notes with NULL dimensions/nota_final.", updated);
+                }
+            } catch (Exception e) {
+                log.warn("Migration 0.5 failed (maybe columns don't exist yet/first run?): " + e.getMessage());
+            }
+
             // 1. Roles
             inicializarRoles();
 
@@ -427,7 +447,7 @@ public class DataInitializer implements CommandLineRunner {
                         .estudiante(est)
                         .asignacion(asignacion)
                         .trimestre(Trimestre.PRIMER)
-                        .valor((double) Math.round(valorNota * 100) / 100)
+                        .notaFinal((double) Math.round(valorNota * 100) / 100) // Changed from .valor() to .notaFinal()
                         .fechaRegistro(LocalDate.now())
                         .build());
                 log.info("Nota registrada para {}", est.getUsuario().getNombres());

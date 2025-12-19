@@ -5,6 +5,7 @@ import '../models/profesor_registro_completo.dart';
 import '../models/profesor_response.dart';
 import '../models/dashboard_profesor_stats.dart';
 import '../models/asignacion_docente_response.dart';
+import '../models/boletin_notas_model.dart';
 
 class ProfesorService {
   Future<List<ProfesorResponseDTO>> listarProfesores() async {
@@ -78,5 +79,39 @@ class ProfesorService {
       options: Options(responseType: ResponseType.bytes),
     );
     return response.data;
+  }
+
+  // Gradebook Methods
+  Future<List<BoletinNotasModel>> getBoletinCurso(int idAsignacion, String trimestre) async {
+    final response = await dio.get(
+      '/notas/asignacion/$idAsignacion/boletin-curso', // Note: Endpoint changed in backend to match this? 
+      // I defined endpoint as /asignacion/{id}/boletin-curso in backend controller step 417
+      queryParameters: {'trimestre': trimestre},
+    );
+    return (response.data as List).map((e) => BoletinNotasModel.fromJson(e)).toList();
+  }
+
+  Future<void> guardarNotasBatch(int idAsignacion, String trimestre, List<BoletinNotasModel> notas) async {
+    await dio.post(
+      '/notas/asignacion/$idAsignacion/batch',
+      queryParameters: {'trimestre': trimestre},
+      data: notas.map((e) => e.toJson()).toList(),
+    );
+  }
+
+  // Horarios
+  Future<List<Map<String, dynamic>>> getMisHorarios() async {
+    final response = await dio.get('/horarios/profesor/mis-horarios');
+    return (response.data as List).cast<Map<String, dynamic>>();
+  }
+
+  // Comunicados
+  Future<List<Map<String, dynamic>>> getComunicados() async {
+    final response = await dio.get('/comunicados');
+    return (response.data as List).cast<Map<String, dynamic>>();
+  }
+
+  Future<void> enviarComunicado(Map<String, dynamic> data) async {
+    await dio.post('/comunicados', data: data);
   }
 }

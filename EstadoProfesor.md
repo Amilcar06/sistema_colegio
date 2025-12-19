@@ -23,19 +23,19 @@ Este documento detalla la hoja de ruta estratégica para completar el 100% de la
 **Objetivo:** Reemplazar el registro manual/Excel con un sistema web ágil y seguro.
 
 ### 2.1 Gestión de Trimestres
-- [ ] **Backend:** Validar que el profesor solo pueda editar notas del **Trimestre Activo** según configuración de Dirección.
-- [ ] **Frontend:** Selector de Trimestre en la pantalla de notas (Bloquear edición en trimestres cerrados).
+- [x] **Backend:** Validar que el profesor solo pueda editar notas del **Trimestre Activo** según configuración de Dirección.
+- [x] **Frontend:** Selector de Trimestre en la pantalla de notas (Bloquear edición en trimestres cerrados).
 
 ### 2.2 Hoja de Calificaciones (Gradebook)
-- [ ] **Frontend:** Implementar tabla editable ("DataGrid") en `RegistroNotasPage`.
+- [x] **Frontend:** Implementar tabla editable ("DataGrid") en `RegistroNotasPage`.
     - Columnas: Ser (10pt), Saber (35pt), Hacer (35pt), Decidir (10pt), Auto-evaluación (10pt).
     - Cálculo automático de promedios en tiempo real.
-- [ ] **Backend:** Endpoint `POST /api/notas/batch` para guardar notas masivamente por curso.
-- [ ] **Validación:** Controlar rango de notas (0-100) y prevenir pérdida de datos.
+- [x] **Backend:** Endpoint `POST /api/notas/batch` para guardar notas masivamente por curso.
+- [x] **Validación:** Controlar rango de notas (0-100) y prevenir pérdida de datos.
 
 ### 2.3 Listado de Estudiantes
-- [ ] **Frontend:** Visualizar la lista de alumnos inscritos en el curso seleccionado (`DashboardProfesorInscritosPage`).
-- [ ] **Funcionalidad:** Acceso rápido al perfil básico del estudiante (Nombre, Foto) para identificación.
+- [x] **Frontend:** Visualizar la lista de alumnos inscritos en el curso seleccionado (`DashboardProfesorInscritosPage`).
+- [x] **Funcionalidad:** Acceso rápido al perfil básico del estudiante (Nombre, Foto) para identificación.
 
 ---
 
@@ -43,9 +43,9 @@ Este documento detalla la hoja de ruta estratégica para completar el 100% de la
 **Objetivo:** Organización del tiempo docente.
 
 ### 3.1 Mi Horario
-- [ ] **Backend:** Endpoint `GET /api/profesor/horario` filtrando la matriz general por el ID del profesor.
-- [ ] **Frontend:** Visualización de calendario semanal en `DashboardProfesorHorariosPage`.
-- [ ] **UX:** Colores distintivos por materia o curso.
+- [x] **Backend:** Endpoint `GET /api/profesor/horario` filtrando la matriz general por el ID del profesor.
+- [x] **Frontend:** Visualización de calendario semanal en `DashboardProfesorHorariosPage`.
+- [x] **UX:** Colores distintivos por materia o curso.
 
 ---
 
@@ -53,10 +53,10 @@ Este documento detalla la hoja de ruta estratégica para completar el 100% de la
 **Objetivo:** Facilitar el flujo de información Profesor <-> Dirección <-> Padres.
 
 ### 4.1 Comunicados
-- [ ] **Backend:** Endpoint `GET /api/comunicados/profesor` (Recibidos) y `POST /api/comunicados` (Enviar a curso).
-- [ ] **Frontend:** Pantalla `DashboardProfesorComunicadosPage`.
-- [ ] **Funcionalidad:**
-    - Bandeja de entrada (Circulares de Dirección).
+- [x] **Backend:** Endpoint `GET /api/comunicados/profesor` (Recibidos) y `POST /api/comunicados` (Enviar a curso).
+- [x] **Frontend:** Pantalla `DashboardProfesorComunicadosPage`.
+- [x] **Funcionalidad:**
+    - Bandeja de entrada (Circulares de Dirección/Globales).
     - Redactar aviso para un curso entero (ej: "Examen el viernes").
 
 ---
@@ -66,8 +66,8 @@ Este documento detalla la hoja de ruta estratégica para completar el 100% de la
 | Módulo | Característica | Estado Actual | Meta del Plan |
 | :--- | :--- | :--- | :--- |
 | **Acceso** | Cursos Asignados | ✅ Completado | ✅ Lista detallada y navegable |
-| **Académico** | **Registro de Notas** | 🚧 En Progreso | ✅ DataGrid Web Agil |
-| **Organización** | Horario Personal | ⚪ Pendiente | ✅ Calendario Semanal |
-| **Comunidad** | Comunicados | ⚪ Pendiente | ✅ Comunicación fluida |
+| **Académico** | **Registro de Notas** | ✅ Completado | ✅ DataGrid Web Agil |
+| **Organización** | Horario Personal | ✅ Completado | ✅ Calendario Semanal |
+| **Comunidad** | Comunicados | ✅ Completado | ✅ Comunicación fluida |
 
-Siguiente paso: **Iniciar Sprint 2 (Registro de Notas)**
+Siguiente paso: **Verificación General y Cierre**

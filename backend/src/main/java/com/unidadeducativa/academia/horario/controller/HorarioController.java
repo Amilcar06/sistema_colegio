@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import com.unidadeducativa.personas.profesor.service.IProfesorService;
+
 @RestController
 @RequestMapping("/api/horarios")
 @RequiredArgsConstructor
@@ -20,6 +22,7 @@ import java.util.List;
 public class HorarioController {
 
     private final HorarioService service;
+    private final IProfesorService profesorService;
 
     @Operation(summary = "Crear nuevo horario")
     @PreAuthorize("hasAnyRole('ROLE_DIRECTOR', 'ROLE_SECRETARIA')")
@@ -40,6 +43,15 @@ public class HorarioController {
     @GetMapping("/profesor/{idProfesor}")
     public ResponseEntity<List<HorarioResponseDTO>> listarPorProfesor(@PathVariable Long idProfesor) {
         return ResponseEntity.ok(service.listarPorProfesor(idProfesor));
+    }
+
+    @Operation(summary = "Obtener mis horarios", description = "Devuelve los horarios del profesor autenticado.")
+    @PreAuthorize("hasRole('ROLE_PROFESOR')")
+    @GetMapping("/profesor/mis-horarios")
+    public ResponseEntity<List<HorarioResponseDTO>> listarMisHorarios(
+            org.springframework.security.core.Authentication authentication) {
+        var profesor = profesorService.obtenerPorCorreo(authentication.getName());
+        return ResponseEntity.ok(service.listarPorProfesor(profesor.getIdProfesor()));
     }
 
     @Operation(summary = "Actualizar horario")

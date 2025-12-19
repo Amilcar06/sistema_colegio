@@ -21,7 +21,7 @@ public class NotaMapper {
         return Nota.builder()
                 .estudiante(estudiante)
                 .asignacion(asignacion)
-                .valor(dto.getValor())
+                .notaFinal(dto.getValor()) // Mapping legacy 'valor' input to 'notaFinal'
                 .trimestre(dto.getTrimestre())
                 .build(); // fechaRegistro se asigna en la entidad automáticamente
     }
@@ -35,7 +35,7 @@ public class NotaMapper {
                 .idAsignacion(nota.getAsignacion().getIdAsignacion())
                 .nombreMateria(nota.getAsignacion().getMateria().getNombre())
                 .nombreProfesor(nota.getAsignacion().getProfesor().getUsuario().getNombreCompleto())
-                .valor(nota.getValor())
+                .valor(nota.getNotaFinal())
                 .trimestre(nota.getTrimestre())
                 .fechaRegistro(nota.getFechaRegistro().format(FORMATTER))
                 .build();
@@ -46,7 +46,7 @@ public class NotaMapper {
         return NotaTrimestreDTO.builder()
                 .trimestre(nota.getTrimestre())
                 .materia(nota.getAsignacion().getMateria().getNombre())
-                .valor(nota.getValor())
+                .valor(nota.getNotaFinal())
                 .nombreProfesor(nota.getAsignacion().getProfesor().getUsuario().getNombreCompleto())
                 .build();
     }

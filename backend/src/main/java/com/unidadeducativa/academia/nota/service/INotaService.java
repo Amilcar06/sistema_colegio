@@ -25,4 +25,10 @@ public interface INotaService {
     NotaBoletinDTO obtenerBoletin(Long idEstudiante, Long idGestion);
 
     LibretaDigitalDTO obtenerLibreta(Long idAsignacion);
+
+    List<com.unidadeducativa.academia.nota.dto.BoletinNotasDTO> obtenerBoletinCurso(Long idAsignacion,
+            Trimestre trimestre);
+
+    void guardarNotasBatch(List<com.unidadeducativa.academia.nota.dto.BoletinNotasDTO> notas, Long idAsignacion,
+            Trimestre trimestre);
 }

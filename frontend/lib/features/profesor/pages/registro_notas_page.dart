@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:unidad_educatica_frontend/shared/widgets/main_scaffold.dart';
 import '../services/profesor_service.dart';
+import '../models/boletin_notas_model.dart';
 
 class RegistroNotasPage extends StatefulWidget {
   final String idAsignacion;
@@ -13,63 +14,50 @@ class RegistroNotasPage extends StatefulWidget {
 
 class _RegistroNotasPageState extends State<RegistroNotasPage> {
   final ProfesorService _service = ProfesorService();
-  bool _isLoading = true;
-  Map<String, dynamic> _libreta = {};
-  List<dynamic> _estudiantes = [];
+  bool _isLoading = false;
+  List<BoletinNotasModel> _estudiantes = [];
+  String _trimestreSeleccionado = 'PRIMER'; // Default
 
   @override
   void initState() {
     super.initState();
-    _cargarLibreta();
+    _cargarBoletin();
   }
 
-  Future<void> _cargarLibreta() async {
+  Future<void> _cargarBoletin() async {
+    setState(() => _isLoading = true);
     try {
-      final data = await _service.getLibreta(widget.idAsignacion);
+      final data = await _service.getBoletinCurso(int.parse(widget.idAsignacion), _trimestreSeleccionado);
       setState(() {
-        _libreta = data;
-        _estudiantes = data['estudiantes'] ?? [];
+        _estudiantes = data;
         _isLoading = false;
       });
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al cargar notas: $e')),
+          SnackBar(content: Text('Error al cargar boletín: $e')),
         );
       }
     }
   }
 
-  Future<void> _guardarNota(
-      int idEstudiante, String trimester, double? valor, int? idNota) async {
-    // Si el valor es null, no hacemos nada de momento (o podríamos borrar)
-    if (valor == null) return;
-
-    // TODO: Validar rango 0-100
-
+  Future<void> _guardarTodo() async {
+    setState(() => _isLoading = true);
     try {
-      if (idNota == null) {
-        // Crear nota
-        await _service.registrarNota({
-          'idEstudiante': idEstudiante,
-          'idAsignacion': int.parse(widget.idAsignacion),
-          'valor': valor,
-          'trimestre': trimester
-        });
-      } else {
-        // Actualizar nota
-        await _service.actualizarNota(idNota, {
-          'valor': valor,
-          'trimestre': trimester // Se requiere aunque no cambie
-        });
+      await _service.guardarNotasBatch(
+          int.parse(widget.idAsignacion), _trimestreSeleccionado, _estudiantes);
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Notas guardadas correctamente')),
+        );
       }
-      
-      // Recargar para obtener los nuevos IDs (especialmente si fue crear)
-      _cargarLibreta();
-      
+      // Recargar para confirmar persistencia
+      _cargarBoletin();
     } catch (e) {
       if (mounted) {
+        setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error al guardar: $e')),
         );
@@ -77,67 +65,121 @@ class _RegistroNotasPageState extends State<RegistroNotasPage> {
     }
   }
 
+  void _recalcularNota(BoletinNotasModel modelo) {
+    setState(() {
+      modelo.notaFinal = modelo.ser + modelo.saber + modelo.hacer + modelo.decidir + modelo.autoevaluacion;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MainScaffold(
-      title: _isLoading ? 'Cargando...' : 'Notas: ${_libreta['materia']} - ${_libreta['curso']}',
-      child: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                   Text(
-                    'Gestión: ${_libreta['gestion']}',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 16),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: DataTable(
-                      columns: const [
-                        DataColumn(label: Text('Estudiante')),
-                        DataColumn(label: Text('1° Trimestre')),
-                        DataColumn(label: Text('2° Trimestre')),
-                        DataColumn(label: Text('3° Trimestre')),
-                      ],
-                      rows: _estudiantes.map<DataRow>((est) {
-                        return DataRow(cells: [
-                          DataCell(Text(est['nombreCompleto'])),
-                          _buildNotaCell(est, 'PRIMER', 'notaPrimerTrimestre', 'idNotaPrimerTrimestre'),
-                          _buildNotaCell(est, 'SEGUNDO', 'notaSegundoTrimestre', 'idNotaSegundoTrimestre'),
-                          _buildNotaCell(est, 'TERCER', 'notaTercerTrimestre', 'idNotaTercerTrimestre'),
-                        ]);
-                      }).toList(),
+      title: 'Registro de Notas',
+      child: Column(
+        children: [
+          // Header: Selector Trimestre y Boton Guardar
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: DropdownButtonFormField<String>(
+                    value: _trimestreSeleccionado,
+                    decoration: const InputDecoration(
+                      labelText: 'Trimestre',
+                      border: OutlineInputBorder(),
                     ),
+                    items: ['PRIMER', 'SEGUNDO', 'TERCER']
+                        .map((t) => DropdownMenuItem(value: t, child: Text(t)))
+                        .toList(),
+                    onChanged: (val) {
+                      if (val != null) {
+                        setState(() {
+                          _trimestreSeleccionado = val;
+                        });
+                        _cargarBoletin();
+                      }
+                    },
                   ),
-                ],
+                ),
+                const SizedBox(width: 16),
+                ElevatedButton.icon(
+                  onPressed: _isLoading ? null : _guardarTodo,
+                  icon: const Icon(Icons.save),
+                  label: const Text('Guardar'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          if (_isLoading)
+            const Expanded(child: Center(child: CircularProgressIndicator()))
+          else if (_estudiantes.isEmpty)
+             const Expanded(child: Center(child: Text('No hay estudiantes inscritos.')))
+          else
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: DataTable(
+                    columnSpacing: 20,
+                    columns: const [
+                       DataColumn(label: Text('Estudiante')),
+                       DataColumn(label: Text('Ser (10)')),
+                       DataColumn(label: Text('Saber (35)')),
+                       DataColumn(label: Text('Hacer (35)')),
+                       DataColumn(label: Text('Decidir (10)')),
+                       DataColumn(label: Text('Auto (10)')),
+                       DataColumn(label: Text('Final', style: TextStyle(fontWeight: FontWeight.bold))),
+                    ],
+                    rows: _estudiantes.map((e) {
+                      return DataRow(cells: [
+                        DataCell(SizedBox(width: 150, child: Text(e.nombreEstudiante))),
+                        _buildInputCell(e, (val) => e.ser = val, e.ser, 10),
+                        _buildInputCell(e, (val) => e.saber = val, e.saber, 35),
+                        _buildInputCell(e, (val) => e.hacer = val, e.hacer, 35),
+                        _buildInputCell(e, (val) => e.decidir = val, e.decidir, 10),
+                        _buildInputCell(e, (val) => e.autoevaluacion = val, e.autoevaluacion, 10),
+                        DataCell(Text(e.notaFinal.toStringAsFixed(1), style: const TextStyle(fontWeight: FontWeight.bold))),
+                      ]);
+                    }).toList(),
+                  ),
+                ),
               ),
             ),
+        ],
+      ),
     );
   }
 
-  DataCell _buildNotaCell(dynamic estudiante, String trimesterKey, String valorKey, String idKey) {
-    final valor = estudiante[valorKey];
-    final idNota = estudiante[idKey];
-    final controller = TextEditingController(text: valor != null ? valor.toString() : '');
-
+  DataCell _buildInputCell(BoletinNotasModel model, Function(double) onChanged, double currentValue, double max) {
     return DataCell(
       SizedBox(
         width: 60,
-        child: TextField(
-          controller: controller,
+        child: TextFormField(
+          initialValue: currentValue == 0 ? '' : currentValue.toString(), // Empty if 0 for easier typing
           keyboardType: TextInputType.number,
-          textAlign: TextAlign.center,
-          decoration: const InputDecoration(
-            border: InputBorder.none,
-            hintText: '-',
+          decoration: InputDecoration(
+             hintText: '0', 
+             border: InputBorder.none,
+             isDense: true,
           ),
-          onSubmitted: (value) {
-            final double? newValor = double.tryParse(value);
-            if (newValor != null) {
-              _guardarNota(estudiante['idEstudiante'], trimesterKey, newValor, idNota);
+          onChanged: (val) {
+            double? v = double.tryParse(val);
+            if (v != null) {
+              if (v > max) v = max; // Clamp max
+              if (v < 0) v = 0;
+              onChanged(v);
+              _recalcularNota(model);
+            } else {
+               if (val.isEmpty) {
+                 onChanged(0);
+                 _recalcularNota(model);
+               }
             }
           },
         ),

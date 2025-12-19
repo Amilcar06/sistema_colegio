@@ -18,6 +18,8 @@ public interface NotaRepository extends JpaRepository<Nota, Long> {
 
   List<Nota> findByAsignacion_IdAsignacion(Long idAsignacion);
 
+  List<Nota> findByAsignacion_IdAsignacionAndTrimestre(Long idAsignacion, Trimestre trimestre);
+
   boolean existsByEstudianteAndAsignacionAndTrimestre(Estudiante e, AsignacionDocente a, Trimestre t);
 
   @Query(value = """
@@ -28,7 +30,7 @@ public interface NotaRepository extends JpaRepository<Nota, Long> {
         m.id_materia,
         t.trimestre,
         ad.id_asignacion,
-        COALESCE(n.valor, 0) AS valor,
+        COALESCE(n.nota_final, 0) AS valor,
         CONCAT_WS(' ', u.nombres, u.apellido_paterno, u.apellido_materno) AS nombre_profesor
       FROM inscripcion i
       JOIN curso c ON c.id_curso = i.id_curso

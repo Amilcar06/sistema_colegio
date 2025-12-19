@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../shared/widgets/main_scaffold.dart';
-import '../../profesor/services/profesor_service.dart'; // Necesitamos obtener ID del profe
-import '../../director/services/horario_service.dart';
+import '../../profesor/services/profesor_service.dart';
 
 class DashboardProfesorHorariosPage extends StatefulWidget {
   const DashboardProfesorHorariosPage({super.key});
@@ -12,9 +11,18 @@ class DashboardProfesorHorariosPage extends StatefulWidget {
 
 class _DashboardProfesorHorariosPageState extends State<DashboardProfesorHorariosPage> {
   final ProfesorService _profesorService = ProfesorService();
-  final HorarioService _horarioService = HorarioService();
 
-  List<dynamic> _horarios = [];
+  // Map to store schedules grouped by Day
+  // Dictionary<String, List<dynamic>>
+  Map<String, List<dynamic>> _horariosPorDia = {
+    'LUNES': [],
+    'MARTES': [],
+    'MIERCOLES': [],
+    'JUEVES': [],
+    'VIERNES': [],
+    'SABADO': [], // Opcional
+  };
+  
   bool _isLoading = true;
 
   @override
@@ -25,16 +33,46 @@ class _DashboardProfesorHorariosPageState extends State<DashboardProfesorHorario
 
   Future<void> _cargarHorario() async {
     try {
-      final perfil = await _profesorService.obtenerPerfil();
-      // El perfil debe tener idProfesor
-      if (perfil.idProfesor != null) {
-        final lista = await _horarioService.listarPorProfesor(perfil.idProfesor!);
+      // New optimized endpoint
+      final lista = await _profesorService.getMisHorarios();
+      
+      // Reset map
+      final Map<String, List<dynamic>> grouped = {
+        'LUNES': [],
+        'MARTES': [],
+        'MIERCOLES': [],
+        'JUEVES': [],
+        'VIERNES': [],
+        'SABADO': [],
+      };
+
+      for (var h in lista) {
+        final dia = h['diaSemana'] as String;
+        if (grouped.containsKey(dia)) {
+          grouped[dia]!.add(h);
+        } else {
+          // Fallback if Sunday or unknown
+          grouped.putIfAbsent(dia, () => []).add(h);
+        }
+      }
+
+      // Sort by start time in each day
+      grouped.forEach((key, value) {
+        value.sort((a, b) {
+          final t1 = a['horaInicio'].toString();
+          final t2 = b['horaInicio'].toString();
+          return t1.compareTo(t2);
+        });
+      });
+
+      if (mounted) {
         setState(() {
-          _horarios = lista;
+          _horariosPorDia = grouped;
           _isLoading = false;
         });
       }
     } catch (e) {
+      debugPrint('Error loading schedules: $e');
       if (mounted) setState(() => _isLoading = false);
     }
   }
@@ -45,27 +83,135 @@ class _DashboardProfesorHorariosPageState extends State<DashboardProfesorHorario
       title: 'Mi Agenda Semanal',
       child: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : _horarios.isEmpty
-              ? const Center(child: Text('No tienes clases programadas.'))
-              : ListView.separated(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: _horarios.length,
-                  separatorBuilder: (c, i) => const Divider(),
-                  itemBuilder: (context, index) {
-                    final h = _horarios[index];
-                    return ListTile(
-                      leading: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(h['diaSemana'].toString().substring(0, 3), style: const TextStyle(fontWeight: FontWeight.bold)),
-                          Text(h['horaInicio'].toString().substring(0, 5), style: const TextStyle(fontSize: 12)),
-                        ],
-                      ),
-                      title: Text("${h['nombreMateria']} (${h['nombreCurso']})"),
-                      subtitle: Text("Aula: ${h['aula'] ?? 'Virtual'}"),
-                    );
-                  },
-                ),
+          : _content(),
     );
+  }
+
+  Widget _content() {
+    // We filter out days that are empty ONLY if Sabado is empty to save space, 
+    // but usually user wants to see Mon-Fri always. 
+    // Let's Keep Mon-Fri fixed.
+    
+    final daysToShow = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES'];
+    if (_horariosPorDia['SABADO']!.isNotEmpty) daysToShow.add('SABADO');
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: daysToShow.map((dia) {
+          return _buildDayColumn(dia, _horariosPorDia[dia]!);
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildDayColumn(String dia, List<dynamic> clases) {
+    return Container(
+      width: 200,
+      margin: const EdgeInsets.only(right: 16),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        children: [
+          // Header
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: _getDayColor(dia),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+            ),
+            child: Text(
+              dia,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          
+          if (clases.isEmpty)
+             const Padding(
+               padding: EdgeInsets.all(24.0),
+               child: Text('Sin clases', style: TextStyle(color: Colors.grey)),
+             ),
+
+          // Items
+          ...clases.map((clase) => _buildClassCard(clase)),
+          
+          const SizedBox(height: 12),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildClassCard(Map<String, dynamic> clase) {
+    final materia = clase['nombreMateria'] ?? 'Materia';
+    final curso = clase['nombreCurso'] ?? '';
+    final inicio = clase['horaInicio']?.toString().substring(0, 5) ?? '00:00';
+    final fin = clase['horaFin']?.toString().substring(0, 5) ?? '00:00';
+    final aula = clase['aula'] ?? 'Sin aula';
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2))
+        ],
+        border: Border(left: BorderSide(color: _getDayColor(clase['diaSemana']), width: 4)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '$inicio - $fin',
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.indigo),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            materia,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          Text(
+            curso,
+            style: const TextStyle(fontSize: 12, color: Colors.black87),
+          ),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              const Icon(Icons.room, size: 12, color: Colors.grey),
+              const SizedBox(width: 4),
+              Text(
+                aula,
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _getDayColor(String dia) {
+    switch (dia) {
+      case 'LUNES': return Colors.blue.shade700;
+      case 'MARTES': return Colors.orange.shade700;
+      case 'MIERCOLES': return Colors.green.shade700;
+      case 'JUEVES': return Colors.red.shade700;
+      case 'VIERNES': return Colors.purple.shade700;
+      case 'SABADO': return Colors.teal.shade700;
+      default: return Colors.grey;
+    }
   }
 }

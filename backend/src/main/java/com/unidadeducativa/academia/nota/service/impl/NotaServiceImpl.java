@@ -46,6 +46,9 @@ public class NotaServiceImpl implements INotaService {
                 }
 
                 Nota nota = notaMapper.toEntity(dto, estudiante, asignacion);
+                // Si viene del DTO antiguo, asumimos valor -> notaFinal o actualizamos DTO
+                nota.setNotaFinal(dto.getValor());
+
                 return notaMapper.toResponseDTO(notaRepository.save(nota));
         }
 
@@ -89,7 +92,8 @@ public class NotaServiceImpl implements INotaService {
                 Nota nota = notaRepository.findById(idNota)
                                 .orElseThrow(() -> new EntityNotFoundException("Nota no encontrada"));
 
-                nota.setValor(dto.getValor());
+                // Actualizacion simple (legacy)
+                nota.setNotaFinal(dto.getValor());
                 nota.setTrimestre(dto.getTrimestre());
                 return notaMapper.toResponseDTO(notaRepository.save(nota));
         }
@@ -147,6 +151,11 @@ public class NotaServiceImpl implements INotaService {
                                                                 .valueOf(((String) row.get("trimestre")).toUpperCase()))
                                                 .valor(row.get("valor") == null ? 0.0
                                                                 : ((Number) row.get("valor")).doubleValue())
+                                                // Nota: aqui 'valor' viene del SQL nativo, que debe ser actualizado si
+                                                // cambiamos la columna en DB
+                                                // Asumimos que la columna 'valor' ya no existe o se ignora si usamos
+                                                // nota_final, pero el query SQL usa 'valor'
+                                                // TODO: Actualizar Query Nativa en NotaRepository
                                                 .nombreProfesor((String) row.getOrDefault("nombre_profesor", ""))
                                                 .build())
                                 .collect(Collectors.toList());
@@ -187,13 +196,13 @@ public class NotaServiceImpl implements INotaService {
 
                                         for (Nota n : notas) {
                                                 if (n.getTrimestre() == Trimestre.PRIMER) {
-                                                        dto.setNotaPrimerTrimestre(n.getValor());
+                                                        dto.setNotaPrimerTrimestre(n.getNotaFinal());
                                                         dto.setIdNotaPrimerTrimestre(n.getIdNota());
                                                 } else if (n.getTrimestre() == Trimestre.SEGUNDO) {
-                                                        dto.setNotaSegundoTrimestre(n.getValor());
+                                                        dto.setNotaSegundoTrimestre(n.getNotaFinal());
                                                         dto.setIdNotaSegundoTrimestre(n.getIdNota());
                                                 } else if (n.getTrimestre() == Trimestre.TERCER) {
-                                                        dto.setNotaTercerTrimestre(n.getValor());
+                                                        dto.setNotaTercerTrimestre(n.getNotaFinal());
                                                         dto.setIdNotaTercerTrimestre(n.getIdNota());
                                                 }
                                         }
@@ -210,5 +219,81 @@ public class NotaServiceImpl implements INotaService {
                                 .gestion(asignacion.getGestion().getAnio().toString())
                                 .estudiantes(estudiantes)
                                 .build();
+        }
+
+        @Override
+        @Transactional(readOnly = true)
+        public List<BoletinNotasDTO> obtenerBoletinCurso(Long idAsignacion, Trimestre trimestre) {
+                AsignacionDocente asignacion = asignacionDocenteRepository.findById(idAsignacion)
+                                .orElseThrow(() -> new EntityNotFoundException("Asignación no encontrada"));
+
+                // 1. Obtener Inscritos
+                var inscritos = inscripcionRepository.findByCursoIdCursoAndGestionIdGestion(
+                                asignacion.getCurso().getIdCurso(),
+                                asignacion.getGestion().getIdGestion());
+
+                // 2. Obtener Notas existentes para (asignacion, trimestre)
+                var notasExistentes = notaRepository.findByAsignacion_IdAsignacionAndTrimestre(idAsignacion, trimestre);
+                Map<Long, Nota> mapaNotas = notasExistentes.stream()
+                                .collect(Collectors.toMap(n -> n.getEstudiante().getIdEstudiante(), n -> n));
+
+                // 3. Mapear
+                return inscritos.stream().map(inscripcion -> {
+                        Estudiante est = inscripcion.getEstudiante();
+                        Nota nota = mapaNotas.get(est.getIdEstudiante());
+
+                        return BoletinNotasDTO.builder()
+                                        .idEstudiante(est.getIdEstudiante())
+                                        .nombreEstudiante(est.getUsuario().getNombreCompleto())
+                                        .idNota(nota != null ? nota.getIdNota() : null)
+                                        .ser(nota != null ? nota.getSer() : 0.0)
+                                        .saber(nota != null ? nota.getSaber() : 0.0)
+                                        .hacer(nota != null ? nota.getHacer() : 0.0)
+                                        .decidir(nota != null ? nota.getDecidir() : 0.0)
+                                        .autoevaluacion(nota != null ? nota.getAutoevaluacion() : 0.0)
+                                        .notaFinal(nota != null ? nota.getNotaFinal() : 0.0)
+                                        .build();
+                }).sorted((a, b) -> a.getNombreEstudiante().compareTo(b.getNombreEstudiante()))
+                                .collect(Collectors.toList());
+        }
+
+        @Override
+        @Transactional
+        public void guardarNotasBatch(List<BoletinNotasDTO> notas, Long idAsignacion, Trimestre trimestre) {
+                AsignacionDocente asignacion = asignacionDocenteRepository.findById(idAsignacion)
+                                .orElseThrow(() -> new EntityNotFoundException("Asignación no encontrada"));
+
+                for (BoletinNotasDTO dto : notas) {
+                        Nota nota;
+                        if (dto.getIdNota() != null) {
+                                nota = notaRepository.findById(dto.getIdNota())
+                                                .orElseThrow(() -> new EntityNotFoundException(
+                                                                "Nota no encontrada: " + dto.getIdNota()));
+                        } else {
+                                // Crear nueva
+                                Estudiante estudiante = estudianteRepository.findById(dto.getIdEstudiante())
+                                                .orElseThrow(() -> new EntityNotFoundException(
+                                                                "Estudiante no encontrado: " + dto.getIdEstudiante()));
+                                nota = Nota.builder()
+                                                .estudiante(estudiante)
+                                                .asignacion(asignacion)
+                                                .trimestre(trimestre)
+                                                .build();
+                        }
+
+                        // Actualizar valores
+                        nota.setSer(dto.getSer());
+                        nota.setSaber(dto.getSaber());
+                        nota.setHacer(dto.getHacer());
+                        nota.setDecidir(dto.getDecidir());
+                        nota.setAutoevaluacion(dto.getAutoevaluacion());
+
+                        // Calcular Final
+                        double fin = dto.getSer() + dto.getSaber() + dto.getHacer() + dto.getDecidir()
+                                        + dto.getAutoevaluacion();
+                        nota.setNotaFinal(fin);
+
+                        notaRepository.save(nota);
+                }
         }
 }

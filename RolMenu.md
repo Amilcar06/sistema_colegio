@@ -75,8 +75,6 @@ Este documento define la navegación final de la aplicación web y móvil para c
     *   *Registro de Notas (Trimestral).*
     *   *Lista de Asistencia.*
 *   **Horarios:** Calendario semanal de clases.
-*   **Estudiantes del Curso:** Acceso directo a listas de alumnos por paralelo.
-*   **Notas:** Acceso directo al gradebook (Matriz de calificación).
 
 ### 📢 Comunicación
 *   **Comunicados por Curso:** Enviar mensajes a alumnos/padres de sus materias asignadas.

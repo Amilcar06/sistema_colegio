@@ -202,7 +202,14 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: '/dashboard-profesor/inscritos',
-      builder: (_, __) => const DashboardProfesorInscritosPage(),
+      builder: (_, __) => const DashboardProfesorInscritosPage(idAsignacion: ''), // Default or handle empty
+    ),
+    GoRoute(
+      path: '/dashboard-profesor/estudiantes/:id',
+      builder: (context, state) {
+        final id = state.pathParameters['id'] ?? '';
+        return DashboardProfesorInscritosPage(idAsignacion: id);
+      },
     ),
     GoRoute(
       path: '/dashboard-profesor/notas/:id',

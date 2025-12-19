@@ -124,4 +124,30 @@ public class NotaController {
     public ResponseEntity<LibretaDigitalDTO> obtenerLibretaPorAsignacion(@PathVariable Long id) {
         return ResponseEntity.ok(notaService.obtenerLibreta(id));
     }
+
+    // -----------------------------------
+    // 9. Obtener Boletin Curso (Gradebook)
+    // -----------------------------------
+    @Operation(summary = "Obtener boletín de curso (Gradebook)")
+    @PreAuthorize("hasAnyRole('ROLE_PROFESOR','ROLE_ADMIN')")
+    @GetMapping("/asignacion/{id}/boletin-curso")
+    public ResponseEntity<List<com.unidadeducativa.academia.nota.dto.BoletinNotasDTO>> obtenerBoletinCurso(
+            @PathVariable Long id,
+            @RequestParam Trimestre trimestre) {
+        return ResponseEntity.ok(notaService.obtenerBoletinCurso(id, trimestre));
+    }
+
+    // -----------------------------------
+    // 10. Guardar Notas Batch (Gradebook)
+    // -----------------------------------
+    @Operation(summary = "Guardar notas masivamente por curso y trimestre")
+    @PreAuthorize("hasAnyRole('ROLE_PROFESOR','ROLE_ADMIN')")
+    @PostMapping("/asignacion/{id}/batch")
+    public ResponseEntity<Void> guardarNotasBatch(
+            @PathVariable Long id,
+            @RequestParam Trimestre trimestre,
+            @RequestBody List<com.unidadeducativa.academia.nota.dto.BoletinNotasDTO> notas) {
+        notaService.guardarNotasBatch(notas, id, trimestre);
+        return ResponseEntity.ok().build();
+    }
 }
