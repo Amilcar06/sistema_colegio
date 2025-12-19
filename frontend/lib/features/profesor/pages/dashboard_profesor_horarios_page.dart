@@ -11,16 +11,15 @@ class DashboardProfesorHorariosPage extends StatefulWidget {
 
 class _DashboardProfesorHorariosPageState extends State<DashboardProfesorHorariosPage> {
   final ProfesorService _profesorService = ProfesorService();
+  final ScrollController _scrollController = ScrollController();
 
-  // Map to store schedules grouped by Day
-  // Dictionary<String, List<dynamic>>
   Map<String, List<dynamic>> _horariosPorDia = {
     'LUNES': [],
     'MARTES': [],
     'MIERCOLES': [],
     'JUEVES': [],
     'VIERNES': [],
-    'SABADO': [], // Opcional
+    'SABADO': [],
   };
   
   bool _isLoading = true;
@@ -30,20 +29,18 @@ class _DashboardProfesorHorariosPageState extends State<DashboardProfesorHorario
     super.initState();
     _cargarHorario();
   }
+  
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   Future<void> _cargarHorario() async {
     try {
-      // New optimized endpoint
       final lista = await _profesorService.getMisHorarios();
-      
-      // Reset map
       final Map<String, List<dynamic>> grouped = {
-        'LUNES': [],
-        'MARTES': [],
-        'MIERCOLES': [],
-        'JUEVES': [],
-        'VIERNES': [],
-        'SABADO': [],
+        'LUNES': [], 'MARTES': [], 'MIERCOLES': [], 'JUEVES': [], 'VIERNES': [], 'SABADO': [],
       };
 
       for (var h in lista) {
@@ -51,12 +48,10 @@ class _DashboardProfesorHorariosPageState extends State<DashboardProfesorHorario
         if (grouped.containsKey(dia)) {
           grouped[dia]!.add(h);
         } else {
-          // Fallback if Sunday or unknown
           grouped.putIfAbsent(dia, () => []).add(h);
         }
       }
 
-      // Sort by start time in each day
       grouped.forEach((key, value) {
         value.sort((a, b) {
           final t1 = a['horaInicio'].toString();
@@ -70,10 +65,35 @@ class _DashboardProfesorHorariosPageState extends State<DashboardProfesorHorario
           _horariosPorDia = grouped;
           _isLoading = false;
         });
+        
+        // Auto-scroll to current day after build
+        WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToCurrentDay());
       }
     } catch (e) {
       debugPrint('Error loading schedules: $e');
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _scrollToCurrentDay() {
+    final now = DateTime.now();
+    // Monday = 1, Saturday = 6. 
+    // Indices in list: Mon=0, Tue=1..
+    int dayIndex = now.weekday - 1; 
+    
+    // If Sunday(7), show Monday
+    if (dayIndex > 5) dayIndex = 0; 
+    if (dayIndex < 0) dayIndex = 0;
+
+    // Card width 200 + margin 16 = 216
+    final offset = dayIndex * 216.0;
+
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        offset,
+        duration: const Duration(milliseconds: 600),
+        curve: Curves.easeOutCubic,
+      );
     }
   }
 
@@ -88,33 +108,39 @@ class _DashboardProfesorHorariosPageState extends State<DashboardProfesorHorario
   }
 
   Widget _content() {
-    // We filter out days that are empty ONLY if Sabado is empty to save space, 
-    // but usually user wants to see Mon-Fri always. 
-    // Let's Keep Mon-Fri fixed.
-    
     final daysToShow = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES'];
     if (_horariosPorDia['SABADO']!.isNotEmpty) daysToShow.add('SABADO');
+    
+    // Identify today for highlighting
+    final now = DateTime.now();
+    final weekDays = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO', 'DOMINGO'];
+    final todayStr = (now.weekday <= 6) ? weekDays[now.weekday - 1] : '';
 
     return SingleChildScrollView(
+      controller: _scrollController,
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.all(16),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: daysToShow.map((dia) {
-          return _buildDayColumn(dia, _horariosPorDia[dia]!);
+          final isToday = dia == todayStr;
+          return _buildDayColumn(dia, _horariosPorDia[dia]!, isToday);
         }).toList(),
       ),
     );
   }
 
-  Widget _buildDayColumn(String dia, List<dynamic> clases) {
+  Widget _buildDayColumn(String dia, List<dynamic> clases, bool isToday) {
     return Container(
       width: 200,
       margin: const EdgeInsets.only(right: 16),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
+        color: isToday ? Colors.blue.shade50 : Colors.grey.shade50,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(
+          color: isToday ? Colors.blue.shade200 : Colors.grey.shade200, 
+          width: isToday ? 2 : 1
+        ),
       ),
       child: Column(
         children: [
@@ -124,15 +150,29 @@ class _DashboardProfesorHorariosPageState extends State<DashboardProfesorHorario
             width: double.infinity,
             decoration: BoxDecoration(
               color: _getDayColor(dia),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
             ),
-            child: Text(
-              dia,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
+            child: Column(
+              children: [
+                Text(
+                  dia,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                if (isToday)
+                  Container(
+                    margin: const EdgeInsets.only(top: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(4)
+                    ),
+                    child: const Text('HOY', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                  )
+              ],
             ),
           ),
           
@@ -172,14 +212,20 @@ class _DashboardProfesorHorariosPageState extends State<DashboardProfesorHorario
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '$inicio - $fin',
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.indigo),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '$inicio - $fin',
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.indigo),
+              ),
+              // Icon(Icons.access_time, size: 12, color: Colors.indigo.shade200)
+            ],
           ),
           const SizedBox(height: 4),
           Text(
             materia,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
@@ -194,7 +240,7 @@ class _DashboardProfesorHorariosPageState extends State<DashboardProfesorHorario
               const SizedBox(width: 4),
               Text(
                 aula,
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
+                style: const TextStyle(fontSize: 11, color: Colors.grey),
               ),
             ],
           ),
@@ -215,3 +261,4 @@ class _DashboardProfesorHorariosPageState extends State<DashboardProfesorHorario
     }
   }
 }
+

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../shared/widgets/main_scaffold.dart';
 import '../services/profesor_service.dart';
 import '../models/boletin_notas_model.dart';
+import 'package:go_router/go_router.dart';
 
 class DashboardProfesorInscritosPage extends StatefulWidget {
   final String idAsignacion;
@@ -17,6 +18,9 @@ class _DashboardProfesorInscritosPageState extends State<DashboardProfesorInscri
   bool _isLoading = true;
   List<BoletinNotasModel> _estudiantes = [];
   String? _error;
+  
+  // Search
+  final TextEditingController _searchCtrl = TextEditingController();
 
   @override
   void initState() {
@@ -24,6 +28,13 @@ class _DashboardProfesorInscritosPageState extends State<DashboardProfesorInscri
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _cargarEstudiantes();
     });
+    _searchCtrl.addListener(() { setState(() {}); });
+  }
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
   }
 
   Future<void> _cargarEstudiantes() async {
@@ -42,8 +53,7 @@ class _DashboardProfesorInscritosPageState extends State<DashboardProfesorInscri
 
     try {
       final profesorService = ProfesorService();
-      
-      // We reuse getBoletinCurso with 'PRIMER' trimester default to get list
+      // Reuse getBoletinCurso with 'PRIMER' trimester default to get list
       final estudiantes = await profesorService.getBoletinCurso(
         int.parse(widget.idAsignacion),
         'PRIMER', 
@@ -59,6 +69,12 @@ class _DashboardProfesorInscritosPageState extends State<DashboardProfesorInscri
         _isLoading = false;
       });
     }
+  }
+
+  List<BoletinNotasModel> _getFilteredList() {
+    return _estudiantes.where((item) {
+      return item.nombreEstudiante.toLowerCase().contains(_searchCtrl.text.toLowerCase());
+    }).toList();
   }
 
   @override
@@ -94,47 +110,86 @@ class _DashboardProfesorInscritosPageState extends State<DashboardProfesorInscri
       return const Center(child: Text('No hay estudiantes inscritos en este curso (o error en carga).'));
     }
 
+    final filteredList = _getFilteredList();
+
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Text(
-            'Estudiantes Inscritos (${_estudiantes.length})',
-            style: Theme.of(context).textTheme.headlineSmall,
+        // Search Section
+        Container(
+          padding: const EdgeInsets.all(16),
+          color: Colors.white,
+          child: TextField(
+            controller: _searchCtrl,
+            decoration: InputDecoration(
+              hintText: 'Buscar estudiante...',
+              prefixIcon: const Icon(Icons.search),
+              filled: true,
+              fillColor: Colors.grey.shade100,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide.none
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
           ),
         ),
+
         Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: _estudiantes.length,
-            itemBuilder: (context, index) {
-              final est = _estudiantes[index];
-              return Card(
-                elevation: 2,
-                margin: const EdgeInsets.only(bottom: 12),
-                child: ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
-                    child: Text(
-                      est.nombreEstudiante.isNotEmpty ? est.nombreEstudiante[0].toUpperCase() : '?',
-                      style: TextStyle(color: Theme.of(context).primaryColor),
-                    ),
+          child: filteredList.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.person_off_rounded, size: 64, color: Colors.grey.shade300),
+                      const SizedBox(height: 16),
+                      const Text('No se encontraron estudiantes', style: TextStyle(color: Colors.grey)),
+                    ],
                   ),
-                  title: Text(
-                    est.nombreEstudiante,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text('ID Estudiante: ${est.idEstudiante}'),
-                  onTap: () {
-                    // Future: Navigate to detailed student profile
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: filteredList.length,
+                  itemBuilder: (context, index) {
+                    final est = filteredList[index];
+                    return _buildStudentCard(est, index);
                   },
                 ),
-              );
-            },
-          ),
         ),
       ],
+    );
+  }
+
+  Widget _buildStudentCard(BoletinNotasModel est, int index) {
+    // Alternating colors for avatars based on index or name
+    final avatarColor = Colors.primaries[index % Colors.primaries.length].shade100;
+    final textColor = Colors.primaries[index % Colors.primaries.length].shade900;
+
+    return Card(
+      elevation: 2,
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        leading: CircleAvatar(
+          backgroundColor: avatarColor,
+          child: Text(
+            est.nombreEstudiante.isNotEmpty ? est.nombreEstudiante[0].toUpperCase() : '?',
+            style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
+          ),
+        ),
+        title: Text(
+          est.nombreEstudiante,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text('ID Estudiante: ${est.idEstudiante}'),
+        trailing: IconButton(
+          icon: const Icon(Icons.bar_chart_rounded),
+          tooltip: 'Ver Rendimiento',
+          onPressed: () {
+             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Detalle de estudiante próximamente...')));
+          },
+        ),
+      ),
     );
   }
 }
