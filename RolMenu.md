@@ -67,22 +67,19 @@ Este documento define la navegación final de la aplicación web y móvil para c
 **Objetivo:** Gestión de aula, calificaciones y comunicación.
 
 ### 🏠 Dashboard (Inicio)
-*   **Mi Agenda:** Clases asignadas para el día de hoy (con hora y curso).
+*   **Resumen:** Clases del día y estado rápido.
 *   **Avisos:** Comunicados de dirección.
 
-### 📘 Mis Cursos
-*   **Lista de Asignaturas:** (Ej: Matemáticas - 3ro B - Secundaria).
-*   **Dentro de un Curso:**
-    *   **Registro de Notas:** Hoja de cálculo web para ingresar notas del trimestre activo.
-    *   **Lista de Asistencia:** (Opcional) Marcar presentes/ausentes.
-    *   **Estudiantes:** Lista simple de sus alumnos (con foto).
+### 📘 Gestión Académica (Menú Lateral)
+*   **Mis Cursos:** Vista general de asignaturas. Acceso a:
+    *   *Registro de Notas (Trimestral).*
+    *   *Lista de Asistencia.*
+*   **Horarios:** Calendario semanal de clases.
+*   **Estudiantes del Curso:** Acceso directo a listas de alumnos por paralelo.
+*   **Notas:** Acceso directo al gradebook (Matriz de calificación).
 
-### 📅 Mi Horario
-*   **Vista Semanal:** Calendario visual de sus clases.
-
-### 📢 Comunicados
-*   **Redactar:** Enviar mensaje a un curso completo o a padres específicos.
-*   **Historial:** Ver mensajes enviados.
+### 📢 Comunicación
+*   **Comunicados por Curso:** Enviar mensajes a alumnos/padres de sus materias asignadas.
 
 ---
 

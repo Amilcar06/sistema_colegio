@@ -3,6 +3,8 @@ import 'package:dio/dio.dart';
 import '../../../core/api.dart';
 import '../models/profesor_registro_completo.dart';
 import '../models/profesor_response.dart';
+import '../models/dashboard_profesor_stats.dart';
+import '../models/asignacion_docente_response.dart';
 
 class ProfesorService {
   Future<List<ProfesorResponseDTO>> listarProfesores() async {
@@ -44,9 +46,16 @@ class ProfesorService {
     return ProfesorResponseDTO.fromJson(response.data);
   }
 
-  Future<List<dynamic>> getMisCursos() async {
+  Future<DashboardProfesorStats> getDashboardStats() async {
+    final response = await dio.get('/profesores/dashboard-stats');
+    return DashboardProfesorStats.fromJson(response.data);
+  }
+
+  Future<List<AsignacionDocenteResponse>> getMisCursos() async {
     final response = await dio.get('/asignaciones/mis-cursos');
-    return response.data;
+    return (response.data as List)
+        .map((e) => AsignacionDocenteResponse.fromJson(e))
+        .toList();
   }
 
   Future<dynamic> getLibreta(String idAsignacion) async {

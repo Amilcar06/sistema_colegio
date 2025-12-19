@@ -65,10 +65,13 @@ final Map<String, List<MenuEntry>> menuPorRol = {
   'profesor': [
     // const MenuItem('Dashboard', Icons.dashboard, '/dashboard-profesor'),
 
+    const MenuHeader('GESTIÓN ACADÉMICA'),
     const MenuItem('Mis Cursos', Icons.class_, '/dashboard-profesor/cursos'),
     const MenuItem('Horarios', Icons.schedule, '/dashboard-profesor/horarios'),
     const MenuItem('Estudiantes del Curso', Icons.group, '/dashboard-profesor/inscritos'),
     const MenuItem('Notas', Icons.grade, '/dashboard-profesor/cursos'),
+
+    const MenuHeader('COMUNICACIÓN'),
     const MenuItem('Comunicados por Curso', Icons.record_voice_over, '/dashboard-profesor/comunicados'),
   ],
   'estudiante': [

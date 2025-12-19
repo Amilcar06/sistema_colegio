@@ -32,6 +32,8 @@ public class ProfesorServiceImpl implements IProfesorService {
     private final RolRepository rolRepository;
     private final ProfesorMapper profesorMapper;
     private final PasswordEncoder passwordEncoder;
+    private final com.unidadeducativa.academia.asignaciondocente.repository.AsignacionDocenteRepository asignacionDocenteRepository;
+    private final com.unidadeducativa.academia.horario.repository.HorarioRepository horarioRepository;
 
     @Override
     public List<ProfesorResponseDTO> listarProfesores(Boolean estado) {
@@ -192,5 +194,65 @@ public class ProfesorServiceImpl implements IProfesorService {
         Usuario usuario = profesor.getUsuario();
         usuario.setEstado(estado);
         usuarioRepository.save(usuario);
+    }
+
+    @Override
+    public com.unidadeducativa.personas.profesor.dto.DashboardProfesorStatsDTO getDashboardStats(String correo) {
+        Profesor profesor = profesorRepository.findByUsuario_Correo(correo)
+                .orElseThrow(() -> new NotFoundException("Profesor no encontrado con correo: " + correo));
+
+        // TODO: Obtener gestión activa dinámicamente. Por ahora hardcode id=1
+        Long idGestion = 1L;
+
+        List<com.unidadeducativa.academia.asignaciondocente.model.AsignacionDocente> asignaciones = asignacionDocenteRepository
+                .findByProfesor_IdProfesorAndGestion_IdGestion(profesor.getIdProfesor(), idGestion);
+
+        long totalCursos = asignaciones.size();
+
+        // Calcular total estudiantes (Sumando inscritos en cada curso asignado)
+        // Nota: Esto podría optimizarse con una query JPQL directa.
+        long totalEstudiantes = 0;
+        // for (com.unidadeducativa.academia.asignaciondocente.model.AsignacionDocente
+        // ad : asignaciones) {
+        // Pendiente implementar conteo real con repositorio de inscripciones
+        // }
+
+        // Clases Hoy
+        java.time.DayOfWeek dayOfWeek = java.time.LocalDate.now().getDayOfWeek();
+        com.unidadeducativa.academia.horario.model.DiaSemana diaActual = mapDayOfWeek(dayOfWeek);
+
+        List<com.unidadeducativa.academia.horario.model.Horario> horarios = horarioRepository
+                .findByProfesor(profesor.getIdProfesor());
+
+        long clasesHoy = horarios.stream()
+                .filter(h -> h.getDiaSemana() == diaActual)
+                .count();
+
+        return com.unidadeducativa.personas.profesor.dto.DashboardProfesorStatsDTO.builder()
+                .totalCursos(totalCursos)
+                .totalEstudiantes(totalEstudiantes)
+                .clasesHoy(clasesHoy)
+                .build();
+    }
+
+    private com.unidadeducativa.academia.horario.model.DiaSemana mapDayOfWeek(java.time.DayOfWeek dayOfWeek) {
+        switch (dayOfWeek) {
+            case MONDAY:
+                return com.unidadeducativa.academia.horario.model.DiaSemana.LUNES;
+            case TUESDAY:
+                return com.unidadeducativa.academia.horario.model.DiaSemana.MARTES;
+            case WEDNESDAY:
+                return com.unidadeducativa.academia.horario.model.DiaSemana.MIERCOLES;
+            case THURSDAY:
+                return com.unidadeducativa.academia.horario.model.DiaSemana.JUEVES;
+            case FRIDAY:
+                return com.unidadeducativa.academia.horario.model.DiaSemana.VIERNES;
+            case SATURDAY:
+                return com.unidadeducativa.academia.horario.model.DiaSemana.SABADO;
+            case SUNDAY:
+                return com.unidadeducativa.academia.horario.model.DiaSemana.DOMINGO;
+            default:
+                return com.unidadeducativa.academia.horario.model.DiaSemana.LUNES;
+        }
     }
 }

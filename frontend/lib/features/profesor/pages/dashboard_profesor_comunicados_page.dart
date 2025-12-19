@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../shared/widgets/main_scaffold.dart';
 import '../../director/services/comunicado_service.dart'; // Reusing service for now
 import '../services/profesor_service.dart';
+import '../models/asignacion_docente_response.dart';
 
 class DashboardProfesorComunicadosPage extends StatefulWidget {
   const DashboardProfesorComunicadosPage({super.key});
@@ -15,8 +16,8 @@ class _DashboardProfesorComunicadosPageState extends State<DashboardProfesorComu
   final ProfesorService _profesorService = ProfesorService();
   
   bool _isLoading = false;
-  List<dynamic> _cursos = [];
-  dynamic _cursoSeleccionado;
+  List<AsignacionDocenteResponse> _cursos = [];
+  AsignacionDocenteResponse? _cursoSeleccionado;
   
   // Controllers
   final _tituloCtrl = TextEditingController();
@@ -63,7 +64,7 @@ class _DashboardProfesorComunicadosPageState extends State<DashboardProfesorComu
       // Let's assume standard structure or debug if needed.
       // Typically: { "curso": { "idCurso": 1, "nombre": "1ro Sec A" }, ... }
       
-      final idCurso = _cursoSeleccionado['curso']['idCurso'];
+      final idCurso = _cursoSeleccionado!.idCurso;
 
       await _comunicadoService.crear({
         'titulo': _tituloCtrl.text,
@@ -108,14 +109,14 @@ class _DashboardProfesorComunicadosPageState extends State<DashboardProfesorComu
                       const Text('Redactar Comunicado para Curso',
                           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 20),
-                      DropdownButtonFormField<dynamic>(
+                      DropdownButtonFormField<AsignacionDocenteResponse>(
                         value: _cursoSeleccionado,
                         isExpanded: true,
                         hint: const Text('Seleccione un Curso'),
                         items: _cursos.map((c) {
-                          // c is AsignacionDTO usually
-                          final nombreCurso = c['curso']['nombre'];
-                          final nombreMateria = c['materia']['nombre'];
+                          // c is AsignacionDocenteResponse
+                          final nombreCurso = c.nombreCurso;
+                          final nombreMateria = c.nombreMateria;
                           return DropdownMenuItem(
                             value: c,
                             child: Text('$nombreCurso - $nombreMateria'),

@@ -28,8 +28,9 @@ El sistema implementa una seguridad robusta basada en **Spring Security 6** y es
 *   **Autorización:**
     *   **RBAC (Role-Based Access Control):** Control de acceso basado en roles (`DIRECTOR`, `SECRETARIA`, `PROFESOR`, `ESTUDIANTE`).
     *   **Method Security:** Uso de `@PreAuthorize("hasRole('DIRECTOR')")` directamente en los controladores para proteger endpoints específicos.
-*   **Configuración:**
+    *   **Configuración:**
     *   `SecurityConfig.java`: Centraliza las reglas de CORS (Permite acceso al Frontend) y la cadena de filtros de seguridad.
+    *   **Claims:** El token incluye el claim `role` (ej: `DIRECTOR`), verificado para la persistencia de sesión en el frontend.
 
 ## 3. 🔌 Endpoints y Cobertura
 El API REST cubre los 4 pilares fundamentales de la gestión escolar:
@@ -68,9 +69,12 @@ El API REST cubre los 4 pilares fundamentales de la gestión escolar:
 | **Seguridad de Datos:** Acceso segmentado por roles estrictos. | **Auditoría Forense:** No tiene logs detallados de cambios históricos en datos sensibles. |
 
 ## 5. 💡 Conclusión
-La estructura del backend es **sólida, modular y moderna**. Está lista para soportar la carga de datos masiva y el flujo de trabajo completo ("Walkthrough") sin necesidad de refactorización estructural.
+El backend se encuentra en **Estado Estable y Verificado**.
+Se ha confirmado la correcta integración con el frontend (persistencia de sesión, roles y consumo de datos). La estructura modular permite mantenimiento sencillo.
 
-**Próximos Pasos Recomendados (Post-Entrega):**
+**Estado Actual:** ✅ **Operativo**
+
+**Próximos Pasos Recomendados (Mantenimiento):**
 1.  **Tests Unitarios:** Implementar JUnit para la lógica crítica de cálculo de promedios y deudas.
 2.  **Validación Robusta:** Añadir anotaciones `@NotNull` y `@Size` en todos los DTOs restantes.
 3.  **Documentación API:** Completar las anotaciones Swagger en los nuevos controladores.

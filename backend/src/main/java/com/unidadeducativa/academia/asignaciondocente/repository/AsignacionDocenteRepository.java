@@ -18,4 +18,6 @@ public interface AsignacionDocenteRepository extends JpaRepository<AsignacionDoc
                         com.unidadeducativa.personas.profesor.model.Profesor profesor,
                         com.unidadeducativa.academia.curso.model.Curso curso,
                         com.unidadeducativa.academia.materia.model.Materia materia);
+
+        List<AsignacionDocente> findByProfesor_IdProfesorAndGestion_IdGestion(Long idProfesor, Long idGestion);
 }
