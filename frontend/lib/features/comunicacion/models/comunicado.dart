@@ -28,4 +28,16 @@ class Comunicado {
       nombreAutor: json['nombreAutor'] ?? 'Anonimo',
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'idComunicado': idComunicado,
+      'titulo': titulo,
+      'contenido': contenido,
+      'fechaPublicacion': fechaPublicacion,
+      'prioridad': prioridad,
+      'tipoDestinatario': tipoDestinatario,
+      'nombreAutor': nombreAutor,
+    };
+  }
 }

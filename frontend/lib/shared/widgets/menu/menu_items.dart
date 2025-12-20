@@ -84,13 +84,20 @@ final Map<String, List<MenuEntry>> menuPorRol = {
     const MenuItem('Comunicados por Curso', Icons.record_voice_over, '/dashboard-profesor/comunicados'),
   ],
   'estudiante': [
-    // const MenuItem('Dashboard', Icons.dashboard, '/dashboard-estudiante'),
-
+    // ACADÉMICO
+    const MenuHeader('ACADÉMICO'),
     const MenuItem('Mis Notas', Icons.grade, '/dashboard-estudiante/notas'),
-    const MenuItem('Pagos', Icons.payments, '/dashboard-estudiante/pagos'),
+    const MenuItem('Mi Horario', Icons.schedule, '/dashboard-estudiante/horarios'),
+    const MenuItem('Mis Materias', Icons.class_, '/dashboard-estudiante/materias'),
+
+    // PAGOS (ESTADO DE CUENTA)
+    const MenuHeader('PAGOS'),
+    const MenuItem('Estado de Cuenta', Icons.payments, '/dashboard-estudiante/pagos'),
     const MenuItem('Comprobantes', Icons.receipt, '/dashboard-estudiante/comprobantes'),
-    const MenuItem('Eventos', Icons.event, '/dashboard-estudiante/eventos'),
+
+    // SOCIAL
+    const MenuHeader('SOCIAL'),
     const MenuItem('Comunicados', Icons.campaign, '/dashboard-estudiante/comunicados'),
-    const MenuItem('Horarios', Icons.schedule, '/dashboard-estudiante/horarios'),
+    const MenuItem('Agenda', Icons.event, '/dashboard-estudiante/eventos'),
   ],
 };

@@ -55,6 +55,7 @@ import '../features/estudiante/pages/dashboard_estudiante_comprobantes_page.dart
 import '../features/estudiante/pages/dashboard_estudiante_eventos_page.dart';
 import '../features/estudiante/pages/dashboard_estudiante_comunicados_page.dart';
 import '../features/estudiante/pages/dashboard_estudiante_horarios_page.dart';
+import '../features/estudiante/pages/dashboard_estudiante_materias_page.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/splash',
@@ -256,6 +257,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/dashboard-estudiante/horarios',
       builder: (_, __) => const DashboardEstudianteHorariosPage(),
+    ),
+    GoRoute(
+      path: '/dashboard-estudiante/materias',
+      builder: (_, __) => const DashboardEstudianteMateriasPage(),
     ),
   ],
 );
