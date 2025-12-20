@@ -32,12 +32,12 @@ class EstudianteController with ChangeNotifier {
   }
 
   /// Registrar nuevo estudiante
-  Future<bool> registrar(EstudianteRegistroCompletoDTO dto) async {
+  Future<EstudianteResponseDTO?> registrar(EstudianteRegistroCompletoDTO dto) async {
     errorMessage = null;
     try {
-      await _service.registrarEstudianteCompleto(dto);
+      final nuevoEstudiante = await _service.registrarEstudianteCompleto(dto);
       await cargarEstudiantes();
-      return true;
+      return nuevoEstudiante;
     } catch (e) {
       if (e is DioException && e.response?.data is Map) {
         final data = e.response?.data as Map;
@@ -49,7 +49,7 @@ class EstudianteController with ChangeNotifier {
       } else {
         errorMessage = 'Error al registrar estudiante: $e';
       }
-      return false;
+      return null;
     }
   }
 

@@ -154,4 +154,48 @@ public class ReporteFinancieroService {
                     return map;
                 }).collect(Collectors.toList());
     }
+
+    @Transactional(readOnly = true)
+    public Map<String, Object> obtenerCierreDiario(String correoUsuario, LocalDate fecha) {
+        Usuario usuario = usuarioRepository.findByCorreo(correoUsuario)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + correoUsuario));
+
+        if (usuario.getUnidadEducativa() == null) {
+            throw new RuntimeException("El usuario no pertenece a ninguna Unidad Educativa");
+        }
+        Long idUe = usuario.getUnidadEducativa().getIdUnidadEducativa();
+
+        // Rango de fecha
+        LocalDateTime inicio = fecha.atStartOfDay();
+        LocalDateTime fin = fecha.atTime(LocalTime.MAX);
+
+        List<com.unidadeducativa.finanzas.model.Pago> pagos = pagoRepository
+                .findByFechaPagoBetweenAndCuentaCobrar_TipoPago_UnidadEducativa_IdUnidadEducativa(
+                        inicio, fin, idUe);
+
+        BigDecimal totalEfectivo = BigDecimal.ZERO;
+        BigDecimal totalQR = BigDecimal.ZERO;
+        BigDecimal totalDia = BigDecimal.ZERO;
+        int cantidadTransacciones = pagos.size();
+
+        for (com.unidadeducativa.finanzas.model.Pago p : pagos) {
+            totalDia = totalDia.add(p.getMontoPagado());
+            if (p.getMetodoPago() == com.unidadeducativa.shared.enums.MetodoPago.EFECTIVO) {
+                totalEfectivo = totalEfectivo.add(p.getMontoPagado());
+            } else {
+                totalQR = totalQR.add(p.getMontoPagado());
+            }
+        }
+
+        Map<String, Object> resultado = new HashMap<>();
+        resultado.put("fecha", fecha.toString());
+        resultado.put("totalDia", totalDia);
+        resultado.put("totalEfectivo", totalEfectivo);
+        resultado.put("totalQR", totalQR);
+        resultado.put("transacciones", cantidadTransacciones);
+        // Detalles opcionales (lista)
+        // resultado.put("detalles", ...);
+
+        return resultado;
+    }
 }

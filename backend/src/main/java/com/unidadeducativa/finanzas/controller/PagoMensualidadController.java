@@ -55,8 +55,7 @@ public class PagoMensualidadController {
         if (idEstudiante != null) {
             return ResponseEntity.ok(pagoService.listarPagosPorEstudiante(idEstudiante));
         }
-        // Si no se envía ID, podríamos devolver vacío o todo (por ahora vacío para
-        // evitar carga masiva)
-        return ResponseEntity.ok(List.of());
+        // Si no se envía ID, devolvemos todo el historial
+        return ResponseEntity.ok(pagoService.listarTodos());
     }
 }

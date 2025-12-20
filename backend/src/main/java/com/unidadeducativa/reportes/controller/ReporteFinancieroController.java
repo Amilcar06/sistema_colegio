@@ -47,4 +47,16 @@ public class ReporteFinancieroController {
         return ResponseEntity.ok(
                 reporteFinancieroService.obtenerUltimasTransacciones(correo));
     }
+
+    // Cierre Diario (Secretaria)
+    @GetMapping("/cierre-diario")
+    @PreAuthorize("hasRole('DIRECTOR') or hasRole('ADMIN') or hasRole('SECRETARIA')")
+    public ResponseEntity<Map<String, Object>> getCierreDiario(
+            Principal principal,
+            @RequestParam(required = false) String fecha) {
+        String correo = principal.getName();
+        java.time.LocalDate date = (fecha != null) ? java.time.LocalDate.parse(fecha) : java.time.LocalDate.now();
+        return ResponseEntity.ok(
+                reporteFinancieroService.obtenerCierreDiario(correo, date));
+    }
 }

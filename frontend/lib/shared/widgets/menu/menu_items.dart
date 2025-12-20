@@ -52,15 +52,24 @@ final Map<String, List<MenuEntry>> menuPorRol = {
     const MenuItem('Eventos', Icons.event, '/dashboard-director/eventos'),
   ],
   'secretaria': [
-    // const MenuItem('Dashboard', Icons.dashboard, '/dashboard-secretaria'),
+    // Dashboard
+    // const MenuItem('Inicio', Icons.dashboard, '/dashboard-secretaria'),
 
-    const MenuItem('Estudiantes', Icons.people, '/dashboard-secretaria/estudiantes'),
-    const MenuItem('Inscripciones', Icons.how_to_reg, '/dashboard-secretaria/inscripciones'),
-    const MenuItem('Cursos', Icons.school, '/dashboard-secretaria/cursos'),
-    const MenuItem('Pagos', Icons.payments, '/dashboard-secretaria/pagos'),
-    const MenuItem('Comprobantes', Icons.receipt_long, '/dashboard-secretaria/comprobantes'),
-    const MenuItem('Facturación', Icons.request_quote, '/dashboard-secretaria/facturacion'),
-    const MenuItem('Eventos Académicos', Icons.event, '/dashboard-secretaria/eventos'),
+    // Inscripciones
+    const MenuHeader('INSCRIPCIONES'),
+    const MenuItem('Nueva Inscripción', Icons.person_add, '/dashboard-secretaria/inscripciones/nueva'),
+    const MenuItem('Re-inscripción', Icons.manage_accounts, '/dashboard-secretaria/inscripciones/reinscripcion'),
+    const MenuItem('Lista de Matriculados', Icons.list_alt, '/dashboard-secretaria/matriculados'),
+
+    // Estudiantes
+    const MenuHeader('ESTUDIANTES'),
+    const MenuItem('Kardex / Buscador', Icons.search, '/dashboard-secretaria/estudiantes'),
+
+    // Caja / Cobros
+    const MenuHeader('CAJA Y COBROS'),
+    const MenuItem('Realizar Cobro', Icons.point_of_sale, '/dashboard-secretaria/cobros'),
+    const MenuItem('Historial Transacciones', Icons.receipt_long, '/dashboard-secretaria/transacciones'),
+    const MenuItem('Cierre de Caja', Icons.account_balance_wallet, '/dashboard-secretaria/cierre-caja'),
   ],
   'profesor': [
     // const MenuItem('Dashboard', Icons.dashboard, '/dashboard-profesor'),

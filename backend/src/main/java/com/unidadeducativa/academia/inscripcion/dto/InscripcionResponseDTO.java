@@ -14,10 +14,10 @@ import java.time.LocalDate;
 public class InscripcionResponseDTO {
     private Long idInscripcion;
     private Long idEstudiante;
-    private String nombreEstudiante;
+    private com.unidadeducativa.personas.estudiante.dto.EstudianteResponseDTO estudiante;
 
     private Long idCurso;
-    private String nombreCurso;
+    private com.unidadeducativa.academia.curso.dto.CursoResponseDTO curso;
 
     private Long idGestion;
     private Integer anioGestion;

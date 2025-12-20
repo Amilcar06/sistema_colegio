@@ -228,11 +228,14 @@ class _RegistroEstudianteFormState extends State<RegistroEstudianteForm> {
 */
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:unidad_educatica_frontend/features/estudiante/controller/estudiante_controller.dart';
-import 'package:unidad_educatica_frontend/features/estudiante/models/estudiante_registro_completo.dart';
+import '../../estudiante/controller/estudiante_controller.dart';
+import '../../estudiante/models/estudiante_registro_completo.dart';
+import '../../estudiante/models/estudiante_response.dart';
 
 class RegistroEstudianteForm extends StatefulWidget {
-  const RegistroEstudianteForm({super.key});
+  final Function(EstudianteResponseDTO)? onSuccess;
+  
+  const RegistroEstudianteForm({super.key, this.onSuccess});
 
   @override
   State<RegistroEstudianteForm> createState() => _RegistroEstudianteFormState();
@@ -345,15 +348,28 @@ class _RegistroEstudianteFormState extends State<RegistroEstudianteForm> {
       fechaNacimiento: _fechaNacimiento!,
     );
 
-    final exito = esEdicion
-        ? await controller.actualizar(dto)
-        : await controller.registrar(dto);
+    EstudianteResponseDTO? nuevoEstudiante;
+    bool exito = false;
+
+    if (esEdicion) {
+      exito = await controller.actualizar(dto);
+    } else {
+      nuevoEstudiante = await controller.registrar(dto);
+      exito = nuevoEstudiante != null;
+    }
 
     if (exito) {
-      Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(esEdicion ? 'Estudiante actualizado' : 'Estudiante registrado')),
-      );
+      if (widget.onSuccess != null) {
+        // Pass the created/updated student to the callback
+        final estudianteResult = esEdicion ? controller.estudianteSeleccionado! : nuevoEstudiante!;
+        widget.onSuccess!(estudianteResult); 
+      } else {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(esEdicion ? 'Estudiante actualizado' : 'Estudiante registrado')),
+        );
+      }
+      
       _formKey.currentState!.reset();
       controller.cancelarEdicion();
       setState(() {

@@ -13,6 +13,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import com.unidadeducativa.finanzas.repository.CuentaCobrarRepository;
 import com.unidadeducativa.academia.curso.repository.CursoRepository;
+import com.unidadeducativa.usuario.repository.UsuarioRepository;
 
 import java.io.InputStream;
 import java.util.*;
@@ -33,6 +34,8 @@ public class ReporteService {
     private final com.unidadeducativa.finanzas.repository.CuentaCobrarRepository cuentaCobrarRepository;
     private final com.unidadeducativa.academia.curso.repository.CursoRepository cursoRepository;
     private final com.unidadeducativa.finanzas.repository.PagoRepository pagoRepository;
+    private final ReporteFinancieroService reporteFinancieroService;
+    private final com.unidadeducativa.usuario.repository.UsuarioRepository usuarioRepository;
 
     // --- BOLETIN DE NOTAS (ALUMNO) ---
     public byte[] generarBoletin(Long idEstudiante) {
@@ -158,6 +161,30 @@ public class ReporteService {
         // Lista vacía porque el recibo usa solo Parámetros, no Detail band (o dummy
         // data)
         return generarReportePDF("recibo_pago.jrxml", params, List.of(new Object()));
+    }
+
+    // --- REPORTE CIERRE DE CAJA ---
+    public byte[] generarCierreCaja(String correoUsuario) {
+        // Obtenemos los datos del día actual
+        java.time.LocalDate hoy = java.time.LocalDate.now();
+        Map<String, Object> data = reporteFinancieroService.obtenerCierreDiario(correoUsuario, hoy);
+
+        System.out.println("Generando reporte de cierre para: " + correoUsuario);
+
+        // Mapear datos a parámetros Jasper
+        Map<String, Object> params = new HashMap<>();
+        params.put("fecha", data.get("fecha").toString());
+
+        // Obtener nombre del cajero desde el repositorio (mejor que solo correo)
+        var usuario = usuarioRepository.findByCorreo(correoUsuario).orElse(null);
+        params.put("cajero", usuario != null ? usuario.getNombreCompleto() : correoUsuario);
+
+        params.put("totalEfectivo", data.get("totalEfectivo").toString() + " Bs.");
+        params.put("totalQR", data.get("totalQR").toString() + " Bs.");
+        params.put("totalDia", data.get("totalDia").toString() + " Bs.");
+        params.put("transacciones", data.get("transacciones").toString());
+
+        return generarReportePDF("cierre_caja.jrxml", params, List.of(new Object()));
     }
 
     public byte[] generarReportePDF(String templateName, Map<String, Object> parametros, List<?> datos) {

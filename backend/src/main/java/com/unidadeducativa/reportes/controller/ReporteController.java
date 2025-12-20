@@ -61,6 +61,20 @@ public class ReporteController {
                 .body(pdfContent);
     }
 
+    @io.swagger.v3.oas.annotations.Operation(summary = "Generar reporte de cierre de caja", description = "Genera un PDF con el cierre de caja diario del usuario actual.")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "PDF generado correctamente", content = @io.swagger.v3.oas.annotations.media.Content(mediaType = "application/pdf"))
+    @GetMapping("/cierre-diario/pdf")
+    public ResponseEntity<byte[]> generarCierreCaja(org.springframework.security.core.Authentication authentication) {
+        String correoUsuario = authentication.getName();
+        byte[] pdfContent = reporteService.generarCierreCaja(correoUsuario);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=cierre_caja_" + java.time.LocalDate.now() + ".pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdfContent);
+    }
+
     @io.swagger.v3.oas.annotations.Operation(summary = "Prueba de generación de reporte", description = "Endpoint de prueba para verificar el servicio de reportes.")
     @GetMapping("/test")
     public ResponseEntity<byte[]> testReport() {

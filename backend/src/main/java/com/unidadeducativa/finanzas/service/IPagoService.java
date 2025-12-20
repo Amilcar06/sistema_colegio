@@ -18,4 +18,6 @@ public interface IPagoService {
     List<PagoResponseDTO> listarPagosPorEstudiante(Long idEstudiante);
 
     ReporteIngresosDTO generarReporteIngresos(java.time.LocalDate inicio, java.time.LocalDate fin, Usuario auditor);
+
+    List<PagoResponseDTO> listarTodos();
 }

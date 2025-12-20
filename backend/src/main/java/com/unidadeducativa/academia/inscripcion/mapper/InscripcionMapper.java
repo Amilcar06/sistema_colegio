@@ -5,6 +5,8 @@ import com.unidadeducativa.academia.inscripcionmateria.dto.InscripcionMateriaRes
 import com.unidadeducativa.academia.inscripcion.dto.InscripcionResponseDTO;
 import com.unidadeducativa.academia.inscripcion.model.Inscripcion;
 import com.unidadeducativa.academia.inscripcionmateria.model.InscripcionMateria;
+import com.unidadeducativa.personas.estudiante.mapper.EstudianteMapper;
+import com.unidadeducativa.academia.curso.mapper.CursoMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -12,15 +14,15 @@ import org.mapstruct.Named;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = { EstudianteMapper.class, CursoMapper.class })
 public interface InscripcionMapper {
 
     // Mapper para Inscripcion → InscripcionResponseDTO
     @Mapping(source = "idInscripcion", target = "idInscripcion")
     @Mapping(source = "estudiante.idEstudiante", target = "idEstudiante")
-    @Mapping(expression = "java(inscripcion.getEstudiante().getUsuario().getNombreCompleto())", target = "nombreEstudiante")
+    @Mapping(source = "estudiante", target = "estudiante")
     @Mapping(source = "curso.idCurso", target = "idCurso")
-    @Mapping(expression = "java(inscripcion.getCurso().getGrado().getNombre() + \" \" + inscripcion.getCurso().getParalelo())", target = "nombreCurso")
+    @Mapping(source = "curso", target = "curso")
     @Mapping(source = "gestion.idGestion", target = "idGestion")
     @Mapping(source = "gestion.anio", target = "anioGestion")
     @Mapping(source = "fechaInscripcion", target = "fechaInscripcion")
@@ -48,7 +50,6 @@ public interface InscripcionMapper {
                 .idInscripcion(m.getInscripcion().getIdInscripcion())
                 .idMateria(m.getMateria().getIdMateria())
                 .nombreMateria(m.getMateria().getNombre())
-                .build()
-        ).collect(Collectors.toList());
+                .build()).collect(Collectors.toList());
     }
 }

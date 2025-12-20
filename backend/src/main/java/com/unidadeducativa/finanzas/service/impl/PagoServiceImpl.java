@@ -120,4 +120,11 @@ public class PagoServiceImpl implements IPagoService {
                                 .porMetodoPago(porMetodo)
                                 .build();
         }
+
+        @Override
+        public List<PagoResponseDTO> listarTodos() {
+                return pagoRepository.findAll().stream()
+                                .map(pagoMapper::toDTO)
+                                .collect(Collectors.toList());
+        }
 }

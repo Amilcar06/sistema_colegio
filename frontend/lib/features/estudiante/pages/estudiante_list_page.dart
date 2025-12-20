@@ -4,15 +4,25 @@ import '../controller/estudiante_controller.dart';
 import '../models/estudiante_response.dart';
 import '../../shared/widgets/registro_estudiante_form.dart';
 
-class EstudianteListWrapper extends StatelessWidget {
+class EstudianteListWrapper extends StatefulWidget {
   const EstudianteListWrapper({super.key});
 
   @override
+  State<EstudianteListWrapper> createState() => _EstudianteListWrapperState();
+}
+
+class _EstudianteListWrapperState extends State<EstudianteListWrapper> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<EstudianteController>().cargarEstudiantes();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => EstudianteController()..cargarEstudiantes(),
-      child: const EstudianteListPage(),
-    );
+    return const EstudianteListPage();
   }
 }
 

@@ -4,6 +4,8 @@ import 'package:intl/date_symbol_data_local.dart';
 
 import 'state/auth_provider.dart';
 import 'features/director/controller/usuarios_controller.dart';
+import 'features/estudiante/controller/estudiante_controller.dart';
+import 'features/profesor/controller/profesor_controller.dart';
 import 'routes/app_router.dart';
 import 'core/theme.dart';
 
@@ -16,6 +18,8 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()..checkAuthOnStart()),
         ChangeNotifierProvider(create: (_) => UsuarioController()),
+        ChangeNotifierProvider(create: (_) => EstudianteController()),
+        ChangeNotifierProvider(create: (_) => ProfesorController()),
       ],
       child: const MyApp(),
     ),

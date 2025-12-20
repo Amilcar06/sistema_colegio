@@ -4,15 +4,25 @@ import '../controller/profesor_controller.dart';
 import '../models/profesor_response.dart';
 import '../../shared/widgets/registro_profesor_form.dart';
 
-class ProfesorListWrapper extends StatelessWidget {
+class ProfesorListWrapper extends StatefulWidget {
   const ProfesorListWrapper({super.key});
 
   @override
+  State<ProfesorListWrapper> createState() => _ProfesorListWrapperState();
+}
+
+class _ProfesorListWrapperState extends State<ProfesorListWrapper> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ProfesorController>().cargarProfesores();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => ProfesorController()..cargarProfesores(),
-      child: const ProfesorListPage(),
-    );
+    return const ProfesorListPage();
   }
 }
 

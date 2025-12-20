@@ -22,7 +22,7 @@ class InscripcionService {
     });
 
     final response = await http.post(
-      Uri.parse('${ApiConfig.baseUrl}/inscripciones'),
+      Uri.parse('${ApiConfig.baseUrl}/api/inscripciones'),
       headers: headers,
       body: body,
     );
@@ -38,7 +38,7 @@ class InscripcionService {
   Future<List<dynamic>> listarPorGestion(int idGestion) async {
     final headers = await _getHeaders();
     final response = await http.get(
-      Uri.parse('${ApiConfig.baseUrl}/inscripciones/gestion/$idGestion'),
+      Uri.parse('${ApiConfig.baseUrl}/api/inscripciones/gestion/$idGestion'),
       headers: headers,
     );
 
@@ -52,7 +52,7 @@ class InscripcionService {
   Future<List<dynamic>> listarPorEstudiante(int idEstudiante) async {
     final headers = await _getHeaders();
     final response = await http.get(
-      Uri.parse('${ApiConfig.baseUrl}/inscripciones/estudiante/$idEstudiante'),
+      Uri.parse('${ApiConfig.baseUrl}/api/inscripciones/estudiante/$idEstudiante'),
       headers: headers,
     );
 

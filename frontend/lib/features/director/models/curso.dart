@@ -27,5 +27,7 @@ class Curso {
   }
 
   // Helper getters
+  // Helper getters
   String get nombreCompleto => '$nombreGrado "$paralelo"';
+  String get gradoNombre => nombreGrado; // Compatibility getter
 }

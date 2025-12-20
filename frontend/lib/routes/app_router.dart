@@ -31,15 +31,15 @@ import '../features/director/pages/dashboard_director_configuracion_page.dart';
 import '../features/director/pages/dashboard_director_paralelos_page.dart';
 
 // Secretaria Pages
-import '../features/secretaria/pages/dashboard_secretaria_estudiantes_page.dart';
-import '../features/secretaria/pages/dashboard_secretaria_inscripciones_page.dart';
-import '../features/secretaria/pages/dashboard_secretaria_cursos_page.dart';
-import '../features/secretaria/pages/dashboard_secretaria_cursos_page.dart';
-import '../features/secretaria/pages/pago_pensiones_page.dart';
-import '../features/secretaria/pages/dashboard_secretaria_comprobantes_page.dart';
-import '../features/secretaria/pages/dashboard_secretaria_comprobantes_page.dart';
-import '../features/secretaria/pages/dashboard_secretaria_facturacion_page.dart';
+import '../features/secretaria/pages/dashboard_secretaria_inscripciones_nueva_page.dart';
+import '../features/secretaria/pages/dashboard_secretaria_inscripciones_reinscripcion_page.dart';
+import '../features/secretaria/pages/dashboard_secretaria_matriculados_page.dart';
+import '../features/secretaria/pages/dashboard_secretaria_kardex_page.dart';
 import '../features/secretaria/pages/dashboard_secretaria_eventos_page.dart';
+// New Secretary Pages
+import '../features/secretaria/pages/dashboard_secretaria_cobros_page.dart';
+import '../features/secretaria/pages/dashboard_secretaria_transacciones_page.dart';
+import '../features/secretaria/pages/dashboard_secretaria_cierre_caja_page.dart';
 
 // Profesor Pages
 import '../features/profesor/pages/cursos_asignados_page.dart';
@@ -153,38 +153,42 @@ final GoRouter appRouter = GoRouter(
       path: '/directores/profesores',
       builder: (context, state) => const ProfesorListWrapper(),
     ),
+
     // Secretaria
     GoRoute(
       path: '/dashboard-secretaria',
       builder: (_, __) => const DashboardSecretaria(),
     ),
+    // Inscripciones
+    GoRoute(
+      path: '/dashboard-secretaria/inscripciones/nueva',
+      builder: (_, __) => const NuevaInscripcionPage(),
+    ),
+    GoRoute(
+      path: '/dashboard-secretaria/inscripciones/reinscripcion',
+      builder: (_, __) => const ReinscripcionPage(),
+    ),
+    GoRoute(
+      path: '/dashboard-secretaria/matriculados',
+      builder: (_, __) => const ListaMatriculadosPage(),
+    ),
+    // Estudiantes
     GoRoute(
       path: '/dashboard-secretaria/estudiantes',
-      builder: (_, __) => const DashboardSecretariaEstudiantesPage(),
+      builder: (_, __) => const KardexEstudiantePage(),
+    ),
+    // Caja y Cobros
+    GoRoute(
+      path: '/dashboard-secretaria/cobros',
+      builder: (_, __) => const CobrarPensionPage(),
     ),
     GoRoute(
-      path: '/dashboard-secretaria/inscripciones',
-      builder: (_, __) => const DashboardSecretariaInscripcionesPage(),
+      path: '/dashboard-secretaria/transacciones',
+      builder: (_, __) => const HistorialTransaccionesPage(),
     ),
     GoRoute(
-      path: '/dashboard-secretaria/cursos',
-      builder: (_, __) => const DashboardSecretariaCursosPage(),
-    ),
-    GoRoute(
-      path: '/dashboard-secretaria/pagos',
-      builder: (_, __) => const PagoPensionesPage(),
-    ),
-    GoRoute(
-      path: '/dashboard-secretaria/comprobantes',
-      builder: (_, __) => const DashboardSecretariaComprobantesPage(),
-    ),
-    GoRoute(
-      path: '/dashboard-secretaria/facturacion',
-      builder: (_, __) => const DashboardSecretariaFacturacionPage(),
-    ),
-    GoRoute(
-      path: '/dashboard-secretaria/eventos',
-      builder: (_, __) => const DashboardSecretariaEventosPage(),
+      path: '/dashboard-secretaria/cierre-caja',
+      builder: (_, __) => const CierreCajaPage(),
     ),
 
     // Profesor
