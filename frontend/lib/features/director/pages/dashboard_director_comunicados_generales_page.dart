@@ -29,33 +29,99 @@ class _ComunicadosViewState extends State<_ComunicadosView> {
   Widget build(BuildContext context) {
     final controller = context.watch<ComunicadoController>();
 
-    return MainScaffold(
-      title: 'Comunicados Generales',
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _mostrarDialogo(context),
-        icon: const Icon(Icons.add),
-        label: const Text('Nuevo'),
+    return DefaultTabController(
+      length: 2,
+      child: MainScaffold(
+        title: 'Comunicados Generales',
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () => _mostrarDialogo(context),
+          icon: const Icon(Icons.add),
+          label: const Text('Nuevo'),
+        ),
+        bottom: const TabBar(
+          tabs: [
+            Tab(text: 'Recientes'),
+            Tab(text: 'Historial'),
+          ],
+          labelColor: Colors.blue,
+          unselectedLabelColor: Colors.grey,
+          indicatorColor: Colors.blue,
+        ),
+        child: TabBarView(
+          children: [
+            _ComunicadosList(historial: false),
+            _ComunicadosList(historial: true),
+          ],
+        ),
       ),
-      child: controller.cargando
-          ? const Center(child: CircularProgressIndicator())
-          : controller.comunicados.isEmpty
-              ? const Center(child: Text('No hay comunicados generales publicados.'))
-              : ListView.separated(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: controller.comunicados.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
-                  itemBuilder: (ctx, index) {
-                    final com = controller.comunicados[index];
-                    return _buildComunicadoCard(context, com);
-                  },
-                ),
     );
   }
 
-  Widget _buildComunicadoCard(BuildContext context, Comunicado com) {
-    final colorPrioridad = _getColorPrioridad(com.prioridad);
-    final isProfe = com.nombreAutor.contains('Prof'); // Simple check, or assume all are editable by Director for now
+  void _mostrarDialogo(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => _ComunicadoDialog(
+        controller: context.read<ComunicadoController>(),
+      ),
+    );
+  }
+}
 
+class _ComunicadosList extends StatelessWidget {
+  final bool historial;
+  const _ComunicadosList({required this.historial});
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = context.watch<ComunicadoController>();
+
+    if (controller.cargando) return const Center(child: CircularProgressIndicator());
+
+    final lista = historial ? controller.comunicadosHistorial : controller.comunicadosRecientes;
+
+    if (lista.isEmpty) {
+        return Center(
+          child: Text(
+            historial 
+            ? 'No hay comunicados antiguos.' 
+            : 'No hay comunicados recientes (últimos 30 días).',
+             style: const TextStyle(color: Colors.grey),
+          )
+        );
+    }
+
+    return ListView.separated(
+      padding: const EdgeInsets.all(16),
+      itemCount: lista.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemBuilder: (ctx, index) {
+        final com = lista[index];
+        // We need to access _buildComunicadoCard. 
+        // Since it relies on context to open dialogs which need Controller context...
+        // Best to refactor _buildComunicadoCard out.
+        // For now, I will assume I can access it via a method here if I make this stateful or pass it?
+        // Actually, _ComunicadosViewState has helper methods.
+        // I should move helper methods to this widget or make them static helpers.
+        // I will copy _buildComunicadoCard logic here for simplicity again.
+        return _ComunicadoCard(com: com); 
+      },
+    );
+  }
+}
+
+class _ComunicadoCard extends StatelessWidget {
+    final Comunicado com;
+    const _ComunicadoCard({required this.com});
+
+  @override
+  Widget build(BuildContext context) {
+    // Need helper: _getColorPrioridad, _formatDate, _mostrarDialogo...
+    // Refactoring to separate widget.
+    
+    // ... Copying card build logic ...
+    
+    final colorPrioridad = _getColorPrioridad(com.prioridad);
+    
     return Card(
       elevation: 3,
       shape: RoundedRectangleBorder(
@@ -134,15 +200,12 @@ class _ComunicadosViewState extends State<_ComunicadosView> {
     );
   }
 
+  /* Helper methods need to be inside the class or static or imported */
   Color _getColorPrioridad(String prioridad) {
     switch (prioridad) {
-      case 'ALTA':
-        return Colors.red;
-      case 'MEDIA':
-        return Colors.orange;
-      case 'BAJA':
-      default:
-        return Colors.green;
+      case 'ALTA': return Colors.red;
+      case 'MEDIA': return Colors.orange; // Corrected from original Switch
+      default: return Colors.green;
     }
   }
 
@@ -164,7 +227,7 @@ class _ComunicadosViewState extends State<_ComunicadosView> {
       ),
     );
   }
-
+  
   Future<void> _confirmarEliminacion(BuildContext context, Comunicado com) async {
     final confirm = await showDialog<bool>(
       context: context,

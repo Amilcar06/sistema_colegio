@@ -9,6 +9,8 @@ class EstudianteRegistroCompletoDTO {
   final String direccion;
   final String telefonoPadre;
   final String telefonoMadre;
+  final String? nombrePadre;
+  final String? nombreMadre;
   final DateTime fechaNacimiento;
 
   EstudianteRegistroCompletoDTO({
@@ -22,6 +24,8 @@ class EstudianteRegistroCompletoDTO {
     required this.direccion,
     required this.telefonoPadre,
     required this.telefonoMadre,
+    this.nombrePadre,
+    this.nombreMadre,
     required this.fechaNacimiento,
   });
 
@@ -37,6 +41,8 @@ class EstudianteRegistroCompletoDTO {
       'direccion': direccion,
       'telefonoPadre': telefonoPadre,
       'telefonoMadre': telefonoMadre,
+      'nombrePadre': nombrePadre,
+      'nombreMadre': nombreMadre,
       'fechaNacimiento': fechaNacimiento.toIso8601String(),
     };
   }

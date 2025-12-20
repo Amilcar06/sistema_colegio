@@ -29,6 +29,18 @@ class EventoService {
     }
   }
 
+  Future<List<Evento>> listarHistorial() async {
+    final options = await _getOptions();
+    final response = await _dio.get('${ApiConfig.baseUrl}/api/eventos/historial', options: options);
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = response.data;
+      return data.map((e) => Evento.fromJson(e)).toList();
+    } else {
+      throw Exception('Error al cargar historial de eventos');
+    }
+  }
+
   Future<void> crear(Map<String, dynamic> data) async {
     final options = await _getOptions();
     final response = await _dio.post('${ApiConfig.baseUrl}/api/eventos', data: data, options: options);

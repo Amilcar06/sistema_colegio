@@ -4,6 +4,8 @@ class EstudianteResponseDTO {
   final DateTime fechaNacimiento;
   final String telefonoPadre;
   final String telefonoMadre;
+  final String? nombrePadre;
+  final String? nombreMadre;
   final String direccion;
 
   final int idUsuario;
@@ -21,6 +23,8 @@ class EstudianteResponseDTO {
     required this.fechaNacimiento,
     required this.telefonoPadre,
     required this.telefonoMadre,
+    this.nombrePadre,
+    this.nombreMadre,
     required this.direccion,
     required this.idUsuario,
     required this.nombres,
@@ -37,6 +41,8 @@ class EstudianteResponseDTO {
       fechaNacimiento: json['fechaNacimiento'] != null ? DateTime.parse(json['fechaNacimiento']) : DateTime.now(),
       telefonoPadre: json['telefonoPadre']?.toString() ?? '',
       telefonoMadre: json['telefonoMadre']?.toString() ?? '',
+      nombrePadre: json['nombrePadre']?.toString() ?? '',
+      nombreMadre: json['nombreMadre']?.toString() ?? '',
       direccion: json['direccion']?.toString() ?? '',
       idUsuario: json['idUsuario'] ?? 0,
       nombres: json['nombres'] ?? '',

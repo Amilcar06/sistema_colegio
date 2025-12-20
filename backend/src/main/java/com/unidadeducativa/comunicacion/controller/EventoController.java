@@ -34,6 +34,12 @@ public class EventoController {
         return ResponseEntity.ok(eventoService.listarProximosEventos());
     }
 
+    @Operation(summary = "Listar historial de eventos pasados")
+    @GetMapping("/historial")
+    public ResponseEntity<List<EventoResponseDTO>> listarHistorialEventos() {
+        return ResponseEntity.ok(eventoService.listarHistorialEventos());
+    }
+
     @Operation(summary = "Actualizar evento")
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
     @PutMapping("/{id}")

@@ -21,7 +21,32 @@ class ProfesorService {
   }
 
   Future<ProfesorResponseDTO> actualizarProfesor(int idProfesor, ProfesorRegistroCompletoDTO dto) async {
-    final response = await dio.put('/profesores/$idProfesor', data: dto.toJson());
+    final Map<String, dynamic> data = dto.toJson();
+    if (dto.password.isNotEmpty) {
+      data['contrasena'] = dto.password; // Map to Backend DTO field
+    } else {
+        data.remove('password'); // Ensure clean JSON
+    }
+    // Also ensure field name mapping matching Backend ProfesorUpdateDTO (which uses 'contrasena')
+    // ProfesorRegistroCompletoDTO.toJson() generally matches Request DTO. 
+    // Let's verify if toJson uses 'contrasena' or 'password'.
+    // Assuming toJson uses 'password', we should remap.
+    // Actually, safer to build manual map like EstudianteService to be sure.
+    
+    final Map<String, dynamic> cleanData = {
+        'nombres': dto.nombres,
+        'apellidoPaterno': dto.apellidoPaterno,
+        'apellidoMaterno': dto.apellidoMaterno,
+        'correo': dto.correo,
+        'ci': dto.ci,
+        'telefono': dto.telefono,
+        'profesion': dto.profesion,
+        'fotoPerfil': dto.fotoPerfilUrl,
+        'fechaNacimiento': dto.fechaNacimiento.toIso8601String().split('T')[0], // YYYY-MM-DD
+        'contrasena': dto.password,
+    };
+
+    final response = await dio.put('/profesores/$idProfesor', data: cleanData);
     return ProfesorResponseDTO.fromJson(response.data);
   }
 

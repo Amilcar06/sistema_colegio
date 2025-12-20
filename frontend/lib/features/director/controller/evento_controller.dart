@@ -30,6 +30,22 @@ class EventoController extends ChangeNotifier {
     }
   }
 
+  Future<void> cargarHistorial() async {
+    _cargando = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      _eventos = await _service.listarHistorial();
+    } catch (e) {
+      _errorMessage = _handleError(e);
+      _eventos = [];
+    } finally {
+      _cargando = false;
+      notifyListeners();
+    }
+  }
+
   Future<bool> crearEvento(Map<String, dynamic> data) async {
     _cargando = true;
     _errorMessage = null;

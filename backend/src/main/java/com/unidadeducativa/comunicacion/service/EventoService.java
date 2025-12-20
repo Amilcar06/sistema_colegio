@@ -39,6 +39,14 @@ public class EventoService {
                 .collect(Collectors.toList());
     }
 
+    public List<EventoResponseDTO> listarHistorialEventos() {
+        // Listar eventos pasados
+        LocalDateTime hoy = LocalDateTime.now().withHour(0).withMinute(0);
+        return eventoRepository.findAllByFechaInicioBeforeOrderByFechaInicioDesc(hoy).stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
     public EventoResponseDTO actualizarEvento(Long id, EventoRequestDTO request) {
         Evento evento = eventoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Evento no encontrado con ID: " + id));

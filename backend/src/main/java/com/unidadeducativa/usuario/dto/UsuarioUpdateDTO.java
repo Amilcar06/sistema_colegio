@@ -14,4 +14,5 @@ public class UsuarioUpdateDTO {
     private String fotoPerfil;
     private Boolean estado;
     private LocalDate fechaNacimiento;
+    private String contrasena; // Optional for updates
 }

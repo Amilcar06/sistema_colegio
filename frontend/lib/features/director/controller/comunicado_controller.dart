@@ -11,6 +11,25 @@ class ComunicadoController extends ChangeNotifier {
   String? _errorMessage;
 
   List<Comunicado> get comunicados => _comunicados;
+  
+  List<Comunicado> get comunicadosRecientes {
+    final now = DateTime.now();
+    final limit = now.subtract(const Duration(days: 30));
+    return _comunicados.where((c) {
+      final fecha = DateTime.tryParse(c.fechaPublicacion);
+      return fecha != null && fecha.isAfter(limit);
+    }).toList();
+  }
+
+  List<Comunicado> get comunicadosHistorial {
+    final now = DateTime.now();
+    final limit = now.subtract(const Duration(days: 30));
+    return _comunicados.where((c) {
+      final fecha = DateTime.tryParse(c.fechaPublicacion);
+      return fecha != null && fecha.isBefore(limit);
+    }).toList();
+  }
+
   bool get cargando => _cargando;
   String? get errorMessage => _errorMessage;
 

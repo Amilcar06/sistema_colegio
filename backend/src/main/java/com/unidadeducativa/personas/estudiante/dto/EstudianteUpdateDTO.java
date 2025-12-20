@@ -27,6 +27,8 @@ public class EstudianteUpdateDTO {
     @Email
     private String correo;
 
+    private String contrasena; // Optional
+
     private String fotoPerfil;
 
     @NotNull

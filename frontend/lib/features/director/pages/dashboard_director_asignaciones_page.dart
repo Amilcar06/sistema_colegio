@@ -104,23 +104,48 @@ class _AsignacionesViewState extends State<_AsignacionesView> {
                                 return Card(
                                   elevation: 2,
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                  child: ListTile(
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                    leading: CircleAvatar(
-                                      backgroundColor: Colors.blue[100],
-                                      child: const Icon(Icons.book, color: Colors.blue),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                    decoration: BoxDecoration(
+                                      border: Border(left: BorderSide(color: Theme.of(context).primaryColor, width: 4)),
+                                      borderRadius: BorderRadius.circular(12)
                                     ),
-                                    title: Text(a.nombreMateria, style: const TextStyle(fontWeight: FontWeight.bold)),
-                                    subtitle: Text('Docente: ${a.nombreProfesor}', style: const TextStyle(color: Colors.black87)),
-                                    trailing: Wrap(
-                                      spacing: 8,
+                                    child: Row(
                                       children: [
+                                        CircleAvatar(
+                                          backgroundColor: Colors.blue.withOpacity(0.1),
+                                          child: Icon(Icons.book, color: Theme.of(context).primaryColor),
+                                        ),
+                                        const SizedBox(width: 16),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                a.nombreMateria, 
+                                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Row(
+                                                children: [
+                                                  Icon(Icons.person, size: 14, color: Colors.grey.shade600),
+                                                  const SizedBox(width: 4),
+                                                  Text('Docente: ${a.nombreProfesor}', style: TextStyle(color: Colors.grey.shade800)),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
                                         IconButton(
-                                          icon: const Icon(Icons.edit, color: Colors.orange),
+                                          icon: const Icon(Icons.edit, color: Colors.orange, size: 20),
+                                          constraints: const BoxConstraints(),
+                                          padding: const EdgeInsets.all(8),
                                           onPressed: () => _mostrarDialogoAsignacion(context, asignacion: a),
                                         ),
                                         IconButton(
-                                          icon: const Icon(Icons.delete, color: Colors.red),
+                                          icon: const Icon(Icons.delete, color: Colors.red, size: 20),
+                                          constraints: const BoxConstraints(),
+                                          padding: const EdgeInsets.all(8),
                                           onPressed: () => _confirmarEliminacion(context, a),
                                         ),
                                       ],

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/api_config.dart'; // Ensure Auth/Storage/ApiConfig access if needed, or just service
+import '../../../../core/api_config.dart'; 
 import '../../../shared/widgets/main_scaffold.dart';
 import '../../director/services/curso_service.dart';
 import '../../director/services/asignacion_service.dart';
@@ -18,6 +18,8 @@ class _DashboardDirectorHorariosPageState
   final CursoService _cursoService = CursoService();
   final AsignacionService _asignacionService = AsignacionService();
   final HorarioService _horarioService = HorarioService();
+  
+  final ScrollController _horizontalController = ScrollController();
 
   List<dynamic> _cursos = [];
   List<dynamic> _asignaciones = [];
@@ -28,6 +30,7 @@ class _DashboardDirectorHorariosPageState
 
   final List<String> _dias = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO'];
   final double _hourHeight = 60.0;
+  final double _dayColumnWidth = 140.0;
   final int _startHour = 7; // 7:00 AM
   final int _endHour = 19;  // 7:00 PM
 
@@ -35,6 +38,12 @@ class _DashboardDirectorHorariosPageState
   void initState() {
     super.initState();
     _cargarCursos();
+  }
+  
+  @override
+  void dispose() {
+    _horizontalController.dispose();
+    super.dispose();
   }
 
   Future<void> _cargarCursos() async {
@@ -60,10 +69,39 @@ class _DashboardDirectorHorariosPageState
         _horarios = horarios;
         _isLoading = false;
       });
+      
+      // Auto-scroll to current day after loading
+      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToCurrentDay());
+      
     } catch (e) {
       if (mounted) setState(() => _isLoading = false);
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text('Error: $e')));
+    }
+  }
+
+  void _scrollToCurrentDay() {
+    final now = DateTime.now();
+    int dayIndex = now.weekday - 1; // Mon=0
+    if (dayIndex > 5) dayIndex = 0; // Sun -> Mon
+
+    // Calculate offset: Width of time column (50) + dayIndex * columnWidth
+    // But since days are inside a Row in SingleChildScrollView, and TimeColumn is sticky or separate.. 
+    // In our implementation below, they are in a Row.
+    // Time Column (50) + (dayIndex * 140)
+    
+    // However, if we scroll only the days, we need to separate TimeColumn.
+    // Let's scroll the whole Row.
+    double offset = dayIndex * _dayColumnWidth;
+    
+    // Clamp offset
+    if (_horizontalController.hasClients) {
+       // Center it if possible or just scroll to start
+      _horizontalController.animateTo(
+        offset,
+        duration: const Duration(milliseconds: 600),
+        curve: Curves.easeOutCubic,
+      );
     }
   }
 
@@ -229,7 +267,7 @@ class _DashboardDirectorHorariosPageState
   @override
   Widget build(BuildContext context) {
     return MainScaffold(
-      // title: 'Gestión de Horarios', // MainScaffold doesn't always take title depending on impl
+      // title: 'Gestión de Horarios', 
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -274,7 +312,16 @@ class _DashboardDirectorHorariosPageState
               child: _isLoading 
                 ? const Center(child: CircularProgressIndicator()) 
                 : _selectedCursoId == null 
-                  ? const Center(child: Text("Seleccione un curso para ver el horario"))
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Icon(Icons.calendar_view_week, size: 60, color: Colors.grey),
+                          SizedBox(height: 10),
+                          Text("Seleccione un curso para ver y editar el horario", style: TextStyle(color: Colors.grey)),
+                        ],
+                      ),
+                    )
                   : _buildWeeklyGrid(),
             ),
           ],
@@ -284,23 +331,35 @@ class _DashboardDirectorHorariosPageState
   }
 
   Widget _buildWeeklyGrid() {
-    return SingleChildScrollView(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Time Column
-          _buildTimeColumn(),
-          // Days Columns
-          ..._dias.map((dia) => Expanded(child: _buildDayColumn(dia))),
-        ],
-      ),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Time Column (Fixed LEft)
+        SizedBox(
+          width: 50,
+          child: _buildTimeColumn(),
+        ),
+        // Scrollable Content
+        Expanded(
+          child: SingleChildScrollView(
+            controller: _horizontalController,
+            scrollDirection: Axis.horizontal,
+            child: SizedBox(
+              width: _dayColumnWidth * _dias.length,
+              child: Row(
+                children: _dias.map((dia) => SizedBox(width: _dayColumnWidth, child: _buildDayColumn(dia))).toList(),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
   Widget _buildTimeColumn() {
     return Column(
       children: [
-        Container(height: 40, alignment: Alignment.center, child: const Text('Hora', style: TextStyle(fontWeight: FontWeight.bold))),
+        Container(height: 40, alignment: Alignment.center, child: const Text('Hora', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10))),
         ...List.generate(_endHour - _startHour + 1, (index) {
           final hour = _startHour + index;
           return Container(
@@ -309,7 +368,7 @@ class _DashboardDirectorHorariosPageState
             decoration: const BoxDecoration(
                border: Border(top: BorderSide(color: Colors.grey, width: 0.5))
             ),
-            child: Text('$hour:00', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+            child: Text('$hour:00', style: const TextStyle(fontSize: 10, color: Colors.grey)),
           );
         })
       ],
@@ -319,10 +378,17 @@ class _DashboardDirectorHorariosPageState
   Widget _buildDayColumn(String dia) {
     // Filter schedules for this day
     final clasesDia = _horarios.where((h) => h['diaSemana'] == dia).toList();
+    
+    // Check if it's today
+    final now = DateTime.now();
+    final weekDays = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO', 'DOMINGO'];
+    final todayStr = (now.weekday <= 6) ? weekDays[now.weekday - 1] : '';
+    final isToday = dia == todayStr;
 
     return Container(
-      decoration: const BoxDecoration(
-        border: Border(left: BorderSide(color: Colors.grey, width: 0.5))
+      decoration: BoxDecoration(
+        color: isToday ? Colors.blue.withOpacity(0.05) : null,
+        border: const Border(left: BorderSide(color: Colors.grey, width: 0.5))
       ),
       child: Column(
         children: [
@@ -330,8 +396,14 @@ class _DashboardDirectorHorariosPageState
           Container(
             height: 40, 
             alignment: Alignment.center, 
-            color: Colors.grey[200],
-            child: Text(dia.substring(0, 3), style: const TextStyle(fontWeight: FontWeight.bold))
+            color: isToday ? Colors.blue : Colors.grey[200],
+            child: Text(
+              dia.substring(0, 3), 
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: isToday ? Colors.white : Colors.black87
+              )
+            )
           ),
           // Grid area
           SizedBox(
@@ -351,6 +423,10 @@ class _DashboardDirectorHorariosPageState
                      ),
                    );
                 }),
+                
+                // Current Time Indicator (Only if today)
+                if (isToday) _buildCurrentTimeIndicator(),
+
                 // Schedule Blocks
                 ...clasesDia.map((clase) {
                   final inicio = _parseTime(clase['horaInicio']);
@@ -390,10 +466,10 @@ class _DashboardDirectorHorariosPageState
                             ),
                             if (clase['aula'] != null)
                              Text(
-                              'Aula: ${clase['aula']}',
-                               style: const TextStyle(color: Colors.white70, fontSize: 9),
-                               overflow: TextOverflow.ellipsis
-                            ),
+                               'Aula: ${clase['aula']}',
+                                style: const TextStyle(color: Colors.white70, fontSize: 9),
+                                overflow: TextOverflow.ellipsis
+                             ),
                           ],
                         ),
                       ),
@@ -407,9 +483,29 @@ class _DashboardDirectorHorariosPageState
       ),
     );
   }
+  
+  Widget _buildCurrentTimeIndicator() {
+    final now = DateTime.now();
+    
+    // Check if within bounds
+    if (now.hour < _startHour || now.hour > _endHour) return const SizedBox();
+    
+    final offset = (now.hour - _startHour) * _hourHeight + (now.minute / 60) * _hourHeight;
+    
+    return Positioned(
+      top: offset,
+      left: 0, 
+      right: 0,
+      child: Row(
+        children: [
+           const CircleAvatar(radius: 3, backgroundColor: Colors.red),
+           Expanded(child: Container(height: 2, color: Colors.red)),
+        ],
+      ),
+    );
+  }
 
   Color _getColorForMateria(String materia) {
-     // Generate consistent color from string hash
      final hash = materia.hashCode;
      final colors = [
        Colors.blue, Colors.red, Colors.green, Colors.orange, 

@@ -249,6 +249,8 @@ class _RegistroEstudianteFormState extends State<RegistroEstudianteForm> {
   final _ciController = TextEditingController();
   final _telefonoPadreController = TextEditingController();
   final _telefonoMadreController = TextEditingController();
+  final _nombrePadreController = TextEditingController();
+  final _nombreMadreController = TextEditingController();
   final _direccionController = TextEditingController();
 
   DateTime? _fechaNacimiento;
@@ -266,6 +268,8 @@ class _RegistroEstudianteFormState extends State<RegistroEstudianteForm> {
       _ciController.text = est.ci;
       _telefonoPadreController.text = est.telefonoPadre;
       _telefonoMadreController.text = est.telefonoMadre;
+      _nombrePadreController.text = est.nombrePadre ?? '';
+      _nombreMadreController.text = est.nombreMadre ?? '';
       _direccionController.text = est.direccion;
       _fechaNacimiento = est.fechaNacimiento;
       _datosPrecargados = true;
@@ -336,6 +340,8 @@ class _RegistroEstudianteFormState extends State<RegistroEstudianteForm> {
       direccion: _direccionController.text.trim(),
       telefonoPadre: _telefonoPadreController.text.trim(),
       telefonoMadre: _telefonoMadreController.text.trim(),
+      nombrePadre: _nombrePadreController.text.trim(),
+      nombreMadre: _nombreMadreController.text.trim(),
       fechaNacimiento: _fechaNacimiento!,
     );
 
@@ -372,6 +378,8 @@ class _RegistroEstudianteFormState extends State<RegistroEstudianteForm> {
     _ciController.clear();
     _telefonoPadreController.clear();
     _telefonoMadreController.clear();
+    _nombrePadreController.clear();
+    _nombreMadreController.clear();
     _direccionController.clear();
     _fechaNacimiento = null;
     setState(() {
@@ -415,22 +423,38 @@ class _RegistroEstudianteFormState extends State<RegistroEstudianteForm> {
                   return regex.hasMatch(v) ? null : 'Correo inválido';
                 },
               ),
-              if (!esEdicion)
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: const InputDecoration(labelText: 'Contraseña'),
-                  obscureText: true,
-                  validator: (v) => v == null || v.isEmpty ? 'Campo obligatorio' : null,
+              TextFormField(
+                controller: _passwordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'Contraseña',
+                  helperText: 'Dejar vacío si no se desea cambiar',
                 ),
+                validator: (v) {
+                  // En modo edición es opcional
+                  if (esEdicion && (v == null || v.isEmpty)) return null;
+                  // En modo creación es obligatorio
+                  if (!esEdicion && (v == null || v.isEmpty)) return 'Campo obligatorio';
+                  return null;
+                },
+              ),
               TextFormField(
                 controller: _ciController,
                 decoration: const InputDecoration(labelText: 'CI'),
                 validator: (v) => v == null || v.isEmpty ? 'Campo obligatorio' : null,
               ),
               TextFormField(
+                controller: _nombrePadreController,
+                decoration: const InputDecoration(labelText: 'Nombre del padre'),
+              ),
+              TextFormField(
                 controller: _telefonoPadreController,
                 decoration: const InputDecoration(labelText: 'Teléfono del padre'),
                 validator: (v) => v == null || v.isEmpty ? 'Campo obligatorio' : null,
+              ),
+              TextFormField(
+                controller: _nombreMadreController,
+                decoration: const InputDecoration(labelText: 'Nombre de la madre'),
               ),
               TextFormField(
                 controller: _telefonoMadreController,

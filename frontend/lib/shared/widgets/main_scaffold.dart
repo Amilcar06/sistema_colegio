@@ -10,12 +10,14 @@ class MainScaffold extends StatelessWidget {
   final String? title;
   final List<Widget>? actions;
   final Widget? floatingActionButton;
+  final PreferredSizeWidget? bottom; // Added bottom parameter
 
   const MainScaffold({
     required this.child, 
     this.title, 
     this.actions, 
     this.floatingActionButton,
+    this.bottom,
     super.key
   });
 
@@ -28,6 +30,7 @@ class MainScaffold extends StatelessWidget {
       appBar: AppBar(
         title: Text(title ?? 'Portal Educativo'),
         actions: actions,
+        bottom: bottom,
       ),
       drawer: const SideMenu(), 
       floatingActionButton: floatingActionButton,

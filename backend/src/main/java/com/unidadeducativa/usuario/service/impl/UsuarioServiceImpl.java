@@ -78,6 +78,10 @@ public class UsuarioServiceImpl implements IUsuarioService {
             usuario.setCi(dto.getCi());
         }
 
+        if (dto.getContrasena() != null && !dto.getContrasena().isBlank()) {
+            usuario.setContrasena(passwordEncoder.encode(dto.getContrasena()));
+        }
+
         usuarioMapper.updateFromDTO(dto, usuario);
         usuarioRepository.save(usuario);
         return usuarioMapper.toDTO(usuario);

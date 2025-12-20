@@ -29,28 +29,99 @@ class _EventosViewState extends State<_EventosView> {
   Widget build(BuildContext context) {
     final controller = context.watch<EventoController>();
 
-    return MainScaffold(
-      title: 'Agenda de Eventos',
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _mostrarDialogo(context),
-        label: const Text('Nuevo Evento'),
-        icon: const Icon(Icons.add),
+    return DefaultTabController(
+      length: 2,
+      child: MainScaffold(
+        title: 'Agenda de Eventos',
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () => _mostrarDialogo(context),
+          label: const Text('Nuevo Evento'),
+          icon: const Icon(Icons.add),
+        ),
+        bottom: const TabBar(
+          tabs: [
+            Tab(text: 'Próximos'),
+            Tab(text: 'Historial'),
+          ],
+          labelColor: Colors.blue,
+          unselectedLabelColor: Colors.grey,
+          indicatorColor: Colors.blue,
+        ),
+        child: TabBarView(
+          children: [
+            _EventosList(cargarHistorial: false),
+            _EventosList(cargarHistorial: true),
+          ],
+        ),
       ),
-      child: controller.cargando
-          ? const Center(child: CircularProgressIndicator())
-          : controller.eventos.isEmpty
-              ? const Center(child: Text('No hay eventos próximos.'))
-              : ListView.separated(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: controller.eventos.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
-                  itemBuilder: (ctx, index) {
-                    final ev = controller.eventos[index];
-                    return _buildEventoCard(context, ev);
-                  },
-                ),
     );
   }
+
+  void _mostrarDialogo(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => _EventoDialog(
+        controller: context.read<EventoController>(),
+      ),
+    );
+  }
+}
+
+class _EventosList extends StatefulWidget {
+  final bool cargarHistorial;
+  const _EventosList({required this.cargarHistorial});
+
+  @override
+  State<_EventosList> createState() => _EventosListState();
+}
+
+class _EventosListState extends State<_EventosList> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.cargarHistorial) {
+        context.read<EventoController>().cargarHistorial();
+      } else {
+        context.read<EventoController>().cargarEventos();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = context.watch<EventoController>();
+
+    if (controller.cargando) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (controller.eventos.isEmpty) {
+      return Center(
+        child: Text(
+          widget.cargarHistorial
+              ? 'No hay eventos pasados.'
+              : 'No hay eventos próximos.',
+          style: const TextStyle(color: Colors.grey),
+        ),
+      );
+    }
+
+    return ListView.separated(
+      padding: const EdgeInsets.all(16),
+      itemCount: controller.eventos.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemBuilder: (ctx, index) {
+        final ev = controller.eventos[index];
+        return _buildEventoCard(context, ev); // Changed to static or moved method?
+        // _buildEventoCard is in _EventosViewState. Needs refactoring.
+        // Let's refactor _buildEventoCard to be a static method or standalone widget.
+        // For simplicity, I will copy _buildEventoCard logic here or make the View State handle both.
+      },
+    );
+  }
+
+
 
   Widget _buildEventoCard(BuildContext context, Evento ev) {
     final fecha = DateTime.tryParse(ev.fechaInicio);

@@ -92,7 +92,7 @@ public class UsuarioController {
 
         @Operation(summary = "Eliminar un usuario por ID", description = "Elimina un usuario de la base de datos de forma permanente.")
         @ApiResponse(responseCode = "204", description = "Usuario eliminado correctamente")
-        @PreAuthorize("hasRole('ROLE_ADMIN')")
+        @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_DIRECTOR')")
         @DeleteMapping("/{id}")
         public ResponseEntity<Void> eliminarUsuario(
                         @PathVariable Long id) {

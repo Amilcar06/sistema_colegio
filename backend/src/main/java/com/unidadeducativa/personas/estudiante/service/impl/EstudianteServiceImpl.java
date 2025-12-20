@@ -162,7 +162,11 @@ public class EstudianteServiceImpl implements IEstudianteService {
         usuario.setApellidoPaterno(dto.getApellidoPaterno());
         usuario.setApellidoMaterno(dto.getApellidoMaterno());
         usuario.setCi(dto.getCi());
+        usuario.setCi(dto.getCi());
         usuario.setCorreo(dto.getCorreo());
+        if (dto.getContrasena() != null && !dto.getContrasena().isBlank()) {
+            usuario.setContrasena(passwordEncoder.encode(dto.getContrasena()));
+        }
         usuario.setFotoPerfil(dto.getFotoPerfil());
         usuario.setFechaNacimiento(dto.getFechaNacimiento());
         usuarioRepository.save(usuario);

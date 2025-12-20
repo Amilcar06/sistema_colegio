@@ -186,69 +186,106 @@ class _UsuariosListPageState extends State<UsuariosListPage> {
                         separatorBuilder: (_, __) => const SizedBox(height: 10),
                         itemBuilder: (_, index) {
                           final u = filtrados[index];
+                          final initials = '${u.nombres.isNotEmpty ? u.nombres[0] : ""}${u.apellidoPaterno.isNotEmpty ? u.apellidoPaterno[0] : ""}';
+                          final color = _getColorForName(initials);
+
                           return Card(
                             elevation: 2,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            child: ListTile(
-                              leading: const CircleAvatar(child: Icon(Icons.person)),
-                              title: Text('${u.nombres} ${u.apellidoPaterno} ${u.apellidoMaterno ?? ''}'),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('Correo: ${u.correo}'),
-                                  Text('Rol: ${u.rol.nombre}'),
-                                ],
-                              ),
-                              isThreeLine: true,
-                              trailing: Wrap(
-                                spacing: 8,
-                                children: [
-                                  Switch(
-                                    value: u.estado,
-                                    onChanged: (nuevoEstado) async {
-                                      await ctrl.cambiarEstado(u, nuevoEstado);
-                                    },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8.0),
+                              child: ListTile(
+                                leading: CircleAvatar(
+                                  backgroundColor: color.withOpacity(0.2),
+                                  child: Text(
+                                    initials.toUpperCase(),
+                                    style: TextStyle(fontWeight: FontWeight.bold, color: color),
                                   ),
-                                  IconButton(
-                                    icon: const Icon(Icons.info_outline, color: Colors.blue),
-                                    tooltip: 'Ver detalles',
-                                    onPressed: () => ctrl.verDetallesUsuario(u.idUsuario, context),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.edit, color: Colors.orange),
-                                    onPressed: () => _abrirFormularioEdicion(context, u),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.delete, color: Colors.red),
-                                    onPressed: () async {
-                                      final confirm = await showDialog<bool>(
-                                        context: context,
-                                        builder: (ctx) => AlertDialog(
-                                          title: const Text('¿Eliminar usuario?'),
-                                          content: Text('Esto eliminará al usuario (${u.correo})'),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () => Navigator.pop(ctx, false),
-                                              child: const Text('Cancelar'),
-                                            ),
-                                            ElevatedButton(
-                                              onPressed: () => Navigator.pop(ctx, true),
-                                              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                                              child: const Text('Eliminar'),
-                                            ),
-                                          ],
+                                ),
+                                title: Text(
+                                  '${u.nombres} ${u.apellidoPaterno} ${u.apellidoMaterno ?? ''}',
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const SizedBox(height: 4),
+                                    Row(
+                                      children: [
+                                        Icon(Icons.email_outlined, size: 14, color: Colors.grey.shade600),
+                                        const SizedBox(width: 4),
+                                        Text(u.correo, style: TextStyle(color: Colors.grey.shade700, fontSize: 13)),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Container(
+                                       margin: const EdgeInsets.only(top: 4),
+                                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                       decoration: BoxDecoration(
+                                         color: Colors.grey.shade200,
+                                         borderRadius: BorderRadius.circular(4)
+                                       ),
+                                       child: Text(u.rol.nombre, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                    )
+                                  ],
+                                ),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    // Estado toggle compact
+                                    Transform.scale(
+                                      scale: 0.8,
+                                      child: Switch(
+                                        value: u.estado,
+                                        activeColor: Colors.green,
+                                        onChanged: (nuevoEstado) async {
+                                          await ctrl.cambiarEstado(u, nuevoEstado);
+                                        },
+                                      ),
+                                    ),
+                                    PopupMenuButton<String>(
+                                      onSelected: (value) async {
+                                        if (value == 'edit') {
+                                          _abrirFormularioEdicion(context, u);
+                                        } else if (value == 'delete') {
+                                           final confirm = await showDialog<bool>(
+                                              context: context,
+                                              builder: (ctx) => AlertDialog(
+                                                title: const Text('¿Eliminar usuario?'),
+                                                content: Text('Esto eliminará al usuario (${u.correo})'),
+                                                actions: [
+                                                  TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancelar')),
+                                                  ElevatedButton(onPressed: () => Navigator.pop(ctx, true), style: ElevatedButton.styleFrom(backgroundColor: Colors.red), child: const Text('Eliminar')),
+                                                ],
+                                              ),
+                                            );
+                                            if (confirm == true) {
+                                              await ctrl.eliminarUsuario(u.idUsuario);
+                                              if (context.mounted) {
+                                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Usuario eliminado')));
+                                              }
+                                            }
+                                        } else if (value == 'details') {
+                                           ctrl.verDetallesUsuario(u.idUsuario, context);
+                                        }
+                                      },
+                                      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                                        const PopupMenuItem<String>(
+                                          value: 'details',
+                                          child: ListTile(leading: Icon(Icons.info_outline), title: Text('Detalles'), contentPadding: EdgeInsets.zero, dense: true),
                                         ),
-                                      );
-
-                                      if (confirm == true) {
-                                        await ctrl.eliminarUsuario(u.idUsuario);
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(content: Text('Usuario eliminado')),
-                                        );
-                                      }
-                                    },
-                                  ),
-                                ],
+                                        const PopupMenuItem<String>(
+                                          value: 'edit',
+                                          child: ListTile(leading: Icon(Icons.edit, color: Colors.orange), title: Text('Editar'), contentPadding: EdgeInsets.zero, dense: true),
+                                        ),
+                                        const PopupMenuItem<String>(
+                                          value: 'delete',
+                                          child: ListTile(leading: Icon(Icons.delete, color: Colors.red), title: Text('Eliminar'), contentPadding: EdgeInsets.zero, dense: true),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           );
@@ -264,5 +301,15 @@ class _UsuariosListPageState extends State<UsuariosListPage> {
         child: const Icon(Icons.add),
       ),
     );
+  }
+
+  Color _getColorForName(String text) {
+    if (text.isEmpty) return Colors.blue;
+    final hash = text.codeUnits.fold(0, (p, c) => p + c);
+    final colors = [
+      Colors.blue.shade700, Colors.red.shade700, Colors.green.shade700, 
+      Colors.orange.shade700, Colors.purple.shade700, Colors.teal.shade700
+    ];
+    return colors[hash % colors.length];
   }
 }

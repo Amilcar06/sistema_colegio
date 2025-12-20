@@ -14,7 +14,25 @@ class EstudianteService {
 
   /// Actualizar estudiante (por ID)
   Future<EstudianteResponseDTO> actualizarEstudiante(int idEstudiante, EstudianteRegistroCompletoDTO dto) async {
-    final response = await dio.put('/estudiantes/$idEstudiante', data: dto.toJson());
+    final Map<String, dynamic> data = {
+      'nombres': dto.nombres,
+      'apellidoPaterno': dto.apellidoPaterno,
+      'apellidoMaterno': dto.apellidoMaterno,
+      'correo': dto.correo,
+      'ci': dto.ci,
+      'fotoPerfil': dto.fotoPerfilUrl,
+      'fechaNacimiento': "${dto.fechaNacimiento.year}-${dto.fechaNacimiento.month.toString().padLeft(2, '0')}-${dto.fechaNacimiento.day.toString().padLeft(2, '0')}",
+      'direccion': dto.direccion,
+      'telefonoPadre': dto.telefonoPadre,
+      'telefonoMadre': dto.telefonoMadre,
+      'telefonoPadre': dto.telefonoPadre,
+      'telefonoMadre': dto.telefonoMadre,
+      'nombrePadre': dto.nombrePadre,
+      'nombreMadre': dto.nombreMadre,
+      'contrasena': dto.password, // Ahora sí enviamos la contraseña si se proporciona
+    };
+    
+    final response = await dio.put('/estudiantes/$idEstudiante', data: data);
     return EstudianteResponseDTO.fromJson(response.data);
   }
 

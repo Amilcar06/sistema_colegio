@@ -26,6 +26,8 @@ public class ProfesorUpdateDTO {
     @Email
     private String correo;
 
+    private String contrasena; // Optional
+
     private String fotoPerfil;
 
     @NotNull

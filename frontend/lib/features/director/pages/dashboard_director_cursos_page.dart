@@ -93,30 +93,33 @@ class _CursosViewState extends State<_CursosView> {
                   final groupKey = sortedKeys[index];
                   final cursosEnGrupo = grouped[groupKey]!;
                   
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 16),
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 24),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.blue.withOpacity(0.1),
-                            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                          ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 4, bottom: 8),
                           child: Text(
                             groupKey, 
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
+                            style: TextStyle(
+                              fontSize: 18, 
+                              fontWeight: FontWeight.bold, 
+                              color: Theme.of(context).primaryColor
+                            )
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Wrap(
-                            spacing: 12,
-                            runSpacing: 12,
-                            children: cursosEnGrupo.map((c) => _buildCursoChip(context, controller, c)).toList(),
+                        GridView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                            maxCrossAxisExtent: 200,
+                            childAspectRatio: 1.5,
+                            crossAxisSpacing: 10,
+                            mainAxisSpacing: 10,
                           ),
+                          itemCount: cursosEnGrupo.length,
+                          itemBuilder: (context, i) => _buildCursoCard(context, controller, cursosEnGrupo[i]),
                         ),
                       ],
                     ),
@@ -129,26 +132,71 @@ class _CursosViewState extends State<_CursosView> {
     );
   }
 
-  Widget _buildCursoChip(BuildContext context, CursoController controller, Curso c) {
-    return InputChip(
-      avatar: CircleAvatar(
-        backgroundColor: Colors.white,
-        child: Text(c.paralelo[0], style: const TextStyle(fontWeight: FontWeight.bold)),
+  Widget _buildCursoCard(BuildContext context, CursoController controller, Curso c) {
+    // Generate a color based on the parallel letter for visual variety, or keep strict by shift
+    final color = _getColorForTurno(c.turno);
+
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () => _abrirDialogoCurso(context, controller, curso: c),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: color.withOpacity(0.3)),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircleAvatar(
+                radius: 20,
+                backgroundColor: color.withOpacity(0.1),
+                child: Text(
+                  c.paralelo, 
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: color)
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Turno ${c.turno}',
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+              ),
+              const SizedBox(height: 4),
+              // Actions row (small)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.edit, size: 16),
+                    constraints: const BoxConstraints(),
+                    padding: const EdgeInsets.all(4),
+                    color: Colors.blue,
+                    onPressed: () => _abrirDialogoCurso(context, controller, curso: c),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete, size: 16),
+                    constraints: const BoxConstraints(),
+                    padding: const EdgeInsets.all(4),
+                    color: Colors.red,
+                    onPressed: () => _confirmarEliminar(context, controller, c),
+                  ),
+                ],
+              )
+            ],
+          ),
+        ),
       ),
-      label: Text('${c.paralelo} (${c.turno})'),
-      backgroundColor: _getColorForTurno(c.turno).withOpacity(0.2),
-      deleteIcon: const Icon(Icons.close, size: 18),
-      onDeleted: () => _confirmarEliminar(context, controller, c),
-      onPressed: () => _abrirDialogoCurso(context, controller, curso: c), // Editar
     );
   }
 
   Color _getColorForTurno(String turno) {
     switch (turno.toUpperCase()) {
-      case 'MANANA': case 'MAÑANA': return Colors.orange;
-      case 'TARDE': return Colors.blue;
-      case 'NOCHE': return Colors.indigo;
-      default: return Colors.grey;
+      case 'MANANA': case 'MAÑANA': return Colors.orange.shade700;
+      case 'TARDE': return Colors.blue.shade700;
+      case 'NOCHE': return Colors.indigo.shade700;
+      default: return Colors.grey.shade700;
     }
   }
 

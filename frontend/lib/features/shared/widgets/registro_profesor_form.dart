@@ -171,13 +171,17 @@ class _RegistroProfesorFormState extends State<RegistroProfesorForm> {
                   return regex.hasMatch(v) ? null : 'Correo inválido';
                 },
               ),
-              if (!esEdicion)
-                TextFormField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  decoration: const InputDecoration(labelText: 'Contraseña'),
-                  validator: (v) => v == null || v.isEmpty ? 'Campo obligatorio' : null,
-                ),
+              TextFormField(
+                controller: _passwordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                    labelText: 'Contraseña',
+                    helperText: 'Dejar vacío si no se desea cambiar'),
+                validator: (v) {
+                  if (!esEdicion && (v == null || v.isEmpty)) return 'Campo obligatorio';
+                  return null;
+                },
+              ),
               const SizedBox(height: 16),
               
               TextFormField(
