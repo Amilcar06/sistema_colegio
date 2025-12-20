@@ -16,6 +16,7 @@ public interface PagoMapper {
     Pago toEntity(PagoRequestDTO dto);
 
     @Mapping(source = "cuentaCobrar.idCuentaCobrar", target = "idCuentaCobrar")
+    @Mapping(source = "cuentaCobrar.tipoPago.nombre", target = "concepto")
     @Mapping(target = "nombreCajero", expression = "java(mapNombreCajero(entity))")
     PagoResponseDTO toDTO(Pago entity);
 

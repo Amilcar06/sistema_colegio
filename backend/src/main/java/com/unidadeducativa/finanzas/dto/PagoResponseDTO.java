@@ -22,4 +22,5 @@ public class PagoResponseDTO {
     private String numeroRecibo;
     private String observaciones;
     private String nombreCajero;
+    private String concepto; // Added to show what was paid
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../shared/widgets/main_scaffold.dart';
 import '../../director/services/comunicado_service.dart';
+import 'package:intl/intl.dart';
 
 class DashboardEstudianteComunicadosPage extends StatefulWidget {
   const DashboardEstudianteComunicadosPage({super.key});
@@ -24,6 +25,13 @@ class _DashboardEstudianteComunicadosPageState extends State<DashboardEstudiante
     setState(() => _isLoading = true);
     try {
       final data = await _service.listar();
+      // Ordenar por fecha descendente si no viene ordenado
+      data.sort((a, b) {
+        final fa = a.fechaPublicacion;
+        final fb = b.fechaPublicacion;
+        return fb.compareTo(fa);
+      });
+      
       setState(() {
         _comunicados = data;
         _isLoading = false;
@@ -31,56 +39,81 @@ class _DashboardEstudianteComunicadosPageState extends State<DashboardEstudiante
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
-        // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
+    }
+  }
+
+  Color _getPriorityColor(String prioridad) {
+    switch (prioridad) {
+      case 'ALTA': return Colors.red;
+      case 'MEDIA': return Colors.orange;
+      case 'BAJA': return Colors.green;
+      default: return Colors.blue;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return MainScaffold(
-      title: 'Mis Comunicados',
+      title: 'Avisos y Comunicados',
       child: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _comunicados.isEmpty
-              ? const Center(child: Text('No hay comunicados recientes'))
+              ? _buildEmptyState()
               : ListView.builder(
                   padding: const EdgeInsets.all(16),
                   itemCount: _comunicados.length,
                   itemBuilder: (ctx, index) {
                     final com = _comunicados[index];
-                    return Card(
-                      elevation: 2,
-                      margin: const EdgeInsets.only(bottom: 12),
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: com['prioridad'] == 'ALTA' ? Colors.red : 
-                                         com['tipoDestinatario'] == 'POR_CURSO' ? Colors.green : Colors.blue,
-                          child: Icon(
-                            com['tipoDestinatario'] == 'POR_CURSO' ? Icons.class_ : Icons.campaign, 
-                            color: Colors.white
-                          ),
-                        ),
-                        title: Text(com['titulo'] ?? ''),
-                        subtitle: Column(
+                    final prioridad = com.prioridad;
+                    final tipo = com.tipoDestinatario; // GENERAL, POR_CURSO
+                    final fecha = com.fechaPublicacion.isNotEmpty 
+                        ? com.fechaPublicacion.split('T')[0] 
+                        : '';
+                        
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+                        ],
+                        border: Border(left: BorderSide(color: _getPriorityColor(prioridad), width: 6)),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const SizedBox(height: 4),
-                            Text(com['contenido'] ?? ''),
-                            const SizedBox(height: 8),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  'Por: ${com['nombreAutor'] ?? 'Sistema'}',
-                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                                Chip(
+                                  label: Text(tipo == 'POR_CURSO' ? 'MI CURSO' : 'GENERAL', 
+                                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white)),
+                                  backgroundColor: tipo == 'POR_CURSO' ? Colors.teal : Colors.indigo,
+                                  visualDensity: VisualDensity.compact,
+                                  padding: const EdgeInsets.all(0),
+                                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                 ),
-                                Text(
-                                  com['fechaPublicacion'] != null 
-                                    ? com['fechaPublicacion'].toString().split('T')[0] 
-                                    : '',
-                                  style: const TextStyle(fontSize: 12, color: Colors.grey),
-                                ),
+                                Text(fecha, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Text(com.titulo, 
+                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
+                            const SizedBox(height: 8),
+                            Text(com.contenido, 
+                              style: const TextStyle(fontSize: 14, color: Colors.black54, height: 1.5)),
+                            const SizedBox(height: 12),
+                            const Divider(),
+                            Row(
+                              children: [
+                                const Icon(Icons.person_outline, size: 16, color: Colors.grey),
+                                const SizedBox(width: 4),
+                                Text('Publicado por: ${com.nombreAutor}',
+                                  style: const TextStyle(fontSize: 12, color: Colors.grey, fontStyle: FontStyle.italic)),
                               ],
                             )
                           ],
@@ -89,6 +122,19 @@ class _DashboardEstudianteComunicadosPageState extends State<DashboardEstudiante
                     );
                   },
                 ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.notifications_off_outlined, size: 80, color: Colors.grey),
+          SizedBox(height: 16),
+          Text('No hay comunicados recientes', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
+        ],
+      ),
     );
   }
 }

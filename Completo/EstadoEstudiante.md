@@ -11,27 +11,26 @@ Plan de implementación para completar el módulo de Estudiante basándonos en `
 
 ## 📌 Sprint 2: Gestión Académica
 **Objetivo:** Visualización de carga académica y rendimiento.
-- [ ] **Mis Materias (`/dashboard-estudiante/materias`)**:
-    - [ ] Implementar vista con lista de asignaturas, nombre del profesor y horario resumen.
-- [ ] **Mis Notas (`/dashboard-estudiante/notas`)**:
-    - [ ] Integrar botón "Descargar Boletín Oficial" (PDF).
-    - [ ] Backend: Verificar Endpoint `/api/reportes/boletin/{idEstudiante}`.
-    - [ ] Frontend: Conectar con `PdfService`.
+- [x] **Mis Materias (`/dashboard-estudiante/materias`)**:
+    - [x] Implementar vista con lista de asignaturas, nombre del profesor y horario resumen.
+- [x] **Mis Notas (`/dashboard-estudiante/notas`)**:
+    - [x] Integrar botón "Descargar Boletín Oficial" (PDF).
+    - [x] Backend: Verificar Endpoint `/api/reportes/boletin/{idEstudiante}`.
+    - [x] Frontend: Conectar con `PdfService`.
 
 ## 📌 Sprint 3: Finanzas y Documentos
 **Objetivo:** Transparencia financiera y acceso a recibos.
-- [ ] **Pagos (`/dashboard-estudiante/pagos`)**:
-    - [ ] Mejorar UI para separar claramente "Deudas Pendientes" de "Historial de Pagos".
-    - [ ] Añadir indicador visual de "Vencido" en rojo.
-- [ ] **Comprobantes (`/dashboard-estudiante/comprobantes`)**:
-    - [ ] Implementar página que liste solo transacciones PAGADAS.
-    - [ ] **Funcionalidad Clave**: Botón "Descargar Recibo" en cada ítem (reutilizando `PdfService` y el reporte `/api/reportes/recibo/{id}`).
+- [x] **Pagos (`/dashboard-estudiante/pagos`)**:
+    - [x] Optimizar vista para diferenciar deudas vencidas/pendientes.
+- [x] **Comprobantes (`/dashboard-estudiante/comprobantes`)**:
+    - [x] Implementar lista de pagos realizados.
+    - [x] Agregar botón "Descargar Recibo" (Endpoint `/api/reportes/recibo/{id}`).
 
 ## 📌 Sprint 4: Social y Validaciones
 **Objetivo:** Comunicación efectiva.
-- [ ] **Validación UX/UI**:
-    - [ ] Verificar que `Comunicados` y `Agenda (Eventos)` sigan el diseño visual del sistema.
-    - [ ] Asegurar que las notificaciones (si existen) redirijan a estas pantallas.
+- [x] **Validación UX/UI**:
+    - [x] Verificar que `Comunicados` y `Agenda (Eventos)` sigan el diseño visual del sistema.
+    - [x] Asegurar que las notificaciones (si existen) redirijan a estas pantallas.
 
 ---
 ## 🛠 Notas Técnicas
