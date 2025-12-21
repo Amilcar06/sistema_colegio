@@ -16,7 +16,10 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
+
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     // Argumentos ilegales (Validaciones de negocio manuales)
@@ -106,11 +109,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(respuesta);
     }
 
-    // Cualquier otra excepción no controlada
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleException(Exception ex) {
         // Loguear el error real en consola/archivo logs
-        ex.printStackTrace();
+        log.error("Error interno no controlado", ex);
 
         Map<String, String> respuesta = new HashMap<>();
         respuesta.put("error", "Ha ocurrido un error interno en el servidor.");

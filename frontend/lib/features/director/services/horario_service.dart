@@ -1,87 +1,30 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import '../../../core/api_config.dart';
-import '../../../core/services/auth_service.dart';
+import 'package:unidad_educatica_frontend/core/api.dart';
 
 class HorarioService {
-  final AuthService _authService = AuthService();
-
-  Future<Map<String, String>> _getHeaders() async {
-    final token = await _authService.getToken();
-    return {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token',
-    };
-  }
-
   // Crear horario
   Future<void> crearHorario(Map<String, dynamic> data) async {
-    final headers = await _getHeaders();
-    final response = await http.post(
-      Uri.parse('${ApiConfig.baseUrl}/api/horarios'),
-      headers: headers,
-      body: jsonEncode(data),
-    );
-
-    if (response.statusCode != 200) {
-      throw Exception('Error al crear horario: ${response.body}');
-    }
+    await dio.post('/horarios', data: data);
   }
 
   // Actualizar horario
   Future<void> updateHorario(int id, Map<String, dynamic> data) async {
-    final headers = await _getHeaders();
-    final response = await http.put(
-      Uri.parse('${ApiConfig.baseUrl}/api/horarios/$id'),
-      headers: headers,
-      body: jsonEncode(data),
-    );
-
-    if (response.statusCode != 200) {
-      throw Exception('Error al actualizar horario: ${response.body}');
-    }
+    await dio.put('/horarios/$id', data: data);
   }
 
   // Eliminar horario
   Future<void> eliminarHorario(int id) async {
-    final headers = await _getHeaders();
-    final response = await http.delete(
-      Uri.parse('${ApiConfig.baseUrl}/api/horarios/$id'),
-      headers: headers,
-    );
-
-    if (response.statusCode != 204) {
-      throw Exception('Error al eliminar horario');
-    }
+    await dio.delete('/horarios/$id');
   }
 
   // Listar por curso
   Future<List<dynamic>> listarPorCurso(int idCurso) async {
-    final headers = await _getHeaders();
-    final response = await http.get(
-      Uri.parse('${ApiConfig.baseUrl}/api/horarios/curso/$idCurso'),
-      headers: headers,
-    );
-
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body) as List<dynamic>;
-    } else {
-      throw Exception('Error al cargar horarios del curso');
-    }
+    final response = await dio.get('/horarios/curso/$idCurso');
+    return response.data as List<dynamic>;
   }
 
   // Listar por profesor
   Future<List<dynamic>> listarPorProfesor(int idProfesor) async {
-    final headers = await _getHeaders();
-    final response = await http.get(
-      Uri.parse('${ApiConfig.baseUrl}/api/horarios/profesor/$idProfesor'),
-      headers: headers,
-    );
-
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body) as List<dynamic>;
-    } else {
-      throw Exception('Error al cargar horarios del profesor');
-    }
+    final response = await dio.get('/horarios/profesor/$idProfesor');
+    return response.data as List<dynamic>;
   }
 }

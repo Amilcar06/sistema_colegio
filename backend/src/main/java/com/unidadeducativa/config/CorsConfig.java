@@ -17,9 +17,8 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOriginPatterns("*") // Permite cualquier origen (incluyendo puertos dinámicos de
-                                                    // Flutter)
-                        .allowedMethods("*")
+                        .allowedOriginPatterns(allowedOrigins) // Usa la lista de origenes permitidos desde properties
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                         .allowedHeaders("*")
                         .allowCredentials(true);
             }

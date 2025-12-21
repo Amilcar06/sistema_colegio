@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
-import '../../../core/api_config.dart';
-import '../../../core/storage.dart';
+import 'package:unidad_educatica_frontend/core/api.dart';
 
 class Gestion {
   final int idGestion;
@@ -20,16 +19,9 @@ class Gestion {
 }
 
 class GestionService {
-  final Dio _dio = Dio();
-  final String _baseUrl = '${ApiConfig.baseUrl}/api/gestion';
-
   Future<List<Gestion>> getAll() async {
     try {
-      final token = await readToken();
-      final response = await _dio.get(
-        _baseUrl,
-        options: Options(headers: {'Authorization': 'Bearer $token'}),
-      );
+      final response = await dio.get('/gestion');
       
       return (response.data as List)
           .map((e) => Gestion.fromJson(e))
@@ -41,12 +33,7 @@ class GestionService {
 
   Future<void> create() async {
     try {
-      final token = await readToken();
-      await _dio.post(
-        _baseUrl,
-        data: {'estado': true},
-        options: Options(headers: {'Authorization': 'Bearer $token'}),
-      );
+      await dio.post('/gestion', data: {'estado': true});
     } catch (e) {
       throw _handleError(e, 'crear gestión');
     }
@@ -54,12 +41,7 @@ class GestionService {
 
   Future<void> update(int id, int anio, bool nuevoEstado) async {
     try {
-      final token = await readToken();
-      await _dio.put(
-        '$_baseUrl/$id',
-        data: {'anio': anio, 'estado': nuevoEstado},
-        options: Options(headers: {'Authorization': 'Bearer $token'}),
-      );
+      await dio.put('/gestion/$id', data: {'anio': anio, 'estado': nuevoEstado});
     } catch (e) {
       throw _handleError(e, 'actualizar gestión');
     }
@@ -67,11 +49,7 @@ class GestionService {
 
   Future<void> delete(int id) async {
     try {
-      final token = await readToken();
-      await _dio.delete(
-        '$_baseUrl/$id',
-        options: Options(headers: {'Authorization': 'Bearer $token'}),
-      );
+      await dio.delete('/gestion/$id');
     } catch (e) {
       throw _handleError(e, 'eliminar gestión');
     }

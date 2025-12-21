@@ -1,84 +1,53 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import '../../../core/api_config.dart';
-import '../../../core/services/auth_service.dart';
+import 'package:unidad_educatica_frontend/core/api.dart';
 import '../models/asignacion_docente.dart';
 
 class AsignacionService {
-  final AuthService _authService = AuthService();
-
-  Future<Map<String, String>> _getHeaders() async {
-    final token = await _authService.getToken();
-    return {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token',
-    };
-  }
-
   Future<List<AsignacionDocente>> listarPorCurso(int idCurso) async {
-    final headers = await _getHeaders();
-    final response = await http.get(
-      Uri.parse('${ApiConfig.baseUrl}/api/asignaciones/curso/$idCurso'),
-      headers: headers,
-    );
+    final response = await dio.get('/asignaciones/curso/$idCurso');
 
     if (response.statusCode == 200) {
-      final List<dynamic> body = jsonDecode(response.body);
+      final List<dynamic> body = response.data;
       return body.map((e) => AsignacionDocente.fromJson(e)).toList();
     } else {
-      throw Exception('Error al cargar asignaciones: ${response.body}');
+      throw Exception('Error al cargar asignaciones');
     }
   }
 
   Future<void> crearAsignacion(int idCurso, int idMateria, int idProfesor, int gestionId) async {
-    final headers = await _getHeaders();
-    final body = jsonEncode({
+    final body = {
       'idCurso': idCurso,
       'idMateria': idMateria,
       'idProfesor': idProfesor,
       'idGestion': gestionId,
-    });
+    };
 
-    final response = await http.post(
-      Uri.parse('${ApiConfig.baseUrl}/api/asignaciones'),
-      headers: headers,
-      body: body,
-    );
+    final response = await dio.post('/asignaciones', data: body);
 
     if (response.statusCode != 200 && response.statusCode != 201) {
-      throw Exception('Error al crear asignación: ${response.body}');
+      throw Exception('Error al crear asignación');
     }
   }
 
   Future<void> actualizarAsignacion(int idAsignacion, int idCurso, int idMateria, int idProfesor, int gestionId) async {
-    final headers = await _getHeaders();
-    final body = jsonEncode({
+    final body = {
       'idCurso': idCurso,
       'idMateria': idMateria,
       'idProfesor': idProfesor,
       'idGestion': gestionId,
-    });
+    };
 
-    final response = await http.put(
-      Uri.parse('${ApiConfig.baseUrl}/api/asignaciones/$idAsignacion'),
-      headers: headers,
-      body: body,
-    );
+    final response = await dio.put('/asignaciones/$idAsignacion', data: body);
 
     if (response.statusCode != 200) {
-      throw Exception('Error al actualizar asignación: ${response.body}');
+      throw Exception('Error al actualizar asignación');
     }
   }
 
   Future<void> eliminarAsignacion(int idAsignacion) async {
-    final headers = await _getHeaders();
-    final response = await http.delete(
-      Uri.parse('${ApiConfig.baseUrl}/api/asignaciones/$idAsignacion'),
-      headers: headers,
-    );
+    final response = await dio.delete('/asignaciones/$idAsignacion');
 
     if (response.statusCode != 204 && response.statusCode != 200) {
-      throw Exception('Error al eliminar asignación: ${response.body}');
+      throw Exception('Error al eliminar asignación');
     }
   }
 }

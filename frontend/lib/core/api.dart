@@ -1,10 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+import 'package:unidad_educatica_frontend/core/api_config.dart';
+
 final _storage = const FlutterSecureStorage();
 
 final dio = Dio(
-  BaseOptions(baseUrl: 'http://localhost:8080/api'), // Cambiar a 10.0.2.2 para Android Emulator
+  BaseOptions(baseUrl: ApiConfig.baseUrl),
 )..interceptors.add(
   InterceptorsWrapper(
     onRequest: (options, handler) async {

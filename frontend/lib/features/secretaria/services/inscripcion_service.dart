@@ -1,65 +1,22 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
-import '../../../core/api_config.dart';
-import '../../../core/services/auth_service.dart';
+import 'package:unidad_educatica_frontend/core/api.dart';
 
 class InscripcionService {
-  final AuthService _authService = AuthService();
-
-  Future<Map<String, String>> _getHeaders() async {
-    final token = await _authService.getToken();
-    return {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token',
-    };
-  }
-
   Future<Map<String, dynamic>> registrarInscripcion(int idEstudiante, int idCurso) async {
-    final headers = await _getHeaders();
-    final body = jsonEncode({
+    final response = await dio.post('/inscripciones', data: {
       'idEstudiante': idEstudiante,
       'idCurso': idCurso,
     });
-
-    final response = await http.post(
-      Uri.parse('${ApiConfig.baseUrl}/api/inscripciones'),
-      headers: headers,
-      body: body,
-    );
-
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body); // Retorna la inscripción creada
-    } else {
-      final error = jsonDecode(response.body);
-      throw Exception(error['error'] ?? 'Error al registrar inscripción');
-    }
+    return response.data;
   }
 
   Future<List<dynamic>> listarPorGestion(int idGestion) async {
-    final headers = await _getHeaders();
-    final response = await http.get(
-      Uri.parse('${ApiConfig.baseUrl}/api/inscripciones/gestion/$idGestion'),
-      headers: headers,
-    );
-
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body) as List<dynamic>;
-    } else {
-      throw Exception('Error al cargar inscripciones');
-    }
+    final response = await dio.get('/inscripciones/gestion/$idGestion');
+    return response.data as List<dynamic>;
   }
 
   Future<List<dynamic>> listarPorEstudiante(int idEstudiante) async {
-    final headers = await _getHeaders();
-    final response = await http.get(
-      Uri.parse('${ApiConfig.baseUrl}/api/inscripciones/estudiante/$idEstudiante'),
-      headers: headers,
-    );
-
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body) as List<dynamic>;
-    } else {
-      throw Exception('Error al cargar inscripciones del estudiante');
-    }
+    final response = await dio.get('/inscripciones/estudiante/$idEstudiante');
+    return response.data as List<dynamic>;
   }
 }
