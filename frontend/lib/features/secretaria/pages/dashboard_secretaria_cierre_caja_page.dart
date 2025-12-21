@@ -1,9 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import '../../../core/api_config.dart';
-import '../../../core/services/auth_service.dart';
+import '../../../../core/api.dart';
 import '../../../shared/widgets/main_scaffold.dart';
-import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import '../../shared/services/pdf_service.dart';
 
@@ -18,7 +16,7 @@ class _CierreCajaPageState extends State<CierreCajaPage> {
   bool _isLoading = true;
   Map<String, dynamic>? _reporte;
   String? _error;
-  final AuthService _authService = AuthService();
+
 
   @override
   void initState() {
@@ -33,18 +31,11 @@ class _CierreCajaPageState extends State<CierreCajaPage> {
     });
 
     try {
-      final token = await _authService.getToken();
-      final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/api/reportes/cierre-diario'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
+      final response = await dio.get('/reportes/cierre-diario');
 
       if (response.statusCode == 200) {
         setState(() {
-          _reporte = jsonDecode(response.body);
+          _reporte = response.data;
         });
       } else {
         setState(() => _error = 'Error al cargar reporte: ${response.statusCode}');
