@@ -57,6 +57,8 @@ import java.util.Optional;
 public class DataInitializer implements CommandLineRunner {
 
     private final RolRepository rolRepository;
+    private final org.springframework.core.env.Environment environment;
+    private final org.springframework.transaction.PlatformTransactionManager platformTransactionManager;
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final UnidadEducativaRepository unidadEducativaRepository;
@@ -85,157 +87,131 @@ public class DataInitializer implements CommandLineRunner {
     private final jakarta.persistence.EntityManager entityManager;
 
     @Override
-    @org.springframework.transaction.annotation.Transactional
     public void run(String... args) {
         try {
             log.info("Inicializando datos base...");
 
-            // 0. MIGRATION RAW SQL: Fix 'ALUMNO' to 'ESTUDIANTE' to avoid Enum mapping
-            // error
-            try {
-                entityManager.createNativeQuery("ALTER TABLE rol DROP CONSTRAINT IF EXISTS rol_nombre_check")
-                        .executeUpdate();
-                entityManager.createNativeQuery("UPDATE rol SET nombre = 'ESTUDIANTE' WHERE nombre = 'ALUMNO'")
-                        .executeUpdate();
-                log.info("MIGRATION SQL: Updated 'ALUMNO' roles to 'ESTUDIANTE'");
+            log.info("Inicializando datos base...");
 
-                // FIX DUPLICATE MATERIAS (Matemática -> Matemáticas)
-                entityManager.createNativeQuery("UPDATE materia SET nombre = 'Matemáticas' WHERE nombre = 'Matemática'")
-                        .executeUpdate();
+            // Skip raw SQL migrations in test profile (incompatible with H2/Enums)
+            boolean isTest = java.util.Arrays.asList(environment.getActiveProfiles()).contains("test");
+            if (!isTest) {
+                // 0. MIGRATION RAW SQL: Fix 'ALUMNO' to 'ESTUDIANTE' to avoid Enum mapping
+                // error
+                try {
+                    entityManager.createNativeQuery("ALTER TABLE rol DROP CONSTRAINT IF EXISTS rol_nombre_check")
+                            .executeUpdate();
+                    entityManager.createNativeQuery("UPDATE rol SET nombre = 'ESTUDIANTE' WHERE nombre = 'ALUMNO'")
+                            .executeUpdate();
+                    log.info("MIGRATION SQL: Updated 'ALUMNO' roles to 'ESTUDIANTE'");
 
-                // MERGE DUPLICATES
-                List<Object> ids = entityManager
-                        .createNativeQuery(
-                                "SELECT id_materia FROM materia WHERE nombre = 'Matemáticas' ORDER BY id_materia ASC")
-                        .getResultList();
-                if (ids.size() > 1) {
-                    Long masterId = ((Number) ids.get(0)).longValue();
-                    log.info("Merging duplicates for Matemáticas into ID: " + masterId);
-                    for (int i = 1; i < ids.size(); i++) {
-                        Long duplicateId = ((Number) ids.get(i)).longValue();
-                        // Delete GradoMateria for duplicate (SchoolInit will ensure Master is linked)
-                        entityManager.createNativeQuery("DELETE FROM grado_materia WHERE id_materia = :dup")
-                                .setParameter("dup", duplicateId)
-                                .executeUpdate();
+                    // FIX DUPLICATE MATERIAS (Matemática -> Matemáticas)
+                    entityManager
+                            .createNativeQuery("UPDATE materia SET nombre = 'Matemáticas' WHERE nombre = 'Matemática'")
+                            .executeUpdate();
 
-                        // 1a. Delete Notes on Master that collide with Notes on Dup (prefer Dup, so
-                        // remove Master's)
-                        entityManager.createNativeQuery(
-                                "DELETE FROM nota n_master " +
-                                        "USING asignacion_docente ad_master " +
-                                        "WHERE n_master.id_asignacion = ad_master.id_asignacion " +
-                                        "AND ad_master.id_materia = :master " +
-                                        "AND EXISTS ( " +
-                                        "  SELECT 1 FROM nota n_dup " +
-                                        "  JOIN asignacion_docente ad_dup ON n_dup.id_asignacion = ad_dup.id_asignacion "
-                                        +
-                                        "  WHERE ad_dup.id_materia = :dup " +
-                                        "  AND n_dup.id_estudiante = n_master.id_estudiante " +
-                                        "  AND n_dup.trimestre = n_master.trimestre " +
-                                        "  AND ad_dup.id_profesor = ad_master.id_profesor " +
-                                        "  AND ad_dup.id_curso = ad_master.id_curso " +
-                                        "  AND ad_dup.id_gestion = ad_master.id_gestion " +
-                                        ")")
-                                .setParameter("dup", duplicateId)
-                                .setParameter("master", masterId)
-                                .executeUpdate();
+                    // MERGE DUPLICATES
+                    List<Object> ids = entityManager.createNativeQuery(
+                            "SELECT id_materia FROM materia WHERE nombre = 'Matemáticas' ORDER BY id_materia ASC")
+                            .getResultList();
+                    if (ids.size() > 1) {
+                        Long masterId = ((Number) ids.get(0)).longValue();
+                        log.info("Merging duplicates for Matemáticas into ID: " + masterId);
+                        for (int i = 1; i < ids.size(); i++) {
+                            Long duplicateId = ((Number) ids.get(i)).longValue();
+                            // Delete GradoMateria for duplicate
+                            entityManager.createNativeQuery("DELETE FROM grado_materia WHERE id_materia = :dup")
+                                    .setParameter("dup", duplicateId).executeUpdate();
 
-                        // 1b. Move Notes from Duplicate Asignacion to Master Asignacion (now safe from
-                        // collision)
-                        entityManager.createNativeQuery(
-                                "UPDATE nota SET id_asignacion = ad_master.id_asignacion " +
-                                        "FROM asignacion_docente ad_dup, asignacion_docente ad_master " +
-                                        "WHERE nota.id_asignacion = ad_dup.id_asignacion " +
-                                        "AND ad_dup.id_materia = :dup " +
-                                        "AND ad_master.id_materia = :master " +
-                                        "AND ad_dup.id_profesor = ad_master.id_profesor " +
-                                        "AND ad_dup.id_curso = ad_master.id_curso " +
-                                        "AND ad_dup.id_gestion = ad_master.id_gestion")
-                                .setParameter("dup", duplicateId)
-                                .setParameter("master", masterId)
-                                .executeUpdate();
+                            // 1a. Delete Notes on Master that collide with Notes on Dup
+                            entityManager.createNativeQuery(
+                                    "DELETE FROM nota n_master USING asignacion_docente ad_master " +
+                                            "WHERE n_master.id_asignacion = ad_master.id_asignacion AND ad_master.id_materia = :master "
+                                            +
+                                            "AND EXISTS (SELECT 1 FROM nota n_dup JOIN asignacion_docente ad_dup ON n_dup.id_asignacion = ad_dup.id_asignacion "
+                                            +
+                                            "WHERE ad_dup.id_materia = :dup AND n_dup.id_estudiante = n_master.id_estudiante AND n_dup.trimestre = n_master.trimestre "
+                                            +
+                                            "AND ad_dup.id_profesor = ad_master.id_profesor AND ad_dup.id_curso = ad_master.id_curso AND ad_dup.id_gestion = ad_master.id_gestion)")
+                                    .setParameter("dup", duplicateId).setParameter("master", masterId).executeUpdate();
 
-                        // 1c. Delete Horarios linked to Duplicate Asignacion (to allow deletion of
-                        // Asignacion)
-                        entityManager.createNativeQuery(
-                                "DELETE FROM horarios WHERE id_asignacion IN (SELECT id_asignacion FROM asignacion_docente WHERE id_materia = :dup)")
-                                .setParameter("dup", duplicateId)
-                                .executeUpdate();
+                            // 1b. Move Notes from Duplicate Asignacion to Master Asignacion
+                            entityManager.createNativeQuery(
+                                    "UPDATE nota SET id_asignacion = ad_master.id_asignacion FROM asignacion_docente ad_dup, asignacion_docente ad_master "
+                                            +
+                                            "WHERE nota.id_asignacion = ad_dup.id_asignacion AND ad_dup.id_materia = :dup AND ad_master.id_materia = :master "
+                                            +
+                                            "AND ad_dup.id_profesor = ad_master.id_profesor AND ad_dup.id_curso = ad_master.id_curso AND ad_dup.id_gestion = ad_master.id_gestion")
+                                    .setParameter("dup", duplicateId).setParameter("master", masterId).executeUpdate();
 
-                        // 2. Delete Duplicate Asignaciones that successfully moved notes (collided)
-                        entityManager.createNativeQuery(
-                                "DELETE FROM asignacion_docente ad_dup " +
-                                        "WHERE ad_dup.id_materia = :dup " +
-                                        "AND EXISTS (SELECT 1 FROM asignacion_docente ad_master " +
-                                        "WHERE ad_master.id_materia = :master " +
-                                        "AND ad_master.id_profesor = ad_dup.id_profesor " +
-                                        "AND ad_master.id_curso = ad_dup.id_curso " +
-                                        "AND ad_master.id_gestion = ad_dup.id_gestion)")
-                                .setParameter("dup", duplicateId)
-                                .setParameter("master", masterId)
-                                .executeUpdate();
+                            // 1c. Delete Horarios linked to Duplicate Asignacion
+                            entityManager.createNativeQuery(
+                                    "DELETE FROM horarios WHERE id_asignacion IN (SELECT id_asignacion FROM asignacion_docente WHERE id_materia = :dup)")
+                                    .setParameter("dup", duplicateId).executeUpdate();
 
-                        // 3. Relink execution remaining AsignacionDocente (no collision)
-                        entityManager
-                                .createNativeQuery(
-                                        "UPDATE asignacion_docente SET id_materia = :master WHERE id_materia = :dup")
-                                .setParameter("master", masterId)
-                                .setParameter("dup", duplicateId)
-                                .executeUpdate();
+                            // 2. Delete Duplicate Asignaciones
+                            entityManager.createNativeQuery(
+                                    "DELETE FROM asignacion_docente ad_dup WHERE ad_dup.id_materia = :dup AND EXISTS (SELECT 1 FROM asignacion_docente ad_master "
+                                            +
+                                            "WHERE ad_master.id_materia = :master AND ad_master.id_profesor = ad_dup.id_profesor AND ad_master.id_curso = ad_dup.id_curso AND ad_master.id_gestion = ad_dup.id_gestion)")
+                                    .setParameter("dup", duplicateId).setParameter("master", masterId).executeUpdate();
 
-                        // Delete Duplicate Materia
-                        entityManager.createNativeQuery("DELETE FROM materia WHERE id_materia = :dup")
-                                .setParameter("dup", duplicateId)
-                                .executeUpdate();
+                            // 3. Relink execution remaining AsignacionDocente
+                            entityManager.createNativeQuery(
+                                    "UPDATE asignacion_docente SET id_materia = :master WHERE id_materia = :dup")
+                                    .setParameter("master", masterId).setParameter("dup", duplicateId).executeUpdate();
+
+                            // Delete Duplicate Materia
+                            entityManager.createNativeQuery("DELETE FROM materia WHERE id_materia = :dup")
+                                    .setParameter("dup", duplicateId).executeUpdate();
+                        }
                     }
-                }
-                log.info("MIGRATION SQL: Fixed duplicate 'Matemáticas'");
+                    log.info("MIGRATION SQL: Fixed duplicate 'Matemáticas'");
 
-            } catch (Exception e) {
-                log.warn("Migration SQL failed (might be harmless if first run): " + e.getMessage());
-                e.printStackTrace(); // PRINT TRACE FOR MIGRATION
-            }
-
-            // 0.5 MIGRATION: Fix NULL dimensions in Nota table for existing records
-            try {
-                // Check if we need to update nulls to 0.0
-                int updated = entityManager.createNativeQuery(
-                        "UPDATE nota SET " +
-                                "ser = COALESCE(ser, 0), " +
-                                "saber = COALESCE(saber, 0), " +
-                                "hacer = COALESCE(hacer, 0), " +
-                                "decidir = COALESCE(decidir, 0), " +
-                                "autoevaluacion = COALESCE(autoevaluacion, 0), " +
-                                "nota_final = COALESCE(nota_final, valor, 0) " + // Copy from old valor if needed
-                                "WHERE ser IS NULL OR nota_final IS NULL")
-                        .executeUpdate();
-                if (updated > 0) {
-                    log.info("MIGRATION SQL: Updated {} notes with NULL dimensions/nota_final.", updated);
+                } catch (Exception e) {
+                    log.warn("Migration SQL failed (might be harmless if first run): " + e.getMessage());
+                    e.printStackTrace();
                 }
-            } catch (Exception e) {
-                log.warn("Migration 0.5 failed (maybe columns don't exist yet/first run?): " + e.getMessage());
+
+                // 0.5 MIGRATION: Fix NULL dimensions
+                try {
+                    int updated = entityManager.createNativeQuery(
+                            "UPDATE nota SET ser = COALESCE(ser, 0), saber = COALESCE(saber, 0), hacer = COALESCE(hacer, 0), decidir = COALESCE(decidir, 0), "
+                                    +
+                                    "autoevaluacion = COALESCE(autoevaluacion, 0), nota_final = COALESCE(nota_final, valor, 0) WHERE ser IS NULL OR nota_final IS NULL")
+                            .executeUpdate();
+                    if (updated > 0)
+                        log.info("MIGRATION SQL: Updated {} notes with NULL dimensions/nota_final.", updated);
+                } catch (Exception e) {
+                    log.warn("Migration 0.5 failed: " + e.getMessage());
+                }
+            } else {
+                log.info("Skipping raw SQL migrations in test profile.");
             }
 
             // 1. Roles
-            inicializarRoles();
+            new org.springframework.transaction.support.TransactionTemplate(platformTransactionManager)
+                    .executeWithoutResult(status -> {
+                        inicializarRoles();
 
-            // 2. Unidad Educativa y Configuración Inicial
-            UnidadEducativa ue = inicializarUnidadEducativa();
+                        // 2. Unidad Educativa y Configuración Inicial
+                        UnidadEducativa ue = inicializarUnidadEducativa();
 
-            // 3. Inicializar Malla y Gestión (SchoolInitializationService)
-            schoolInitializationService.initializeSchool(ue);
+                        // 3. Inicializar Malla y Gestión (SchoolInitializationService)
+                        schoolInitializationService.initializeSchool(ue);
 
-            // 4. Usuarios por Defecto
-            inicializarUsuarios(ue);
+                        // 4. Usuarios por Defecto
+                        inicializarUsuarios(ue);
 
-            // 5. Cursos para la Gestión Actual (si no existen)
-            inicializarCursos(ue);
+                        // 5. Cursos para la Gestión Actual (si no existen)
+                        inicializarCursos(ue);
 
-            // 6. Registros Académicos (Materia->Profesor->Inscripción->Notas)
-            inicializarRegistrosAcademicos(ue);
+                        // 6. Registros Académicos (Materia->Profesor->Inscripción->Notas)
+                        inicializarRegistrosAcademicos(ue);
 
-            // 7. Finanzas (Tipos de Pago -> Cuentas por Cobrar)
-            inicializarFinanzas(ue);
+                        // 7. Finanzas (Tipos de Pago -> Cuentas por Cobrar)
+                        inicializarFinanzas(ue);
+                    });
 
             log.info("Inicialización completada exitosamente.");
 

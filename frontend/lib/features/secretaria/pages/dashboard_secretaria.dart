@@ -1,10 +1,8 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
-import '../../../core/api_config.dart';
-import '../../../core/services/auth_service.dart';
+import '../../../core/api.dart';
 import '../../../shared/widgets/main_scaffold.dart';
 
 class DashboardSecretaria extends StatefulWidget {
@@ -15,7 +13,7 @@ class DashboardSecretaria extends StatefulWidget {
 }
 
 class _DashboardSecretariaState extends State<DashboardSecretaria> {
-  final AuthService _authService = AuthService();
+
   bool _isLoading = true;
   Map<String, dynamic>? _resumenDia;
   String? _error;
@@ -29,24 +27,29 @@ class _DashboardSecretariaState extends State<DashboardSecretaria> {
   Future<void> _cargarResumenDia() async {
     setState(() => _isLoading = true);
     try {
-      final token = await _authService.getToken();
-      final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/api/reportes/cierre-diario'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
+      final response = await dio.get('/reportes/cierre-diario');
 
       if (response.statusCode == 200) {
         setState(() {
-          _resumenDia = jsonDecode(response.body);
+          _resumenDia = response.data;
           _isLoading = false;
         });
       } else {
         // Si hay error (ej. usuario nuevo sin movimientos), mostramos ceros o mensaje suave
         setState(() {
           _error = 'No se pudo cargar el resumen';
+          _isLoading = false;
+        });
+      }
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+             setState(() {
+          _resumenDia = { 'totalDia': 0, 'transacciones': 0, 'fecha': DateTime.now().toIso8601String() };
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _error = 'Error de conexión';
           _isLoading = false;
         });
       }

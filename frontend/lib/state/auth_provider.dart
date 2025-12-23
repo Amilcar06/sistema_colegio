@@ -4,6 +4,10 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import '../core/storage.dart';
 
 class AuthProvider with ChangeNotifier {
+  final TokenStorage _storage;
+
+  AuthProvider({TokenStorage? storage}) : _storage = storage ?? defaultTokenStorage;
+
   String? _token;
   String? _rol;
 
@@ -15,19 +19,19 @@ class AuthProvider with ChangeNotifier {
   Future<void> login(String token, String rol) async {
     _token = token;
     _rol = rol;
-    await saveToken(token);
+    await _storage.saveToken(token);
     notifyListeners();
   }
 
   Future<void> logout() async {
     _token = null;
     _rol = null;
-    await deleteToken();
+    await _storage.deleteToken();
     notifyListeners();
   }
 
   Future<void> checkAuthOnStart() async {
-    final storedToken = await readToken();
+    final storedToken = await _storage.readToken();
     if (storedToken != null) {
       if (JwtDecoder.isExpired(storedToken)) {
         await logout();

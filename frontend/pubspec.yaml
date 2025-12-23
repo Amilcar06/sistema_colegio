@@ -23,8 +23,9 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
-  build_runner: ^2.4.6        # Necesario si usas json_serializable
+  build_runner: ^2.5.4        # Necesario si usas json_serializable
   json_serializable: ^6.7.1   # Para convertir objetos a JSON fácilmente
+  mockito: ^5.4.6
 
 flutter:
   uses-material-design: true
