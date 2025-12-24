@@ -4,10 +4,12 @@ import com.unidadeducativa.personas.profesor.dto.ProfesorRequestDTO;
 import com.unidadeducativa.personas.profesor.dto.ProfesorResponseDTO;
 import com.unidadeducativa.personas.profesor.dto.ProfesorUpdateDTO;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface IProfesorService {
-    List<ProfesorResponseDTO> listarProfesores(Boolean estado);
+    Page<ProfesorResponseDTO> listarProfesores(Boolean estado, Pageable pageable);
 
     ProfesorResponseDTO obtenerPorId(Long id);
 

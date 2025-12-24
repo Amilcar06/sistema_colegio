@@ -7,7 +7,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Stage 2: Run the application
-FROM eclipse-temurin:21-jdk-alpine
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 COPY --from=build /app/target/backend-0.0.1-SNAPSHOT.jar app.jar
 

@@ -5,6 +5,8 @@ import com.unidadeducativa.usuario.model.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,7 +16,7 @@ public interface EstudianteRepository extends JpaRepository<Estudiante, Long> {
 
     Optional<Estudiante> findByUsuario(Usuario usuario);
 
-    List<Estudiante> findByUsuarioEstado(Boolean estado);
+    Page<Estudiante> findByUsuarioEstado(Boolean estado, Pageable pageable);
 
     List<Estudiante> findByUsuario_UnidadEducativa_IdUnidadEducativa(Long idUnidadEducativa);
 }

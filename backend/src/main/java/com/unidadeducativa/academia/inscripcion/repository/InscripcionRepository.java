@@ -11,9 +11,15 @@ public interface InscripcionRepository extends JpaRepository<Inscripcion, Long> 
 
         List<Inscripcion> findByEstudianteIdEstudiante(Long idEstudiante);
 
-        List<Inscripcion> findByCursoIdCurso(Long idCurso);
+        org.springframework.data.domain.Page<Inscripcion> findByGestionIdGestion(Long idGestion,
+                        org.springframework.data.domain.Pageable pageable);
 
         List<Inscripcion> findByGestionIdGestion(Long idGestion);
+
+        org.springframework.data.domain.Page<Inscripcion> findByCursoIdCurso(Long idCurso,
+                        org.springframework.data.domain.Pageable pageable);
+
+        List<Inscripcion> findByCursoIdCurso(Long idCurso);
 
         List<Inscripcion> findByCursoIdCursoAndGestionIdGestion(Long idCurso, Long idGestion);
 

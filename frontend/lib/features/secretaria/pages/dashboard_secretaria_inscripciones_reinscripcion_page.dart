@@ -7,6 +7,7 @@ import '../../estudiante/models/estudiante_response.dart';
 import '../../director/services/curso_service.dart';
 import '../../director/models/curso.dart';
 import '../services/inscripcion_service.dart';
+import '../../estudiante/services/estudiante_service.dart';
 
 class ReinscripcionPage extends StatefulWidget {
   const ReinscripcionPage({super.key});
@@ -24,18 +25,15 @@ class _ReinscripcionPageState extends State<ReinscripcionPage> {
   List<Curso> _cursosDisponibles = [];
   bool _isLoadingCursos = false;
   bool _isProcessing = false;
+  bool _isSearching = false;
 
   final CursoService _cursoService = CursoService();
   final InscripcionService _inscripcionService = InscripcionService();
+  final EstudianteService _estudianteService = EstudianteService(); // Direct service usage
 
   @override
   void initState() {
     super.initState();
-    // Load students on init? Or search on demand? 
-    // Loading all might be heavy if there are thousands. For now, let's load all as per controller logic.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<EstudianteController>().cargarEstudiantes();
-    });
     _cargarCursos();
   }
 
@@ -47,33 +45,47 @@ class _ReinscripcionPageState extends State<ReinscripcionPage> {
         _cursosDisponibles = cursos;
       });
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al cargar cursos: $e')),
-      );
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al cargar cursos: $e')),
+        );
     } finally {
-      setState(() => _isLoadingCursos = false);
+      if (mounted) setState(() => _isLoadingCursos = false);
     }
   }
 
-  void _filtrarEstudiantes(String query) {
-    final todos = context.read<EstudianteController>().estudiantes;
-    if (query.isEmpty) {
-      setState(() => _estudiantesFiltrados = []);
-      return;
-    }
+  Future<void> _buscarEstudiante() async {
+    final query = _searchController.text.trim();
+    if (query.isEmpty) return;
+
     setState(() {
-      _estudiantesFiltrados = todos.where((e) {
-        final nombreCompleto = '${e.nombres} ${e.apellidoPaterno} ${e.apellidoMaterno ?? ''}'.toLowerCase();
-        final ci = e.ci.toLowerCase();
-        return nombreCompleto.contains(query.toLowerCase()) || ci.contains(query.toLowerCase());
-      }).take(10).toList(); // Limit suggestions
+      _isSearching = true;
+      _estudiantesFiltrados = [];
+      _estudianteSeleccionado = null;
     });
+
+    try {
+      // Use direct service search instead of controller.estudiantes (which is incomplete)
+      final results = await _estudianteService.buscarPorCI(query);
+      setState(() {
+        _estudiantesFiltrados = results;
+      });
+       if (results.isEmpty) {
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No se encontraron estudiantes')));
+      }
+    } catch (e) {
+      if (mounted) 
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error al buscar: $e')));
+    } finally {
+      if (mounted) setState(() => _isSearching = false);
+    }
   }
 
   void _seleccionarEstudiante(EstudianteResponseDTO est) {
     setState(() {
       _estudianteSeleccionado = est;
-      _searchController.text = '${est.nombres} ${est.apellidoPaterno}';
+      // Keep search text to show what was found, or update?
+      // _searchController.text = est.ci; // Maybe keep CI
       _estudiantesFiltrados = [];
     });
   }
@@ -84,7 +96,7 @@ class _ReinscripcionPageState extends State<ReinscripcionPage> {
     setState(() => _isProcessing = true);
     try {
       await _inscripcionService.registrarInscripcion(
-        _estudianteSeleccionado!.idEstudiante,
+        _estudianteSeleccionado!.idEstudiante!, // Null safety check
         _cursoSeleccionado!.idCurso,
       );
 
@@ -139,7 +151,7 @@ class _ReinscripcionPageState extends State<ReinscripcionPage> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = context.watch<EstudianteController>();
+    // Removed dependency on EstudianteController for list
 
     return MainScaffold(
       title: 'Re-inscripción Estudiantes Antiguos',
@@ -158,18 +170,29 @@ class _ReinscripcionPageState extends State<ReinscripcionPage> {
                   children: [
                     const Text('1. Buscar Estudiante', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 12),
-                    TextField(
-                      controller: _searchController,
-                      decoration: InputDecoration(
-                        labelText: 'Buscar por Nombre o CI',
-                        prefixIcon: const Icon(Icons.search),
-                        suffixIcon: controller.cargando 
-                            ? const SizedBox(width: 20, height: 20, child: Padding(padding: EdgeInsets.all(10), child: CircularProgressIndicator(strokeWidth: 2))) 
-                            : IconButton(icon: const Icon(Icons.clear), onPressed: _limpiarFormulario),
-                        border: const OutlineInputBorder(),
+                     Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _searchController,
+                              decoration: const InputDecoration(
+                                labelText: 'Buscar por CI',
+                                border: OutlineInputBorder(),
+                                prefixIcon: Icon(Icons.search),
+                              ),
+                              onSubmitted: (_) => _buscarEstudiante(),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          IconButton.filled(
+                            onPressed: _isSearching ? null : _buscarEstudiante, 
+                            icon: _isSearching 
+                              ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                              : const Icon(Icons.search),
+                          )
+                        ],
                       ),
-                      onChanged: _filtrarEstudiantes,
-                    ),
+                    
                     if (_estudiantesFiltrados.isNotEmpty)
                       Container(
                         decoration: BoxDecoration(
@@ -185,7 +208,7 @@ class _ReinscripcionPageState extends State<ReinscripcionPage> {
                           itemBuilder: (context, index) {
                             final est = _estudiantesFiltrados[index];
                             return ListTile(
-                              leading: CircleAvatar(child: Text(est.nombres[0])),
+                              leading: CircleAvatar(child: Text(est.nombres.isNotEmpty ? est.nombres[0] : '?')),
                               title: Text('${est.nombres} ${est.apellidoPaterno}'),
                               subtitle: Text('CI: ${est.ci}'),
                               onTap: () => _seleccionarEstudiante(est),
@@ -224,6 +247,7 @@ class _ReinscripcionPageState extends State<ReinscripcionPage> {
                             Text('Tutor: ${_estudianteSeleccionado!.nombrePadre ?? _estudianteSeleccionado!.nombreMadre ?? "No registrado"}'),
                           ],
                         ),
+                        trailing: IconButton(icon: const Icon(Icons.close), onPressed: () => setState(() => _estudianteSeleccionado = null)),
                       ),
                     ],
                   ),

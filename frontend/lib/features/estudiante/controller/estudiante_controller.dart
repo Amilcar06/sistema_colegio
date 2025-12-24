@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:unidad_educatica_frontend/features/estudiante/models/estudiante_request.dart';
 import '../models/estudiante_response.dart';
+import 'package:unidad_educatica_frontend/shared/models/page_response.dart';
 import '../models/estudiante_registro_completo.dart';
 import '../services/estudiante_service.dart';
 import 'package:intl/intl.dart';
@@ -29,6 +30,11 @@ class EstudianteController with ChangeNotifier {
       cargando = false;
       notifyListeners();
     }
+  }
+
+  /// Listar estudiantes paginado
+  Future<PageResponse<EstudianteResponseDTO>> listarPaginated(int page, int size) async {
+      return _service.listarPaginated(page: page, size: size);
   }
 
   /// Registrar nuevo estudiante

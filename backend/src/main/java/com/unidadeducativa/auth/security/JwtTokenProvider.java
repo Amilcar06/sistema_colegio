@@ -28,7 +28,7 @@ public class JwtTokenProvider {
 
     @PostConstruct
     public void init() {
-        this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
+        this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes(java.nio.charset.StandardCharsets.UTF_8));
     }
 
     public String generateToken(UserDetails userDetails) {
@@ -43,7 +43,6 @@ public class JwtTokenProvider {
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
-
 
     public String extractUsername(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build()

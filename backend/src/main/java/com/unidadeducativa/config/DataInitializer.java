@@ -170,7 +170,7 @@ public class DataInitializer implements CommandLineRunner {
 
                 } catch (Exception e) {
                     log.warn("Migration SQL failed (might be harmless if first run): " + e.getMessage());
-                    e.printStackTrace();
+                    log.error("Migration Error Stack", e);
                 }
 
                 // 0.5 MIGRATION: Fix NULL dimensions
@@ -217,7 +217,7 @@ public class DataInitializer implements CommandLineRunner {
 
         } catch (Exception e) {
             log.error("CRITICAL ERROR IN DATA INITIALIZER", e);
-            e.printStackTrace();
+            // e.printStackTrace(); // Already logged above
             throw e; // Rethrow to fail startup if critical
         }
     }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/usuario_request.dart';
 import '../models/usuario_response.dart';
+import 'package:unidad_educatica_frontend/shared/models/page_response.dart';
 import '../models/actualizar_password.dart';
 import '../models/usuario_sin_rol_request.dart';
 import '../services/usuario_service.dart';
@@ -29,6 +30,14 @@ class UsuarioController with ChangeNotifier {
       cargando = false;
       notifyListeners();
     }
+  }
+
+  Future<PageResponse<UsuarioResponseDTO>> listarPaginated(int page, int size) async {
+    // Preserving logic: Controller seems to load Secretarias by default. 
+    // If we wanted to load all, we'd use listarUsuariosPaginated.
+    // Given the context of "UsuariosListPage" and previous code calling "listarUsuariosSecretarias",
+    // we use "listarUsuariosSecretariasPaginated".
+    return _service.listarUsuariosSecretariasPaginated(page: page, size: size);
   }
 
   /// Registrar un director (sin rol explícito)

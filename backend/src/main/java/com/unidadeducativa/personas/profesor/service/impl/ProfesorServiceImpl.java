@@ -1,5 +1,6 @@
 package com.unidadeducativa.personas.profesor.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import com.unidadeducativa.exceptions.NotFoundException;
 import com.unidadeducativa.personas.profesor.dto.ProfesorRequestDTO;
 import com.unidadeducativa.personas.profesor.dto.ProfesorResponseDTO;
@@ -18,6 +19,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
@@ -25,6 +28,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ProfesorServiceImpl implements IProfesorService {
 
     private final ProfesorRepository profesorRepository;
@@ -36,13 +40,17 @@ public class ProfesorServiceImpl implements IProfesorService {
     private final com.unidadeducativa.academia.horario.repository.HorarioRepository horarioRepository;
 
     @Override
-    public List<ProfesorResponseDTO> listarProfesores(Boolean estado) {
-        List<Profesor> profesores = (estado == null)
-                ? profesorRepository.findAll()
-                : profesorRepository.findByUsuario_Estado(estado);
-        return profesores.stream()
-                .map(profesorMapper::toDTO)
-                .collect(Collectors.toList());
+    public Page<ProfesorResponseDTO> listarProfesores(Boolean estado, Pageable pageable) {
+        Page<Profesor> profesores = (estado == null)
+                ? profesorRepository.findAll(pageable)
+                : profesorRepository.findByUsuario_Estado(estado, pageable);
+
+        return profesores.map(profesor -> {
+            ProfesorResponseDTO dto = profesorMapper.toDTO(profesor);
+            // Optimization: Do not send base64 photo in lists
+            dto.setFotoPerfil(null);
+            return dto;
+        });
     }
 
     @Override
@@ -109,7 +117,7 @@ public class ProfesorServiceImpl implements IProfesorService {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error asignando Unidad Educativa del creador", e);
         }
 
         usuarioRepository.save(usuario);

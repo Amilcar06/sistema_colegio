@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 @RestController
@@ -28,8 +30,8 @@ public class UsuarioController {
 
         @GetMapping("/secretarias")
         @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_DIRECTOR')")
-        public ResponseEntity<List<UsuarioResponseDTO>> listarUsuariosSecretarias() {
-                return ResponseEntity.ok(usuarioService.listarUsuariosSecretarias());
+        public ResponseEntity<Page<UsuarioResponseDTO>> listarUsuariosSecretarias(Pageable pageable) {
+                return ResponseEntity.ok(usuarioService.listarUsuariosSecretarias(pageable));
         }
 
         @PostMapping("/registro-director")
@@ -52,8 +54,8 @@ public class UsuarioController {
         @ApiResponse(responseCode = "200", description = "Lista de usuarios obtenida correctamente")
         @PreAuthorize("hasRole('ROLE_ADMIN')")
         @GetMapping
-        public ResponseEntity<List<UsuarioResponseDTO>> listarTodos() {
-                return ResponseEntity.ok(usuarioService.listarUsuarios());
+        public ResponseEntity<Page<UsuarioResponseDTO>> listarTodos(Pageable pageable) {
+                return ResponseEntity.ok(usuarioService.listarUsuarios(pageable));
         }
 
         @Operation(summary = "Obtener un usuario por ID", description = "Recupera los datos de un usuario a partir de su ID.")

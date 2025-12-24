@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:unidad_educatica_frontend/core/api.dart';
 import '../models/estudiante_response.dart';
+import 'package:unidad_educatica_frontend/shared/models/page_response.dart';
 import '../models/estudiante_registro_completo.dart';
 import '../models/estudiante_request.dart';
 
@@ -25,23 +26,44 @@ class EstudianteService {
       'direccion': dto.direccion,
       'telefonoPadre': dto.telefonoPadre,
       'telefonoMadre': dto.telefonoMadre,
-      'telefonoPadre': dto.telefonoPadre,
-      'telefonoMadre': dto.telefonoMadre,
       'nombrePadre': dto.nombrePadre,
       'nombreMadre': dto.nombreMadre,
-      'contrasena': dto.password, // Ahora sí enviamos la contraseña si se proporciona
+      'contrasena': dto.password, 
     };
     
     final response = await dio.put('/estudiantes/$idEstudiante', data: data);
     return EstudianteResponseDTO.fromJson(response.data);
   }
 
-  /// Listar todos los estudiantes
+  /// Listar todos los estudiantes (DEPRECADO, usar listarPaginated)
   Future<List<EstudianteResponseDTO>> listar() async {
     final response = await dio.get('/estudiantes');
-    return (response.data as List)
-        .map((e) => EstudianteResponseDTO.fromJson(e))
-        .toList();
+    return (response.data['content'] != null) 
+        ? (response.data['content'] as List).map((e) => EstudianteResponseDTO.fromJson(e)).toList()
+        : (response.data as List).map((e) => EstudianteResponseDTO.fromJson(e)).toList();
+  }
+
+  /// Listar estudiantes paginado
+  Future<PageResponse<EstudianteResponseDTO>> listarPaginated({int page = 0, int size = 20, bool? activo}) async {
+    final query = <String, dynamic>{
+      'page': page,
+      'size': size,
+    };
+    if (activo != null) {
+      query['activo'] = activo;
+    }
+
+    final response = await dio.get('/estudiantes', queryParameters: query);
+    return PageResponse<EstudianteResponseDTO>.fromJson(
+      response.data, 
+      (json) => EstudianteResponseDTO.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
+  /// Buscar estudiantes por CI
+  Future<List<EstudianteResponseDTO>> buscarPorCI(String query) async {
+    final response = await dio.get('/estudiantes/buscar', queryParameters: {'ci': query});
+    return (response.data as List).map((e) => EstudianteResponseDTO.fromJson(e)).toList();
   }
 
   /// Obtener perfil del estudiante autenticado

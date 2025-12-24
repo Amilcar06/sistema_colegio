@@ -15,6 +15,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 @RestController
@@ -33,9 +35,9 @@ public class ProfesorController {
         @ApiResponse(responseCode = "200", description = "Profesores listados correctamente", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProfesorResponseDTO.class))))
         @PreAuthorize("hasAnyRole('ROLE_DIRECTOR', 'ROLE_SECRETARIA')")
         @GetMapping
-        public ResponseEntity<List<ProfesorResponseDTO>> listarProfesores(
-                        @RequestParam(required = false) Boolean activo) {
-                return ResponseEntity.ok(profesorService.listarProfesores(activo));
+        public ResponseEntity<Page<ProfesorResponseDTO>> listarProfesores(
+                        @RequestParam(required = false) Boolean activo, Pageable pageable) {
+                return ResponseEntity.ok(profesorService.listarProfesores(activo, pageable));
         }
 
         @Operation(summary = "Obtener profesor por ID", description = "Devuelve los datos de un profesor por su ID. Acceso solo para DIRECTOR o SECRETARIA.")

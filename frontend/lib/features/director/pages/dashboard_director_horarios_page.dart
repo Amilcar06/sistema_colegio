@@ -331,28 +331,31 @@ class _DashboardDirectorHorariosPageState
   }
 
   Widget _buildWeeklyGrid() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Time Column (Fixed LEft)
-        SizedBox(
-          width: 50,
-          child: _buildTimeColumn(),
-        ),
-        // Scrollable Content
-        Expanded(
-          child: SingleChildScrollView(
-            controller: _horizontalController,
-            scrollDirection: Axis.horizontal,
-            child: SizedBox(
-              width: _dayColumnWidth * _dias.length,
-              child: Row(
-                children: _dias.map((dia) => SizedBox(width: _dayColumnWidth, child: _buildDayColumn(dia))).toList(),
+    return SingleChildScrollView(
+      scrollDirection: Axis.vertical,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Time Column (Fixed LEft)
+          SizedBox(
+            width: 50,
+            child: _buildTimeColumn(),
+          ),
+          // Scrollable Content
+          Expanded(
+            child: SingleChildScrollView(
+              controller: _horizontalController,
+              scrollDirection: Axis.horizontal,
+              child: SizedBox(
+                width: _dayColumnWidth * _dias.length,
+                child: Row(
+                  children: _dias.map((dia) => SizedBox(width: _dayColumnWidth, child: _buildDayColumn(dia))).toList(),
+                ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

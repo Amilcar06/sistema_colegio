@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:unidad_educatica_frontend/core/api.dart';
 import '../models/usuario_request.dart';
 import '../models/usuario_response.dart';
+import 'package:unidad_educatica_frontend/shared/models/page_response.dart';
 import '../models/actualizar_password.dart';
 import '../models/usuario_sin_rol_request.dart';
 
@@ -27,17 +28,33 @@ class UsuarioService {
   /// Listar todos los usuarios
   Future<List<UsuarioResponseDTO>> listarUsuarios() async {
     final response = await dio.get('/usuarios');
-    return (response.data as List)
-        .map((e) => UsuarioResponseDTO.fromJson(e))
-        .toList();
+    return (response.data['content'] != null)
+        ? (response.data['content'] as List).map((e) => UsuarioResponseDTO.fromJson(e)).toList()
+        : (response.data as List).map((e) => UsuarioResponseDTO.fromJson(e)).toList();
+  }
+
+  Future<PageResponse<UsuarioResponseDTO>> listarUsuariosPaginated({int page = 0, int size = 20}) async {
+    final response = await dio.get('/usuarios', queryParameters: {'page': page, 'size': size});
+    return PageResponse<UsuarioResponseDTO>.fromJson(
+      response.data,
+      (json) => UsuarioResponseDTO.fromJson(json as Map<String, dynamic>),
+    );
   }
 
   /// Listar todos los usuarios
   Future<List<UsuarioResponseDTO>> listarUsuariosSecretarias() async {
     final response = await dio.get('/usuarios/secretarias');
-    return (response.data as List)
-        .map((e) => UsuarioResponseDTO.fromJson(e))
-        .toList();
+    return (response.data['content'] != null)
+        ? (response.data['content'] as List).map((e) => UsuarioResponseDTO.fromJson(e)).toList()
+        : (response.data as List).map((e) => UsuarioResponseDTO.fromJson(e)).toList();
+  }
+
+  Future<PageResponse<UsuarioResponseDTO>> listarUsuariosSecretariasPaginated({int page = 0, int size = 20}) async {
+    final response = await dio.get('/usuarios/secretarias', queryParameters: {'page': page, 'size': size});
+    return PageResponse<UsuarioResponseDTO>.fromJson(
+      response.data,
+      (json) => UsuarioResponseDTO.fromJson(json as Map<String, dynamic>),
+    );
   }
 
   /// Obtener un usuario por su ID

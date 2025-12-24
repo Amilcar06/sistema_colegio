@@ -14,7 +14,7 @@ El director tiene acceso a la gestión de usuarios y dashboard.
 | **Registrar Director** | `/usuarios/registro-director` | `/api/usuarios/registro-director` | ✅ Correcto |
 | **Registrar Secretaria**| `/usuarios/registro-secretaria`| `/api/usuarios/registro-secretaria`| ✅ Correcto |
 | **Ver Perfil** | `/usuarios/me` | `/api/usuarios/me` | ✅ Correcto |
-| **Cambiar Password** | `/usuarios/password` | `/api/usuarios/me/contrasena` | ❌ **Error de Ruta** |
+| **Cambiar Password** | `/usuarios/me/contrasena` | `/api/usuarios/me/contrasena` | ✅ Correcto |
 
 *( * ) Nota: El Backend usa un ID hardcodeado (1L) temporalmente, pero la conexión es funcional.*
 *( **Error** ): El frontend llama a `/password` pero el backend espera `/me/contrasena`. Esto fallará con 404.*

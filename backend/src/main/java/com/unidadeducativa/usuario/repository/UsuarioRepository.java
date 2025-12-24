@@ -22,4 +22,8 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     long countByRol_NombreAndUnidadEducativa_IdUnidadEducativa(com.unidadeducativa.shared.enums.RolNombre nombre,
             Long idUnidadEducativa);
+
+    org.springframework.data.domain.Page<Usuario> findByRol_NombreIn(
+            java.util.List<com.unidadeducativa.shared.enums.RolNombre> roles,
+            org.springframework.data.domain.Pageable pageable);
 }

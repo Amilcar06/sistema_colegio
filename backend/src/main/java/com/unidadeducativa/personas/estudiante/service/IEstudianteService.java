@@ -4,10 +4,12 @@ import com.unidadeducativa.personas.estudiante.dto.EstudianteRequestDTO;
 import com.unidadeducativa.personas.estudiante.dto.EstudianteResponseDTO;
 import com.unidadeducativa.personas.estudiante.dto.EstudianteUpdateDTO;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface IEstudianteService {
-  List<EstudianteResponseDTO> listarEstudiantes(Boolean estado);
+  Page<EstudianteResponseDTO> listarEstudiantes(Boolean estado, Pageable pageable);
 
   EstudianteResponseDTO obtenerPorId(Long id);
 

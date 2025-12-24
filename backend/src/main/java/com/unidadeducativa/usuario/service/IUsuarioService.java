@@ -6,11 +6,13 @@ import com.unidadeducativa.usuario.dto.UsuarioResponseDTO;
 import com.unidadeducativa.usuario.dto.UsuarioSinRolRequestDTO;
 import com.unidadeducativa.usuario.dto.UsuarioUpdateDTO;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface IUsuarioService {
     // BÁSICOS
-    List<UsuarioResponseDTO> listarUsuarios();
+    Page<UsuarioResponseDTO> listarUsuarios(Pageable pageable);
 
     UsuarioResponseDTO obtenerPorId(Long id);
 
@@ -21,7 +23,7 @@ public interface IUsuarioService {
     void eliminarUsuario(Long id);
 
     // ENDPOINTS ESPECIFICOS PARA EL FRONTEND (DIRECTOR)
-    List<UsuarioResponseDTO> listarUsuariosSecretarias(); // Lista Admins, Directores y Secretarias
+    Page<UsuarioResponseDTO> listarUsuariosSecretarias(Pageable pageable); // Lista Admins, Directores y Secretarias
 
     UsuarioResponseDTO registrarDirector(UsuarioSinRolRequestDTO dto);
 

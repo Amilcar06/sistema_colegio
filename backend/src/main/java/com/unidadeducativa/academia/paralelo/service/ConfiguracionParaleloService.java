@@ -1,5 +1,6 @@
 package com.unidadeducativa.academia.paralelo.service;
 
+import lombok.extern.slf4j.Slf4j;
 import com.unidadeducativa.academia.paralelo.dto.ConfiguracionParaleloDTO;
 import com.unidadeducativa.academia.paralelo.model.ConfiguracionParalelo;
 import com.unidadeducativa.academia.paralelo.repository.ConfiguracionParaleloRepository;
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ConfiguracionParaleloService {
 
     private final ConfiguracionParaleloRepository repository;
@@ -24,7 +26,7 @@ public class ConfiguracionParaleloService {
                     .map(this::mapToDTO)
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error al listar paralelos", e);
             throw e;
         }
     }

@@ -1,4 +1,9 @@
 # Sistema de Gestión Académica - "Unidad Educativa"
+> [!TIP]
+> **Documentación Disponible:**
+> - 📘 [Manual de Usuario](./MANUAL_USUARIO.md)
+> - 🛠️ [Guía de Instalación y Despliegue](./GUIA_INSTALACION.md)
+> - 🚀 [Pipeline CI/CD](.github/workflows/ci-cd.yml)
 
 Este proyecto es un sistema integral para la administración de unidades educativas, cubriendo procesos académicos, financieros y administrativos.
 

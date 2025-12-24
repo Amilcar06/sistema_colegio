@@ -1,5 +1,6 @@
 package com.unidadeducativa.personas.estudiante.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import com.unidadeducativa.exceptions.NotFoundException;
 import com.unidadeducativa.personas.estudiante.dto.EstudianteRequestDTO;
 import com.unidadeducativa.personas.estudiante.dto.EstudianteResponseDTO;
@@ -19,6 +20,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
@@ -28,6 +31,7 @@ import com.unidadeducativa.academia.inscripcion.repository.InscripcionRepository
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EstudianteServiceImpl implements IEstudianteService {
 
     private final EstudianteRepository estudianteRepository;
@@ -38,11 +42,17 @@ public class EstudianteServiceImpl implements IEstudianteService {
     private final InscripcionRepository inscripcionRepository;
 
     @Override
-    public List<EstudianteResponseDTO> listarEstudiantes(Boolean estado) {
-        List<Estudiante> estudiantes = (estado == null)
-                ? estudianteRepository.findAll()
-                : estudianteRepository.findByUsuarioEstado(estado);
-        return estudiantes.stream().map(estudianteMapper::toDTO).collect(Collectors.toList());
+    public Page<EstudianteResponseDTO> listarEstudiantes(Boolean estado, Pageable pageable) {
+        Page<Estudiante> estudiantes = (estado == null)
+                ? estudianteRepository.findAll(pageable)
+                : estudianteRepository.findByUsuarioEstado(estado, pageable);
+
+        return estudiantes.map(estudiante -> {
+            EstudianteResponseDTO dto = estudianteMapper.toDTO(estudiante);
+            // Optimization: Do not send base64 photo in lists
+            dto.setFotoPerfil(null);
+            return dto;
+        });
     }
 
     @Override
@@ -128,7 +138,7 @@ public class EstudianteServiceImpl implements IEstudianteService {
                 System.out.println("No hay contexto de seguridad o es anonymousUser");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error asignando Unidad Educativa del creador", e);
             // Ignorar si no hay contexto de seguridad (ej. Seeder)
         }
 

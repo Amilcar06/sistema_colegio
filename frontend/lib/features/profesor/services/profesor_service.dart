@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import '../../../core/api.dart';
 import '../models/profesor_registro_completo.dart';
 import '../models/profesor_response.dart';
+import 'package:unidad_educatica_frontend/shared/models/page_response.dart';
 import '../models/dashboard_profesor_stats.dart';
 import '../models/asignacion_docente_response.dart';
 import '../models/boletin_notas_model.dart';
@@ -10,9 +11,25 @@ import '../models/boletin_notas_model.dart';
 class ProfesorService {
   Future<List<ProfesorResponseDTO>> listarProfesores() async {
     final response = await dio.get('/profesores');
-    return (response.data as List)
-        .map((e) => ProfesorResponseDTO.fromJson(e))
-        .toList();
+    return (response.data['content'] != null)
+        ? (response.data['content'] as List).map((e) => ProfesorResponseDTO.fromJson(e)).toList()
+        : (response.data as List).map((e) => ProfesorResponseDTO.fromJson(e)).toList();
+  }
+
+  Future<PageResponse<ProfesorResponseDTO>> listarPaginated({int page = 0, int size = 20, bool? activo}) async {
+    final query = <String, dynamic>{
+      'page': page,
+      'size': size,
+    };
+    if (activo != null) {
+      query['activo'] = activo;
+    }
+
+    final response = await dio.get('/profesores', queryParameters: query);
+    return PageResponse<ProfesorResponseDTO>.fromJson(
+      response.data,
+      (json) => ProfesorResponseDTO.fromJson(json as Map<String, dynamic>),
+    );
   }
 
   Future<ProfesorResponseDTO> registrarProfesorCompleto(ProfesorRegistroCompletoDTO dto) async {

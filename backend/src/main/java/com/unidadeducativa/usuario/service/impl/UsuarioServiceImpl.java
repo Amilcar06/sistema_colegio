@@ -14,6 +14,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 @Service
@@ -30,11 +32,13 @@ public class UsuarioServiceImpl implements IUsuarioService {
     // ========================
 
     @Override
-    public List<UsuarioResponseDTO> listarUsuarios() {
-        return usuarioRepository.findAll()
-                .stream()
-                .map(usuarioMapper::toDTO)
-                .toList();
+    public Page<UsuarioResponseDTO> listarUsuarios(Pageable pageable) {
+        return usuarioRepository.findAll(pageable)
+                .map(usuario -> {
+                    UsuarioResponseDTO dto = usuarioMapper.toDTO(usuario);
+                    dto.setFotoPerfil(null);
+                    return dto;
+                });
     }
 
     @Override
@@ -99,17 +103,19 @@ public class UsuarioServiceImpl implements IUsuarioService {
     // ==========================================
 
     @Override
-    public List<UsuarioResponseDTO> listarUsuariosSecretarias() {
+    public Page<UsuarioResponseDTO> listarUsuariosSecretarias(Pageable pageable) {
         // Retornar usuarios con rol ADMIN, DIRECTOR o SECRETARIA
-        // Podriamos hacerlo con una query custom JPA, o filtrando en stream (menos
-        // eficiente pero rapido de implementar ahora)
-        return usuarioRepository.findAll().stream()
-                .filter(u -> {
-                    String r = u.getRol().getNombre().name().toUpperCase();
-                    return r.equals("ADMIN") || r.equals("DIRECTOR") || r.equals("SECRETARIA");
-                })
-                .map(usuarioMapper::toDTO)
-                .toList();
+        List<com.unidadeducativa.shared.enums.RolNombre> roles = List.of(
+                com.unidadeducativa.shared.enums.RolNombre.ADMIN,
+                com.unidadeducativa.shared.enums.RolNombre.DIRECTOR,
+                com.unidadeducativa.shared.enums.RolNombre.SECRETARIA);
+
+        return usuarioRepository.findByRol_NombreIn(roles, pageable)
+                .map(usuario -> {
+                    UsuarioResponseDTO dto = usuarioMapper.toDTO(usuario);
+                    dto.setFotoPerfil(null);
+                    return dto;
+                });
     }
 
     @Override
