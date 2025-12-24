@@ -196,8 +196,14 @@ class _TipoPagoFormDialogState extends State<_TipoPagoFormDialog> {
   final _nombreCtrl = TextEditingController();
   final _montoCtrl = TextEditingController();
   final _fechaCtrl = TextEditingController(); // YYYY-MM-DD
+  
+  String _categoria = 'EXTRA';
+  bool _esObligatorio = false;
+
   final TipoPensionService _service = TipoPensionService();
   bool _saving = false;
+
+  final List<String> _categorias = ['MENSUALIDAD', 'MATRICULA', 'EXTRA', 'OTRO'];
 
   @override
   void initState() {
@@ -206,6 +212,8 @@ class _TipoPagoFormDialogState extends State<_TipoPagoFormDialog> {
       _nombreCtrl.text = widget.item!['nombre'];
       _montoCtrl.text = widget.item!['montoDefecto'].toString();
       _fechaCtrl.text = widget.item!['fechaLimite'] ?? '';
+      _categoria = widget.item!['categoria'] ?? 'EXTRA';
+      _esObligatorio = widget.item!['esObligatorio'] ?? false;
     }
   }
 
@@ -218,6 +226,8 @@ class _TipoPagoFormDialogState extends State<_TipoPagoFormDialog> {
       'montoDefecto': double.parse(_montoCtrl.text),
       'fechaLimite': _fechaCtrl.text.isEmpty ? null : _fechaCtrl.text,
       'idGestion': widget.idGestion,
+      'categoria': _categoria,
+      'esObligatorio': _esObligatorio,
     };
 
     try {
@@ -267,6 +277,20 @@ class _TipoPagoFormDialogState extends State<_TipoPagoFormDialog> {
                   labelText: 'Fecha Límite (YYYY-MM-DD)',
                   hintText: 'Ej. 2025-03-10',
                 ),
+              ),
+               const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: _categoria,
+                items: _categorias.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+                onChanged: (v) => setState(() => _categoria = v!),
+                decoration: const InputDecoration(labelText: 'Categoría'),
+              ),
+              const SizedBox(height: 10),
+              SwitchListTile(
+                title: const Text('¿Es Obligatorio?'),
+                subtitle: const Text('Generará deuda para todos los estudiantes'),
+                value: _esObligatorio,
+                onChanged: (v) => setState(() => _esObligatorio = v),
               ),
             ],
           ),

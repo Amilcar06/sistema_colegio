@@ -29,4 +29,7 @@ public interface InscripcionRepository extends JpaRepository<Inscripcion, Long> 
 
         List<Inscripcion> findByCursoIdCursoAndEstado(Long idCurso,
                         com.unidadeducativa.shared.enums.EstadoInscripcion estado);
+
+        List<Inscripcion> findByGestionAndEstado(com.unidadeducativa.academia.gestion.model.GestionAcademica gestion,
+                        com.unidadeducativa.shared.enums.EstadoInscripcion estado);
 }

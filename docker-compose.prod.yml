@@ -1,0 +1,66 @@
+services:
+  # Database Service
+  db:
+    image: postgres:15-alpine
+    container_name: unidad_edu_db_prod
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME:-unidad_educativa}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-123456}
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend Service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: unidad_edu_backend_prod
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Database Connection
+      DB_URL: jdbc:postgresql://db:5432/${DB_NAME:-unidad_educativa}
+      DB_USERNAME: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-123456}
+      # JWT Configuration
+      JWT_SECRET: ${JWT_SECRET:-dgFClpu7PD4T4MGsI1RUdlXcG8O3tAvcBHlTB7pOAP8=}
+      JWT_EXPIRATION: 86400000
+      # CORS (Allow Frontend container/browser access)
+      CORS_ALLOWED_ORIGINS: http://localhost,http://localhost:3000
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+
+  # Frontend Service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: unidad_edu_frontend_prod
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    networks:
+      - app-network
+
+volumes:
+  postgres_data_prod:
+
+
+networks:
+  app-network:
+    driver: bridge

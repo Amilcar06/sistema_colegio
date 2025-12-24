@@ -39,4 +39,13 @@ public class TipoPago {
     @JoinColumn(name = "id_gestion", nullable = false)
     @com.fasterxml.jackson.annotation.JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private GestionAcademica gestion;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private com.unidadeducativa.shared.enums.CategoriaPago categoria = com.unidadeducativa.shared.enums.CategoriaPago.OTRO;
+
+    @Column(name = "es_obligatorio", nullable = false)
+    @Builder.Default
+    private boolean esObligatorio = false;
 }

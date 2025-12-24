@@ -4,6 +4,9 @@ import '../../../shared/widgets/main_scaffold.dart';
 import '../../estudiante/controller/estudiante_controller.dart';
 import '../../estudiante/models/estudiante_response.dart';
 import '../../estudiante/services/pago_service.dart';
+import '../../finanzas/services/finanzas_service.dart';
+import '../../finanzas/models/estado_cuenta.dart';
+import '../../finanzas/ui/widgets/payment_status_grid.dart';
 
 class CobrarPensionPage extends StatefulWidget {
   const CobrarPensionPage({super.key});
@@ -15,11 +18,14 @@ class CobrarPensionPage extends StatefulWidget {
 class _CobrarPensionPageState extends State<CobrarPensionPage> {
   final TextEditingController _searchController = TextEditingController();
   final PagoService _pagoService = PagoService();
+  final FinanzasService _finanzasService = FinanzasService();
   
   List<EstudianteResponseDTO> _estudiantesSugestiones = [];
   EstudianteResponseDTO? _estudianteSeleccionado;
   
-  List<dynamic> _cuentasPorCobrar = [];
+  // List<dynamic> _cuentasPorCobrar = []; // Replaced by EstadoCuenta
+  EstadoCuenta? _estadoCuenta;
+
   bool _isLoadingDeudas = false;
   bool _isPaying = false;
 
@@ -52,18 +58,32 @@ class _CobrarPensionPageState extends State<CobrarPensionPage> {
       _searchController.text = '${est.nombres} ${est.apellidoPaterno}';
       _estudiantesSugestiones = [];
       _isLoadingDeudas = true;
+      _estadoCuenta = null;
     });
 
     try {
-      final deudas = await _pagoService.listarDeudas(est.idEstudiante);
+      final estado = await _finanzasService.getEstadoCuenta(est.idEstudiante);
       setState(() {
-        _cuentasPorCobrar = deudas;
+        _estadoCuenta = estado;
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error al cargar deudas: $e')));
     } finally {
       setState(() => _isLoadingDeudas = false);
     }
+  }
+
+  void _mostrarDialogoPagoDesdeItem(ItemEstadoCuenta item) {
+    if (item.estado == 'PAGADO') return;
+
+    final map = {
+      'idCuentaCobrar': item.idCuentaCobrar,
+      'concepto': item.concepto,
+      'montoTotal': item.monto,
+      'montoPagado': item.monto - item.saldoPendiente,
+      'estado': item.estado,
+    };
+    _mostrarDialogoPago(map);
   }
 
   void _mostrarDialogoPago(Map<String, dynamic> cuenta) {
@@ -170,7 +190,7 @@ class _CobrarPensionPageState extends State<CobrarPensionPage> {
                     _searchController.clear();
                     setState(() {
                       _estudianteSeleccionado = null;
-                      _cuentasPorCobrar = [];
+                      _estadoCuenta = null;
                       _estudiantesSugestiones = [];
                     });
                   },
@@ -204,52 +224,46 @@ class _CobrarPensionPageState extends State<CobrarPensionPage> {
             
             if (_isLoadingDeudas)
                const Center(child: CircularProgressIndicator())
-            else if (_estudianteSeleccionado != null)
+            else if (_estudianteSeleccionado != null && _estadoCuenta != null)
                Expanded(
-                 child: Column(
-                   crossAxisAlignment: CrossAxisAlignment.start,
-                   children: [
-                     Text(
-                       'Cuentas por Cobrar: ${_estudianteSeleccionado!.nombres} ${_estudianteSeleccionado!.apellidoPaterno}',
-                       style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                     ),
-                     const SizedBox(height: 10),
-                     if (_cuentasPorCobrar.isEmpty)
-                       const Center(child: Text('No tiene deudas pendientes.'))
-                     else
-                       Expanded(
-                         child: ListView.builder(
-                           itemCount: _cuentasPorCobrar.length,
-                           itemBuilder: (context, index) {
-                             final cuenta = _cuentasPorCobrar[index];
-                             final saldo = (cuenta['montoTotal'] ?? 0.0) - (cuenta['montoPagado'] ?? 0.0);
-                             final estado = cuenta['estado'] ?? 'PENDIENTE';
-                             
-                             return Card(
-                               color: estado == 'PAGADO' ? Colors.green.shade50 : Colors.orange.shade50,
-                               child: ListTile(
-                                 title: Text(cuenta['concepto'] ?? 'Sin concepto'),
-                                 subtitle: Text('Total: Bs ${cuenta['montoTotal']} - Pagado: Bs ${cuenta['montoPagado']}'),
-                                 trailing: Row(
-                                   mainAxisSize: MainAxisSize.min,
-                                   children: [
-                                     Text('Saldo: Bs $saldo', style: const TextStyle(fontWeight: FontWeight.bold)),
-                                     const SizedBox(width: 8),
-                                     if (saldo > 0)
-                                       FilledButton(
-                                         onPressed: _isPaying ? null : () => _mostrarDialogoPago(cuenta),
-                                         child: const Text('Cobrar'),
-                                       )
-                                     else
-                                       const Icon(Icons.check_circle, color: Colors.green),
-                                   ],
-                                 ),
-                               ),
-                             );
-                           },
-                         ),
+                 child: SingleChildScrollView(
+                   child: Column(
+                     crossAxisAlignment: CrossAxisAlignment.start,
+                     children: [
+                       Text(
+                         'Cuentas: ${_estudianteSeleccionado!.nombres} ${_estudianteSeleccionado!.apellidoPaterno}',
+                         style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                        ),
-                   ],
+                       const SizedBox(height: 20),
+                       
+                       // GRID DE MENSUALIDADES
+                       PaymentStatusGrid(
+                          mensualidades: _estadoCuenta!.mensualidades,
+                          onMonthSelected: _mostrarDialogoPagoDesdeItem,
+                       ),
+                       
+                       const SizedBox(height: 20),
+                       if (_estadoCuenta!.extras.isNotEmpty) ...[
+                         Text("Otros Pagos", style: Theme.of(context).textTheme.titleMedium),
+                         const SizedBox(height: 10),
+                         ..._estadoCuenta!.extras.map((item) {
+                           final saldo = item.saldoPendiente;
+                           return Card(
+                             child: ListTile(
+                               title: Text(item.concepto),
+                               subtitle: Text('Saldo: Bs $saldo - Estado: ${item.estado}'),
+                               trailing: saldo > 0 
+                                  ? FilledButton(
+                                      onPressed: () => _mostrarDialogoPagoDesdeItem(item),
+                                      child: const Text('Cobrar'),
+                                    )
+                                  : const Icon(Icons.check_circle, color: Colors.green),
+                             ),
+                           );
+                         }).toList(),
+                       ],
+                     ],
+                   ),
                  ),
                ),
           ],

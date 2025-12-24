@@ -26,6 +26,7 @@ public class TipoPagoServiceImpl implements ITipoPagoService {
     private final GestionRepository gestionRepository;
     private final com.unidadeducativa.academia.inscripcion.repository.InscripcionRepository inscripcionRepository;
     private final TipoPagoMapper tipoPagoMapper;
+    private final com.unidadeducativa.finanzas.service.PaymentGenerationService paymentGenerationService;
 
     @Override
     @Transactional
@@ -34,7 +35,13 @@ public class TipoPagoServiceImpl implements ITipoPagoService {
         tipoPago.setUnidadEducativa(usuarioAuditor.getUnidadEducativa());
         tipoPago.setGestion(gestionRepository.findById(request.getIdGestion())
                 .orElseThrow(() -> new RuntimeException("Gestión no encontrada")));
-        return tipoPagoRepository.save(tipoPago);
+
+        TipoPago saved = tipoPagoRepository.save(tipoPago);
+
+        if (saved.isEsObligatorio()) {
+            paymentGenerationService.generarDeudaMasiva(saved);
+        }
+        return saved;
     }
 
     @Override
@@ -54,31 +61,7 @@ public class TipoPagoServiceImpl implements ITipoPagoService {
             throw new RuntimeException("No tiene permiso para gestionar este pago");
         }
 
-        // Obtener estudiantes inscritos en la gestión del pago
-        List<Estudiante> estudiantes = inscripcionRepository
-                .findByGestionIdGestion(tipoPago.getGestion().getIdGestion())
-                .stream()
-                .map(com.unidadeducativa.academia.inscripcion.model.Inscripcion::getEstudiante)
-                .distinct()
-                .collect(java.util.stream.Collectors.toList());
-
-        for (Estudiante estudiante : estudiantes) {
-            // Verificar si ya tiene deuda
-            boolean existe = cuentaCobrarRepository.findByEstudiante_IdEstudiante(estudiante.getIdEstudiante())
-                    .stream().anyMatch(c -> c.getTipoPago().getIdTipoPago().equals(idTipoPago));
-
-            if (!existe) {
-                CuentaCobrar cuenta = CuentaCobrar.builder()
-                        .estudiante(estudiante)
-                        .tipoPago(tipoPago)
-                        .monto(tipoPago.getMontoDefecto())
-                        .saldoPendiente(tipoPago.getMontoDefecto())
-                        .estado(EstadoPago.PENDIENTE)
-                        .fechaVencimiento(tipoPago.getFechaLimite())
-                        .build();
-                cuentaCobrarRepository.save(cuenta);
-            }
-        }
+        paymentGenerationService.generarDeudaMasiva(tipoPago);
     }
 
     @Override

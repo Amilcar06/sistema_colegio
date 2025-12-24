@@ -1,14 +1,19 @@
-# Dockerfile para Spring Boot app
-FROM eclipse-temurin:21-jdk-alpine
-
-# Crear un directorio para la app
+# Stage 1: Build the application
+FROM maven:3.9.6-eclipse-temurin-21-alpine AS build
 WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+# Skip tests to speed up verified build (tests ran in CI)
+RUN mvn clean package -DskipTests
 
-# Copiar el archivo jar (ajusta el nombre si es necesario)
-COPY target/backend-0.0.1-SNAPSHOT.jar app.jar
+# Stage 2: Run the application
+FROM eclipse-temurin:21-jdk-alpine
+WORKDIR /app
+COPY --from=build /app/target/backend-0.0.1-SNAPSHOT.jar app.jar
 
-# Exponer el puerto (ajusta si usas otro puerto)
+# Create a non-root user for security
+RUN addgroup -S spring && adduser -S spring -G spring
+USER spring:spring
+
 EXPOSE 8080
-
-# Comando para ejecutar el jar
 ENTRYPOINT ["java", "-jar", "app.jar"]

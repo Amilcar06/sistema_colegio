@@ -438,34 +438,51 @@ public class DataInitializer implements CommandLineRunner {
                 .findByAnioAndUnidadEducativa_IdUnidadEducativa(year, ue.getIdUnidadEducativa())
                 .orElseThrow();
 
-        // Tipo Pago: Mensualidad Febrero
-        TipoPago tipoPago = tipoPagoRepository.findByNombre("Mensualidad Febrero 2025")
-                .orElseGet(() -> tipoPagoRepository.save(TipoPago.builder()
-                        .nombre("Mensualidad Febrero 2025")
-                        .montoDefecto(new BigDecimal("350.00"))
-                        .gestion(gestion)
-                        .unidadEducativa(ue)
-                        .build()));
+        // Meses de Febrero a Noviembre (10 mensualidades)
+        String[] meses = { "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre",
+                "Noviembre" };
 
-        if (tipoPago.getUnidadEducativa() == null) {
-            tipoPago.setUnidadEducativa(ue);
-            tipoPagoRepository.save(tipoPago);
-        }
-
-        // Generar deuda para todos los estudiantes
         List<Estudiante> estudiantes = estudianteRepository.findAll();
-        for (Estudiante est : estudiantes) {
-            if (!cuentaCobrarRepository.existsByEstudianteAndTipoPago(est, tipoPago)) {
-                cuentaCobrarRepository.save(CuentaCobrar.builder()
-                        .estudiante(est)
-                        .tipoPago(tipoPago)
-                        .monto(tipoPago.getMontoDefecto())
-                        .saldoPendiente(tipoPago.getMontoDefecto()) // Todo pendiente
-                        .fechaVencimiento(LocalDate.of(2026, 2, 28)) // Future date to avoid blocking
-                        .estado(EstadoPago.PENDIENTE)
-                        .build());
-                log.info("Deuda generada para {}", est.getUsuario().getNombres());
+
+        for (int i = 0; i < meses.length; i++) {
+            String nombreMes = meses[i];
+            String concepto = "Mensualidad " + nombreMes + " " + year;
+
+            // Mes logico: Febrero es 2. i=0 -> 2, i=1 -> 3
+            int mesNumero = i + 2;
+            // Fecha limite: Dia 10 del mes
+            LocalDate fechaLimite = LocalDate.of(year, mesNumero, 10);
+
+            TipoPago tipoPago = tipoPagoRepository.findByNombre(concepto)
+                    .orElseGet(() -> tipoPagoRepository.save(TipoPago.builder()
+                            .nombre(concepto)
+                            .montoDefecto(new BigDecimal("350.00"))
+                            .gestion(gestion)
+                            .unidadEducativa(ue)
+                            .categoria(com.unidadeducativa.shared.enums.CategoriaPago.MENSUALIDAD)
+                            .esObligatorio(true)
+                            .fechaLimite(fechaLimite)
+                            .build()));
+
+            if (tipoPago.getUnidadEducativa() == null) {
+                tipoPago.setUnidadEducativa(ue);
+                tipoPagoRepository.save(tipoPago);
             }
+
+            // Generar deuda para todos los estudiantes
+            for (Estudiante est : estudiantes) {
+                if (!cuentaCobrarRepository.existsByEstudianteAndTipoPago(est, tipoPago)) {
+                    cuentaCobrarRepository.save(CuentaCobrar.builder()
+                            .estudiante(est)
+                            .tipoPago(tipoPago)
+                            .monto(tipoPago.getMontoDefecto())
+                            .saldoPendiente(tipoPago.getMontoDefecto()) // Todo pendiente
+                            .fechaVencimiento(fechaLimite)
+                            .estado(EstadoPago.PENDIENTE)
+                            .build());
+                }
+            }
+            log.info("Deudas generadas para concepto: {}", concepto);
         }
     }
 }

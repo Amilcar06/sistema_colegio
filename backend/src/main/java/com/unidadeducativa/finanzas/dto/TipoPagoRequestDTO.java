@@ -25,4 +25,6 @@ public class TipoPagoRequestDTO {
 
     private LocalDate fechaLimite;
     private Long idGestion;
+    private com.unidadeducativa.shared.enums.CategoriaPago categoria;
+    private boolean esObligatorio;
 }
